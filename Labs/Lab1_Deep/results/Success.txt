@@ -1,0 +1,9 @@
+Success!!
+Average error on weights= 9.91610580525069e-07
+Average error on bias= 2.568943245455744e-10
+Success!!
+Average error on weights= 1.2837960808789981e-06
+Average error on bias= 1.0723855482814881e-09
+Success!!
+Average error on weights= 9.296593847810003e-07
+Average error on bias= 4.0175683160487004e-10

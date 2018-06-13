@@ -1,0 +1,2 @@
+# DD2424_Deep_Learning_in_Data_Science
+DD2424_Deep_Learning_in_Data_Science Labs
