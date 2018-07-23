@@ -291,8 +291,8 @@ def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
 
     return W1, b1, W2, b2
 
-def ComputeGradients(X, Y, W1, b1, W2, b2, regularization_term):
 
+def ComputeGradients(X, Y, W1, b1, W2, b2, regularization_term):
     """
     Computes gradient descent updates on a batch of data
 
@@ -310,23 +310,36 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, regularization_term):
     # Evaluate the classifier to the batch
     p, h, s1 = EvaluateClassifier(X=X, W1=W1, b1=b1, W2=W2, b2=b2)
 
-    # Back-propagate second layer at first
+    grad_W1 = np.zeros(W1.shape)
+    grad_b1 = np.zeros(b1.shape)
 
-    # Gradient of J w.r.t second bias vector is the g vector:
-    g = (Y-p).T
-    grad_b2= np.sum(g, axis=0).reshape(b2.shape[0],1) / X.shape[0]
-    # Gradient of J w.r.t second weight matrix is the matrix:
-    grad_W2 = np.dot(g.T, h.T) / 255 + 2 * regularization_term * W2
+    grad_W2 = np.zeros(W2.shape)
+    grad_b2 = np.zeros(b2.shape)
 
-    # Back-propagate the gradient vector g to the first layer
-    g= g.T * np.diag(s1>0).reshape(X.shape[1], 1)
+    for datum in range(X.shape[1]):
+        # Back-propagate second layer at first
 
-    grad_b1= np.sum(g, axis=1).reshape(b1.shape[0], 1) / X.shape[0]
-    grad_W1= np.dot(g.T , X.T) / X.shape[0]
+        # Gradient of J w.r.t second bias vector is the g vector:
+        g = (Y[:, datum] - p[:, datum]).reshape(Y.shape[0], 1).T
+        grad_b2 += g.T
+        # Gradient of J w.r.t second weight matrix is the matrix:
+        grad_W2 += np.dot(g.T, h[:, datum].reshape(h.shape[0], 1).T)
+
+        # Back-propagate the gradient vector g to the first layer
+        g = np.copy(np.dot(g, W2))
+        g = np.copy(np.dot(g, np.diag(1 * (s1[:, datum] > 0))))
+
+        grad_b1 += g.T
+        grad_W1 += np.dot(g.T, X[:, datum].reshape(X.shape[0], 1).T)
+
+    grad_W1 /= X.shape[1]
+    grad_b1 /= X.shape[1]
+    grad_W2 /= X.shape[1]
+    grad_b2 /= X.shape[1]
 
     # Add regularizers
-    grad_W1+= 2 * regularization_term * W1
-    grad_W2+= 2 * regularization_term * W2
+    grad_W1 += 2 * regularization_term * W1
+    grad_W2 += 2 * regularization_term * W2
 
     return grad_W1, grad_b1, grad_W2, grad_b2
 
@@ -370,7 +383,7 @@ def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gra
     gradb1_abs = np.absolute(gradb1)
     gradb1_num_abs = np.absolute(gradb1)
     
-    gradb2_abs = np.absolute(gradb2)t
+    gradb2_abs = np.absolute(gradb2)
     gradb2_num_abs = np.absolute(gradb2)
 
     sum_W1 = gradW1_abs + gradW1_num_abs
