@@ -13,7 +13,7 @@ def LoadBatch(filename):
     def unpickle(file):
         import pickle
         with open(file, 'rb') as fo:
-            dict = pickle.load(fo)
+            dict = pickle.load(fo, encoding='bytes')
         return dict
 
     dictionary = unpickle(filename)
@@ -25,11 +25,11 @@ def LoadBatch(filename):
         except IndexError:
             print('not enough keys')
 
-    garbage = ix(dictionary, 1)
+    garbage = ix(dictionary,1)
     y = dictionary[garbage]
     Y = np.transpose(make_class_categorical(y, 10))
-    garbage = dictionary['data']
-    X = np.transpose(garbage) / 255.0
+    garbage = ix(dictionary,2)
+    X = np.transpose(dictionary[garbage]) / 255
 
     return X, Y, y
 
@@ -119,7 +119,8 @@ def EvaluateClassifier(X, W1, b1, W2, b2):
     """
 
     s1= np.dot(W1,X) + b1
-    h= ReLU(s1)
+    relu= np.vectorize(ReLU)
+    h= relu(s1)
     s= np.dot(W2,h) + b2
     p= softmax(s, axis=1)
 
@@ -313,12 +314,12 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, regularization_term):
 
     # Gradient of J w.r.t second bias vector is the g vector:
     g = (Y-p).T
-    grad_b2= np.sum(g, axis=1).reshape(b2.shape[0],1) / X.shape[0]
+    grad_b2= np.sum(g, axis=0).reshape(b2.shape[0],1) / X.shape[0]
     # Gradient of J w.r.t second weight matrix is the matrix:
     grad_W2 = np.dot(g.T, h.T) / 255 + 2 * regularization_term * W2
 
     # Back-propagate the gradient vector g to the first layer
-    g= np.dot(g,W2) * np.where(s1 >0, 1, 0)
+    g= g.T * np.diag(s1>0).reshape(X.shape[1], 1)
 
     grad_b1= np.sum(g, axis=1).reshape(b1.shape[0], 1) / X.shape[0]
     grad_W1= np.dot(g.T , X.T) / X.shape[0]
@@ -329,6 +330,117 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, regularization_term):
 
     return grad_W1, grad_b1, grad_W2, grad_b2
 
+def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gradW2_num, gradb2_num, threshold):
+
+    """
+    Compares the gradients of both the analytical and numerical method and prints out a message of result 
+    or failure, depending on how close these gradients are between each other.
+    
+    :param gradW1: Gradient of W1, analytically computed
+    :param gradb1: Gradient of b1, analytically computed
+    :param gradW2: Gradient of W2, analytically computed
+    :param gradb2: Gradient of b2, analytically computed
+    :param gradW1_num: Gradient of W1, numerically computed
+    :param gradb1_num: Gradient of b1, numerically computed
+    :param gradW2_num: Gradient of W2, numerically computed
+    :param gradb2_num: Gradient of b2, numerically computed
+
+    :return: None
+    """
+    
+    W1_abs = np.abs(gradW1 - gradW1_num)
+    b1_abs = np.abs(gradb1 - gradb1_num)
+    
+    W2_abs = np.abs(gradW2 - gradW2_num)
+    b2_abs = np.abs(gradb2 - gradb2_num)
+    
+    W1_nominator = np.average(W1_abs)
+    b1_nominator = np.average(b1_abs)
+    
+    W2_nominator = np.average(W2_abs)
+    b2_nominator = np.average(b2_abs)
 
 
+    gradW1_abs = np.absolute(gradW1)
+    gradW1_num_abs = np.absolute(gradW1_num)
+    
+    gradW2_abs = np.absolute(gradW2)
+    gradW2_num_abs = np.absolute(gradW2_num)
 
+    gradb1_abs = np.absolute(gradb1)
+    gradb1_num_abs = np.absolute(gradb1)
+    
+    gradb2_abs = np.absolute(gradb2)t
+    gradb2_num_abs = np.absolute(gradb2)
+
+    sum_W1 = gradW1_abs + gradW1_num_abs
+    sum_W2 = gradW2_abs + gradW2_num_abs
+    sum_b1 = gradb1_abs + gradb1_num_abs
+    sum_b2 = gradb2_abs + gradb2_num_abs
+
+    check_W1 = W1_nominator / np.amax(sum_W1)
+    check_b1 = b1_nominator / np.amax(sum_b1)
+
+    check_W2 = W2_nominator / np.amax(sum_W2)
+    check_b2 = b2_nominator / np.amax(sum_b2)
+
+
+    if check_W1 < threshold and check_b1 < threshold and check_W2< threshold and check_b2< threshold:
+        print( "Success!!")
+        print("Average error on weights of first layer= ", check_W1)
+        print("Average error on bias of first layer=", check_b1)
+        print("Average error on weights of second layer= ", check_W2)
+        print("Average error on bias of second layer= ", check_b2)
+    else:
+        print("Failure")
+        print("Average error on weights of first layer= ", check_W1)
+        print("Average error on bias of first layer=", check_b1)
+        print("Average error on weights of second layer= ", check_W2)
+        print("Average error on bias of second layer= ", check_b2)
+
+def initialize_momentum(hyperparameter):
+    """
+    Initializes the corresponding momentum of a hyperparameter matrix or vector
+
+    :param hyperparameter: The hyperparameter
+    :return: The corresponding momentum
+    """
+
+    return np.zeros(hyperparameter.shape)
+
+def add_momentum(v_t_prev, hyperpatameter, gradient, eta, r=0.99):
+    """
+    Add momentum to the update of the hyperparameter at each update step, in order to speed up training
+
+    :param v_t_prev: The momentum update of the previous time step
+    :param hyperpatameter: The corresponding hyperparameters
+    :param gradient: The value of the gradient update as computed in each time step
+    :param eta: The learning rate of the training process
+    :param r (optional): The momentum factor, typically 0.9 or 0.99
+
+    :return: The updated hyperparameter based on the momentum update
+    """
+
+    v_t= r * v_t_prev + eta * gradient
+
+    return hyperpatameter - v_t
+
+def main():
+
+    X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
+    X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
+    X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
+
+    mean = np.mean(X_training_1, axis=0)
+    X_training_1 -= mean
+    X_training_2 -= mean
+    X_test -= mean
+
+    W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
+
+    grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X=X_training_1[:, 0:20], Y=Y_training_1[:, 0:20], W1=W1,
+                                                          b1=b1, W2=W2, b2=b2, regularization_term=0)
+
+
+if __name__=='__main__':
+    main()
