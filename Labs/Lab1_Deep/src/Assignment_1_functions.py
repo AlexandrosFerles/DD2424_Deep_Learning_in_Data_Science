@@ -197,7 +197,7 @@ def ComputeGradients(X, Y, P, W, regularization_term):
 # ------------------------------------------ MINI-BATCH GRADIENT DESCENT FUNCTIONS ----------------
 
 def MiniBatchGD(X, Y, validation_X, validation_Y, y, y_validation, GDparams, W, b, regularization_term,
-                with_early_stopping, with_patience, patience=10, with_factor_decaying=False):
+                with_early_stopping, with_patience, patience=10, with_factor_decaying=False, with_best_model=False):
     """
     Performs mini batch-gradient descent computations.
 
@@ -225,9 +225,14 @@ def MiniBatchGD(X, Y, validation_X, validation_Y, y, y_validation, GDparams, W, 
         eta = GDparams[1]
     epoches = GDparams[2]
 
+    if with_best_model:
+        best_W = np.copy(W)
+        best_b = np.copy(b)
+        best_validation_set_accuracy = 0
+        best_epoch = -1
+
     cost = []
     val_cost = []
-
 
     early_stopping = 10e8
     early_stopping_cnt = 0
@@ -238,7 +243,7 @@ def MiniBatchGD(X, Y, validation_X, validation_Y, y, y_validation, GDparams, W, 
     temp_W = np.copy(W)
     temp_b = np.copy(b)
 
-    for epoch in range(epoches):
+    for epoch in tqdm(range(epoches)):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches + 1
@@ -259,10 +264,10 @@ def MiniBatchGD(X, Y, validation_X, validation_Y, y, y_validation, GDparams, W, 
             W -= eta * gradW
             b -= eta * gradb
 
-        epoch_cost = ComputeCost(X=X, Y=Y, y=y, W=W, b=b, regularization_term=regularization_term)
-        val_epoch_cost = ComputeCost(X=validation_X, Y=validation_Y, y=y_validation, W=W, b=b, regularization_term=regularization_term)
+        epoch_cost = ComputeCost(X=X, Y=Y, W=W, b=b, regularization_term=regularization_term)
+        val_epoch_cost = ComputeCost(X=validation_X, Y=validation_Y, W=W, b=b, regularization_term=regularization_term)
 
-        # ---------EARLY STOPPING----------
+        # --------- EARLY STOPPING ---------
         if with_early_stopping:
             if with_patience:
                 if early_stopping - val_epoch_cost > 1e-6:
@@ -287,10 +292,25 @@ def MiniBatchGD(X, Y, validation_X, validation_Y, y, y_validation, GDparams, W, 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)
 
+        # --------- KEEPING TRACK OF THE BEST MODEL ---------
+        if with_best_model:
+
+            temp_validation_set_accuracy = ComputeAccuracy(W=W, b=b, X=validation_X, y=y_validation)
+
+            if temp_validation_set_accuracy > best_validation_set_accuracy:
+                best_W = np.copy(W)
+                best_b = np.copy(b)
+                best_validation_set_accuracy = temp_validation_set_accuracy
+                best_epoch = epoch
+
         if with_factor_decaying:
             eta *= 0.9
 
-    return W, b, cost, val_cost
+    if not with_best_model:
+        return W, b, cost, val_cost
+    else:
+        print("Best model was tracked at epoch number: " + str(best_epoch))
+        return best_W, best_b, cost, val_cost
 
 # ------------------------------------------ VISUALIZING FUNCTIONS ----------------
 
@@ -378,13 +398,119 @@ def visualize_image(image_array, display=True):
 
 # ------------------------------------------ IMAGE AUGMENTATION -----------------------------------
 
-def random_rotation(image_array: ndarray, degree = 90):
+def random_noise(image_array):
     """
-    Rotates image.
+    Distorts a numpy image with noise draw from a random distribution.
 
-    :param image_array: The numpy array of the image.
-    :param degree: Amount of degrees that the image will be rotated.
-
-    :return: Rotated image.
+    :param image_array: Numoy array of a CIFAR-10 image
+    :return: Distorted image with random noise
     """
-    return sk.transform.rotate(image_array, degree)
+    return sk.util.random_noise(image_array)
+
+
+def create_augmented_dataset(X, y):
+    """
+    Creates an augmented dataset, by appying random transformations in each datum.
+    The transformed images are then concatenated to the originals, thus extending the original dataset size.
+    One-hot representations and true labels of the generated images are also added in the Y and y matrices.
+
+    :param X: Training data.
+    :param y: Data true labels
+
+    :return: Extended training data, one-hot representations and true labels.
+    """
+    X_augmented = np.copy(X)
+    y_augmented = y.copy()
+
+    from keras.preprocessing.image import ImageDataGenerator
+    datagen = ImageDataGenerator(
+        rotation_range=90,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        horizontal_flip=True)
+
+    data = np.ndarray(shape=(X.shape[1], 32, 32, 3))
+    for datum in range(X.shape[1]):
+        data[datum, :] = X[:, datum].reshape(3, 32, 32).transpose(1, 2, 0)
+
+    cnt = 0
+    augmented = np.ndarray(shape=(3072, X.shape[1]))
+    labels = []
+    for X_batch, y_batch in datagen.flow(data, y, batch_size=1):
+        augmented[:, cnt] = X_batch[0].transpose(2, 1, 0).reshape(3072)
+        labels.append(y_batch[0])
+        cnt += 1
+        if cnt == X.shape[1]:
+            break
+
+    X_augmented = np.copy(np.concatenate((X_augmented, augmented), axis=1))
+    y_augmented.extend(labels)
+    Y_augmented = make_class_categorical(y_augmented, 10).T
+
+    return X_augmented, Y_augmented, y_augmented
+
+
+def ComputeAccuracyEnsemble(X, y, classifiers):
+    """
+    Computes the accuracy derived by an ensemble of different classifiers, with
+    the predictions decided by the majority vote.
+
+    :param X: Input data.
+    :param y: True labels of the input data.
+    :param classifiers: Different classifiers.
+
+    :return: Accuracy of the ensemble.
+    """
+    miss_classified_data = 0
+    solution = dict()
+    classifier_suggestion = dict()
+    classifier_performance = dict()
+
+    for i in range(X.shape[1]):
+
+        for classifier_index in range(len(classifiers)):
+            classifier = classifiers[classifier_index]
+            predicted_class_index = np.argmax(classifier[:, i])
+            classifier_suggestion[classifier_index] = classifier_suggestion.get(classifier_index,
+                                                                                0) + predicted_class_index
+            solution[predicted_class_index] = solution.get(predicted_class_index, 0) + 1
+
+        predicted_class_index = -1
+        count = -1
+
+        best = 0
+
+        for elem in solution:
+
+            if solution[elem] > count:
+                predicted_class_index = elem
+                count = solution[predicted_class_index]
+                best = 1
+
+            elif solution[elem] == count:
+                best += 1
+
+        # more than one classes are equally likely to happen:
+        if best > 1:
+
+            winner = -1
+            for classifier_index in range(len(classifiers)):
+
+                if classifier_suggestion[classifier_index] > winner:
+                    predicted_class_index = classifier_suggestion[classifier_index]
+
+        if (predicted_class_index != y[i]):
+            miss_classified_data += 1
+
+        # rate the performance of all classifiers for future reference
+        for classifier_index in range(len(classifiers)):
+
+            if classifier_suggestion[classifier_index] == y[i]:
+                classifier_performance[classifier_index] = classifier_performance.get(classifier_index, 0) + 1
+            else:
+                classifier_performance[classifier_index] = classifier_performance.get(classifier_index, 0) - 1
+
+        solution.clear()
+        classifier_suggestion.clear()
+
+    return 1 - miss_classified_data / float(X.shape[1])
