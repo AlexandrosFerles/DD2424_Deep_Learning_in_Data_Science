@@ -3,8 +3,6 @@ from matplotlib import pyplot as plt
 from keras.utils import to_categorical as make_class_categorical
 import _pickle as pickle
 from tqdm import tqdm
-import pdb
-
 
 def LoadBatch(filename):
     """
@@ -160,7 +158,7 @@ def ComputeAccuracy(X, y, W1, b1, W2, b2):
     p, _, _ = EvaluateClassifier(X=X, W1=W1, b1=b1, W2=W2, b2=b2)
     predictions = predictClasses(p)
 
-    accuracy = np.sum(np.where(predictions - y == 0, 1, 0))
+    accuracy = round(np.sum(np.where(predictions - y == 0, 1, 0)) * 100 / len(y), 2)
 
     return accuracy
 
@@ -182,11 +180,25 @@ def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term= 0):
 
     p, _, _ = EvaluateClassifier(X=X, W1=W1, b1=b1, W2=W2, b2=b2)
 
-    cross_entropy_loss = np.sum(-np.log(np.dot(Y.T, p)), axis=1).sum() / float(X.shape[0])
+    cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(X.shape[1])
 
     weight_sum = np.power(W1, 2).sum() + np.power(W2, 2).sum()
 
     return cross_entropy_loss + regularization_term * weight_sum
+
+def ComputeCostZer(X, Y, W1, W2, b1, b2, reg=0):
+
+    P, h, S1 = EvaluateClassifier(X, W1, b1, W2, b2)
+
+    lcross = 0
+
+    for input in range(X.shape[1]):
+
+        lcross -= np.log(np.dot(np.transpose(Y[:, input]), P[:, input]))
+
+    J = (1. / float(X.shape[1])) * lcross + reg * (np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2)))
+
+    return J
 
 
 def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
@@ -319,6 +331,9 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term= 0):
     :param b1: Bias vector of the first layer
     :param W2: Weight matrix of the second layer
     :param b2: Bias vector of the second layer
+    :param p: Softmax probabilities (predictions) of the network over classes.
+    :param h: ReLU activations of the network.
+    :param s1: True outout of the first layer of the network.
     :param regularization_term: Contribution of the regularization in the weight updates
 
     :return: Weight and bias updates of the first and second layer of our network
@@ -470,7 +485,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
     cost = []
     val_cost = []
 
-    for epoch in tqdm(range(epoches)):
+    for _ in tqdm(range(epoches)):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches + 1
@@ -485,10 +500,44 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
             W2 -= eta * grad_W2
             b2 -= eta * grad_b2
 
-        epoch_cost = ComputeCost(X[:,start:end], Y[:,start:end], W1, b1, W2, b2)
-        val_epoch_cost = ComputeCost(X_validation[:,start:end], Y_validation[:,start:end], W1, b1, W2, b2)
+        # epoch_cost = ComputeCostZer(X, Y, W1, W2, b1, b2, 0)
+        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
+        # val_epoch_cost = ComputeCostZer(X_validation, Y_validation, W1, W2, b1, b2)
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
-    return W1, b1, W2, b2, epoch_cost, val_epoch_cost
+        cost.append(epoch_cost)
+        val_cost.append(val_epoch_cost)
+
+    return W1, b1, W2, b2, cost, val_cost
+
+def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='./'):
+    """
+    Visualization and saving the loss of the network.
+
+    :param loss: Loss of the network.
+    :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
+    :param title: (Optional) Title of the plot.
+    :param save_name: (Optional) name of the file to save the plot.
+    :param save_path: (Optional) Path of the folder to save the plot in your local computer.
+
+    :return: None
+
+    """
+
+    if title is not None:
+        plt.title(title)
+
+    plt.plot(loss, 'g', label='Training set ')
+    plt.plot(val_loss, 'r', label='Validation set')
+    plt.legend(loc='upper right')
+
+    if display:
+        plt.show()
+    if save_name is not None:
+        if save_path[-1] !='/':
+            save_path+='/'
+        plt.savefig(save_path + save_name)
+        plt.clf()
 
 def sanity_checks():
 
@@ -496,34 +545,47 @@ def sanity_checks():
     X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
     X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
 
-    mean = np.mean(X_training_1)
+    # mean = np.mean(X_training_1)
+    tmp_mean_X_train = np.mean(X_training_1, axis=1).reshape(X_training_1.shape[0], 1)
+    mean = np.dot(tmp_mean_X_train, np.ones((1, X_training_1.shape[1])))
+
     X_training_1 -= mean
     X_training_2 -= mean
     X_test -= mean
 
     W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
 
-    p, h, s1 = EvaluateClassifier(X_training_1[:,0:2], W1, b1, W2, b2)
-    grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X_training_1[:,0:2], Y_training_1[:,0:2], W1, b1, W2, b2, p, h, s1)
-    # grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training_1[:,:2], Y_training_1[:,:2], W1, b1, W2, b2)
+    # p, h, s1 = EvaluateClassifier(X_training_1[:,0:2], W1, b1, W2, b2)
+    # grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradientsZer(X_training_1[:,0:2], Y_training_1[:,0:2], W1, b1, W2, b2, p, h, s1)
+    # # grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training_1[:,:2], Y_training_1[:,:2], W1, b1, W2, b2)
+    #
+    # grad_W1_num = np.load('grad_W1_num.npy')
+    # grad_b1_num = np.load('grad_b1_num.npy')
+    # grad_W2_num = np.load('grad_W2_num.npy')
+    # grad_b2_num = np.load('grad_b2_num.npy')
+    #
+    # check_similarity(grad_W1, grad_b1, grad_W2, grad_b2, grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num)
 
-    grad_W1_num = np.load('grad_W1_num.npy')
-    grad_b1_num = np.load('grad_b1_num.npy')
-    grad_W2_num = np.load('grad_W2_num.npy')
-    grad_b2_num = np.load('grad_b2_num.npy')
-
-    check_similarity(grad_W1, grad_b1, grad_W2, grad_b2, grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num)
-
-    GD_params = [100, 0.01, 200]
-
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training_1[:,:100],
-                                                                            Y_training_1[:,:100],
-                                                                            X_training_2[:,:100],
-                                                                            Y_training_2[:,:100],
-                                                                            y_training_1[:100],
-                                                                            y_training_2[:100],
+    W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
+    GD_params = [100, 0.05, 200]
+    #
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training_1[:, :1000],
+                                                                            Y_training_1[:, :1000],
+                                                                            X_training_2[:, :1000],
+                                                                            Y_training_2[:, :1000],
+                                                                            [], [],
                                                                             GD_params,
                                                                             W1, b1, W2, b2)
+    #
+    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
+
+    training_set_accuracy = ComputeAccuracy(X_training_1, y_training_1, W1, b1, W2, b2)
+    validation_set_accuracy = ComputeAccuracy(X_training_2, y_training_2, W1, b1, W2, b2)
+    test_set_accuracy = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
+
+    print('Training set accuracy: ', training_set_accuracy)
+    print('Valudation set accuracy: ', validation_set_accuracy)
+    print('Test set accuracy: ', test_set_accuracy)
 
 def main():
     X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
@@ -540,6 +602,6 @@ def main():
 if __name__ == '__main__':
 
     sanity_checks()
-
-    main()
+    # sanity1()
+    # main()
 
