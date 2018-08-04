@@ -459,7 +459,7 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
 
     return hyperpatameter - v_t, v_t
 
-def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
+def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
     """
     Performs mini batch-gradient descent computations.
 
@@ -508,7 +508,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
 
     return W1, b1, W2, b2, cost, val_cost
 
-def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.9):
+def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -541,6 +541,8 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
     # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
 
+    original_training_cost = ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)
+
     # for epoch in tqdm(range(epoches)):
     for epoch in range(epoches):
 
@@ -550,7 +552,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
             p, h, s1 = EvaluateClassifier(X[:,start:end], W1, b1, W2, b2)
 
-            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1, regularization_term)
 
             W1, v_W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
             b1, v_b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
@@ -559,6 +561,8 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
         print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
+        if epoch_cost > 3 * original_training_cost:
+            break
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
@@ -688,7 +692,6 @@ def exercise_2():
                                                                             Y_training[:, :1000],
                                                                             X_validation[:, :1000],
                                                                             Y_validation[:, :1000],
-                                                                            [], [],
                                                                             GD_params,
                                                                             W1, b1, W2, b2)
     visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
@@ -711,7 +714,6 @@ def exercise_3():
                                                                                         Y_training[:, :2000],
                                                                                         X_validation[:, :2000],
                                                                                         Y_validation[:, :2000],
-                                                                                        [], [],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -725,7 +727,6 @@ def exercise_3():
                                                                                         Y_training[:, :2000],
                                                                                         X_validation[:, :2000],
                                                                                         Y_validation[:, :2000],
-                                                                                        [], [],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -739,7 +740,6 @@ def exercise_3():
                                                                                         Y_training[:, :500],
                                                                                         X_validation[:, :500],
                                                                                         Y_validation[:, :500],
-                                                                                        [], [],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -771,7 +771,6 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
-                                                                                             [], [],
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
@@ -792,7 +791,6 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
-                                                                                             [], [],
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
@@ -833,7 +831,6 @@ def exercise_4():
                                                                                                  Y_training,
                                                                                                  X_validation,
                                                                                                  Y_validation,
-                                                                                                 [], [],
                                                                                                  GD_params,
                                                                                                  W1, b1, W2, b2,
                                                                                                  regularization_term=regularization_term)
@@ -866,8 +863,8 @@ def exercise_4():
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
 
-    # random_search()
-    coarse_search_1()
+    random_search()
+    # coarse_search_1()
 
 
 
