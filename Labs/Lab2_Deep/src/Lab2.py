@@ -186,21 +186,6 @@ def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term= 0):
 
     return cross_entropy_loss + regularization_term * weight_sum
 
-def ComputeCostZer(X, Y, W1, W2, b1, b2, reg=0):
-
-    P, h, S1 = EvaluateClassifier(X, W1, b1, W2, b2)
-
-    lcross = 0
-
-    for input in range(X.shape[1]):
-
-        lcross -= np.log(np.dot(np.transpose(Y[:, input]), P[:, input]))
-
-    J = (1. / float(X.shape[1])) * lcross + reg * (np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2)))
-
-    return J
-
-
 def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
     """
     Computes gradient descent updates on a batch of data with numerical computations.
