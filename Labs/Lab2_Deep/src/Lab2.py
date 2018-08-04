@@ -452,12 +452,12 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, r=0.99):
     :param eta: The learning rate of the training process
     :param r (optional): The momentum factor, typically 0.9 or 0.99
 
-    :return: The updated hyperparameter based on the momentum update
+    :return: The updated hyperparameter based on the momentum update, and the  momentum update itself
     """
 
     v_t = r * v_t_prev + eta * gradient
 
-    return hyperpatameter - v_t
+    return hyperpatameter - v_t, v_t
 
 def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
     """
@@ -509,6 +509,64 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
         val_cost.append(val_epoch_cost)
 
     return W1, b1, W2, b2, cost, val_cost
+
+def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
+    """
+    Performs mini batch-gradient descent computations.
+
+    :param X: Input batch of data
+    :param Y: One-hot representation of the true labels of the data.
+    :param X_validation: Input batch of validation data.
+    :param Y_validation: One-hot representation of the true labels of the validation data.
+    :param y: True labels of the data.
+    :param y_validation: True labels of the validation data.
+    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
+    :param W1: Weight matrix of the first layer of the network.
+    :param b1: Bias vector of the first layer of the network.
+    :param W2: Weight matrix of the second layer of the network.
+    :param b2: Bias vector of the second layer of the network.
+    :param regularization_term: Amount of regularization applied.
+
+    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
+    """
+    number_of_mini_batches = GDparams[0]
+    eta = GDparams[1]
+    epoches = GDparams[2]
+
+    cost = []
+    val_cost = []
+
+    v_W1 = np.zeros(W1.shape)
+    v_b1 = np.zeros(b1.shape)
+    v_W2 = np.zeros(W2.shape)
+    v_b2 = np.zeros(b2.shape)
+
+    for _ in tqdm(range(epoches)):
+
+        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
+            start = (batch - 1) * number_of_mini_batches + 1
+            end = batch * number_of_mini_batches + 1
+
+            p, h, s1 = EvaluateClassifier(X[:,start:end], W1, b1, W2, b2)
+
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
+
+            W1 -= eta * grad_W1
+            b1 -= eta * grad_b1
+            W2 -= eta * grad_W2
+            b2 -= eta * grad_b2
+
+        # epoch_cost = ComputeCostZer(X, Y, W1, W2, b1, b2, 0)
+        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
+        # val_epoch_cost = ComputeCostZer(X_validation, Y_validation, W1, W2, b1, b2)
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+
+        cost.append(epoch_cost)
+        val_cost.append(val_epoch_cost)
+
+    return W1, b1, W2, b2, cost, val_cost
+
+
 
 def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='./'):
     """
