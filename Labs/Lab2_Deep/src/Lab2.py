@@ -558,8 +558,10 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
             b2, v_b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
 
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
-        print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
-        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+        # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
+        val_epoch_cost = Comp
+
+        uteCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)
@@ -592,10 +594,12 @@ def visualize_single_cost(loss, display= False, title = None, save_name= None, s
         if save_path[-1] != '/':
             save_path += '/'
         plt.savefig(save_path + save_name+'.png')
-        plt.clf()
 
     if display:
         plt.show()
+
+    plt.clf()
+
 
 def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='../figures/'):
     """
@@ -623,10 +627,11 @@ def visualize_costs(loss, val_loss, display= False, title = None, save_name= Non
         if save_path[-1] !='/':
             save_path+='/'
         plt.savefig(save_path + save_name)
-        plt.clf()
 
     if display:
         plt.show()
+
+    plt.clf()
 
 def exercise_1():
     """
@@ -772,7 +777,7 @@ def exercise_4():
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
-                                                                                             momentum_term=0.5)
+                                                                                             momentum_term=0.9)
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
@@ -793,11 +798,35 @@ def exercise_4():
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
-                                                                                             momentum_term=0.5)
+                                                                                             momentum_term=0.9)
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
             visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
+
+    def coarse_search_1(e_min= np.log(0.05), e_max=np.log(0.5)):
+        """
+        First step of coarse searc, optimal value for the learning rate is between 0.05 and 0.5
+
+        :return: Best pair of eta and lambda based on validation set accuracy performance
+        """
+
+        training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+        X_training, Y_training, y_training = training_data
+        X_validation, Y_validation, y_validation = validation_data
+
+        best_validation_set_performance = 0
+        best_eta = -1
+        best_regularization_term = -1
+
+        for eta_term in np.random.rand(1, 1, 10).flatten():
+
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+
+            for regularization_term in [1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1, 10, 100, 1000]:
+
+                GD_params = [100, eta, 10]
 
     random_search()
 
