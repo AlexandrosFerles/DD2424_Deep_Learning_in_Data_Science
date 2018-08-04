@@ -551,10 +551,10 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
             grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
 
-            W1 -= eta * grad_W1
-            b1 -= eta * grad_b1
-            W2 -= eta * grad_W2
-            b2 -= eta * grad_b2
+            W1 = add_momentum(v_W1, W1, grad_W1, eta)
+            b1 = add_momentum(v_b1, b1, grad_b1, eta)
+            W2 = add_momentum(v_W2, W2, grad_W2, eta)
+            b2 = add_momentum(v_b2, b2, grad_b2, eta)
 
         # epoch_cost = ComputeCostZer(X, Y, W1, W2, b1, b2, 0)
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
