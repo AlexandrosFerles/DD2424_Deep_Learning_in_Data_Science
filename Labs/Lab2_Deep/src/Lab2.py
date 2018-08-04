@@ -569,7 +569,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
     return W1, b1, W2, b2, cost, val_cost
 
-def visualize_single_cost(loss, display= False, title = None, save_name= None, save_path='../figures'):
+def visualize_single_cost(loss, display= False, title = None, save_name= None, save_path='../figures/'):
     """
         Visualization and saving the loss of the network.
 
@@ -588,16 +588,16 @@ def visualize_single_cost(loss, display= False, title = None, save_name= None, s
 
     plt.plot(loss)
 
-    if display:
-        plt.show()
     if save_name is not None:
         if save_path[-1] != '/':
             save_path += '/'
-        plt.savefig(save_path + save_name)
+        plt.savefig(save_path + save_name+'.png')
         plt.clf()
 
+    if display:
+        plt.show()
 
-def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='./'):
+def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='../figures/'):
     """
     Visualization and saving the losses of the network.
 
@@ -619,13 +619,14 @@ def visualize_costs(loss, val_loss, display= False, title = None, save_name= Non
     plt.plot(val_loss, 'r', label='Validation set')
     plt.legend(loc='upper right')
 
-    if display:
-        plt.show()
     if save_name is not None:
         if save_path[-1] !='/':
             save_path+='/'
         plt.savefig(save_path + save_name)
         plt.clf()
+
+    if display:
+        plt.show()
 
 def exercise_1():
     """
@@ -687,8 +688,7 @@ def exercise_2():
                                                                             [], [],
                                                                             GD_params,
                                                                             W1, b1, W2, b2)
-    # visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
-    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution')
+    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
 
 def exercise_3():
     """
@@ -714,7 +714,7 @@ def exercise_3():
                                                                                         regularization_term=0,
                                                                                         momentum_term=0.99)
 
-    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.99')
+    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.99', save_name='Momentum_0-99')
 
     W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
@@ -728,7 +728,7 @@ def exercise_3():
                                                                                         regularization_term=0,
                                                                                         momentum_term=0.9)
 
-    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.9')
+    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.9', save_name='Momentum_0-9')
 
     W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
@@ -742,7 +742,7 @@ def exercise_3():
                                                                                         regularization_term=0,
                                                                                         momentum_term=0.5)
 
-    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.5')
+    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.5', save_name='Momentum_0-5')
 
 def exercise_4():
 
@@ -776,7 +776,7 @@ def exercise_4():
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-            visualize_single_cost(training_set_loss, display=True, title='Training set loss evolution for eta: '+str(eta))
+            visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
 
         for eta in np.arange(0.1, 0.5, 0.05):
 
@@ -797,7 +797,7 @@ def exercise_4():
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-            visualize_single_cost(training_set_loss, display=True, title='Training set loss evolution for eta: '+str(eta))
+            visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
 
     random_search()
 
@@ -807,6 +807,6 @@ def exercise_4():
 if __name__ == '__main__':
 
     # exercise_1()
-    # exercise_2()
-    # exercise_3()
+    exercise_2()
+    exercise_3()
     exercise_4()
