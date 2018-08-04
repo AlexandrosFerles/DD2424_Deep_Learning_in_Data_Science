@@ -442,7 +442,7 @@ def initialize_momentum(hyperparameter):
     return np.zeros(hyperparameter.shape)
 
 
-def add_momentum(v_t_prev, hyperpatameter, gradient, eta, r=0.99):
+def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     """
     Add momentum to the update of the hyperparameter at each update step, in order to speed up training
 
@@ -493,7 +493,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
 
             p, h, s1 = EvaluateClassifier(X[:,start:end], W1, b1, W2, b2)
 
-            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1, regularization_term)
 
             W1 -= eta * grad_W1
             b1 -= eta * grad_b1
@@ -508,7 +508,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
 
     return W1, b1, W2, b2, cost, val_cost
 
-def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
+def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.99):
     """
     Performs mini batch-gradient descent computations.
 
@@ -549,16 +549,19 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
             grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
 
-            W1 = add_momentum(v_W1, W1, grad_W1, eta)
-            b1 = add_momentum(v_b1, b1, grad_b1, eta)
-            W2 = add_momentum(v_W2, W2, grad_W2, eta)
-            b2 = add_momentum(v_b2, b2, grad_b2, eta)
+            W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
+            b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
+            W2 = add_momentum(v_W2, W2, grad_W2, eta, momentum_term)
+            b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
 
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)
+
+        # Decay the learning rate
+        eta *= 0.95
 
     return W1, b1, W2, b2, cost, val_cost
 
@@ -656,8 +659,14 @@ def exercise_2():
     # visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
     visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution')
 
+def exercise_3():
+    """
+    DD2424 Assignment 2, Exercise 3: Add momentum to your update step
+
+    :return:
+    """
 if __name__ == '__main__':
 
     # exercise_1()
-    exercise_2()
-
+    # exercise_2()
+    exercise_3()
