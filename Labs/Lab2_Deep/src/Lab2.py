@@ -593,55 +593,12 @@ def visualize_costs(loss, val_loss, display= False, title = None, save_name= Non
         plt.savefig(save_path + save_name)
         plt.clf()
 
-def sanity_checks():
+def exercise_1():
+    """
+    DD2424 Assignemnt 2, Exercise 1: Read the data & initialize the parameters of the network
 
-    X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
-    X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
-    X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
-
-    # mean = np.mean(X_training_1)
-    tmp_mean_X_train = np.mean(X_training_1, axis=1).reshape(X_training_1.shape[0], 1)
-    mean = np.dot(tmp_mean_X_train, np.ones((1, X_training_1.shape[1])))
-
-    X_training_1 -= mean
-    X_training_2 -= mean
-    X_test -= mean
-
-    W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
-
-    # p, h, s1 = EvaluateClassifier(X_training_1[:,0:2], W1, b1, W2, b2)
-    # grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradientsZer(X_training_1[:,0:2], Y_training_1[:,0:2], W1, b1, W2, b2, p, h, s1)
-    # # grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training_1[:,:2], Y_training_1[:,:2], W1, b1, W2, b2)
-    #
-    # grad_W1_num = np.load('grad_W1_num.npy')
-    # grad_b1_num = np.load('grad_b1_num.npy')
-    # grad_W2_num = np.load('grad_W2_num.npy')
-    # grad_b2_num = np.load('grad_b2_num.npy')
-    #
-    # check_similarity(grad_W1, grad_b1, grad_W2, grad_b2, grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num)
-
-    W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
-    GD_params = [100, 0.05, 200]
-    #
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training_1[:, :1000],
-                                                                            Y_training_1[:, :1000],
-                                                                            X_training_2[:, :1000],
-                                                                            Y_training_2[:, :1000],
-                                                                            [], [],
-                                                                            GD_params,
-                                                                            W1, b1, W2, b2)
-    #
-    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
-
-    training_set_accuracy = ComputeAccuracy(X_training_1, y_training_1, W1, b1, W2, b2)
-    validation_set_accuracy = ComputeAccuracy(X_training_2, y_training_2, W1, b1, W2, b2)
-    test_set_accuracy = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
-
-    print('Training set accuracy: ', training_set_accuracy)
-    print('Valudation set accuracy: ', validation_set_accuracy)
-    print('Test set accuracy: ', test_set_accuracy)
-
-def main():
+    :return: Data of the tarining and testing process and initialized parameters for the weights and bias of the network
+    """
     X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
     X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
     X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
@@ -651,11 +608,56 @@ def main():
     X_training_2 -= mean
     X_test -= mean
 
+    training_data = [X_training_1, Y_training_1, y_training_1]
+    validation_data = [X_training_2, Y_training_2, y_training_2]
+    test_data = [X_test, y_test]
+
     W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
+
+    return training_data, validation_data, test_data, W1, b1, W2, b2
+
+def exercise_2():
+    """
+    DD2424 Assignment 2, Exercise 2: Compute the gradients of the network
+
+    :return: None
+    """
+
+    training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+
+    X_training, Y_training, y_training = training_data
+    X_validation, Y_validation, y_validation = validation_data
+    X_test, y_test = test_data
+
+    p, h, s1 = EvaluateClassifier(X_training[:,0:2], W1, b1, W2, b2)
+    grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X_training[:,0:2], Y_training[:,0:2], W1, b1, W2, b2, p, h, s1)
+    grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training_1[:,:2], Y_training_1[:,:2], W1, b1, W2, b2)
+
+    print('Sanity check: Comparing with numerically computed gradients:')
+
+    grad_W1_num = np.load('grad_W1_num.npy')
+    grad_b1_num = np.load('grad_b1_num.npy')
+    grad_W2_num = np.load('grad_W2_num.npy')
+    grad_b2_num = np.load('grad_b2_num.npy')
+
+    check_similarity(grad_W1, grad_b1, grad_W2, grad_b2, grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num)
+
+    print('-------------------------------')
+    print('Sanity check: Overfitting in the training data:')
+    GD_params = [100, 0.05, 200]
+    #
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training[:, :1000],
+                                                                            Y_training[:, :1000],
+                                                                            X_validation[:, :1000],
+                                                                            Y_validation[:, :1000],
+                                                                            [], [],
+                                                                            GD_params,
+                                                                            W1, b1, W2, b2)
+    # visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
+    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution')
 
 if __name__ == '__main__':
 
-    sanity_checks()
-    # sanity1()
-    # main()
+    # exercise_1()
+    exercise_2()
 
