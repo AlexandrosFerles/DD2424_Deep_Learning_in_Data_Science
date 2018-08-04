@@ -500,9 +500,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, y, y_validation, GDparams, W1,
             W2 -= eta * grad_W2
             b2 -= eta * grad_b2
 
-        # epoch_cost = ComputeCostZer(X, Y, W1, W2, b1, b2, 0)
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
-        # val_epoch_cost = ComputeCostZer(X_validation, Y_validation, W1, W2, b1, b2)
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
@@ -556,9 +554,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
             W2 = add_momentum(v_W2, W2, grad_W2, eta)
             b2 = add_momentum(v_b2, b2, grad_b2, eta)
 
-        # epoch_cost = ComputeCostZer(X, Y, W1, W2, b1, b2, 0)
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
-        # val_epoch_cost = ComputeCostZer(X_validation, Y_validation, W1, W2, b1, b2)
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
