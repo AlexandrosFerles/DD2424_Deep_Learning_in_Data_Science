@@ -48,7 +48,7 @@ def initialize_weights(d, m, K, std=0.001):
     :return: Weights and bias arrays for the first and second layer of the neural network
     """
 
-    np.random.seed(400)
+    # np.random.seed(400)
 
     W1 = np.random.normal(0, std, size=(m, d))
     b1 = np.zeros(shape=(m, 1))
@@ -560,7 +560,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
             b2, v_b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
 
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
-        print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
+        # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
             break
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
@@ -780,7 +780,7 @@ def exercise_4():
 
             visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
 
-        for eta in np.arange(0.1, 0.5, 0.05):
+        for eta in np.arange(0.2, 0.5, 0.05):
 
             print('-----------------------')
             print('eta: ', eta)
@@ -800,7 +800,7 @@ def exercise_4():
 
             visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
 
-    def coarse_search_1(e_min= np.log(0.01), e_max=np.log(0.15)):
+    def coarse_search(e_min= np.log(0.01), e_max=np.log(0.15)):
         """
         First step of coarse search, optimal value for the learning rate may be found between 0.01 and 0.15
 
@@ -815,13 +815,15 @@ def exercise_4():
         etas = []
         lambdas = []
         
-        for eta_term in np.random.rand(1, 1, 10).flatten():
 
-            e = e_min + (e_max - e_min) * eta_term
-            eta = np.exp(e)
-            etas.append(eta)
 
-            for regularization_term in [1e-6, 1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1, 10, 100, 1000]:
+        for regularization_term in [0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1]:
+
+            for _ in range(12):
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
+                etas.append(eta)
                 
                 lambdas.append(regularization_term)
 
@@ -863,8 +865,8 @@ def exercise_4():
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
 
-    random_search()
-    # coarse_search_1()
+    # random_search()
+    coarse_search()
 
 
 
