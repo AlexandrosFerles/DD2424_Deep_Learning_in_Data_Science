@@ -455,7 +455,7 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     :return: The updated hyperparameter based on the momentum update, and the  momentum update itself
     """
 
-    v_t = r * v_t_prev + eta * gradient
+    v_t = momentum_term * v_t_prev + eta * gradient
 
     return hyperpatameter - v_t, v_t
 
@@ -539,7 +539,10 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
     v_W2 = np.zeros(W2.shape)
     v_b2 = np.zeros(b2.shape)
 
-    for _ in tqdm(range(epoches)):
+    # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
+
+    # for epoch in tqdm(range(epoches)):
+    for epoch in range(epoches):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches + 1
@@ -549,12 +552,13 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
             grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1)
 
-            W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
-            b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
-            W2 = add_momentum(v_W2, W2, grad_W2, eta, momentum_term)
-            b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
+            W1, v_W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
+            b1, v_b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
+            W2, v_W2 = add_momentum(v_W2, W2, grad_W2, eta, momentum_term)
+            b2, v_b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
 
-        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
+        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
+        print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
 
         cost.append(epoch_cost)
@@ -565,13 +569,40 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y, y_validation, G
 
     return W1, b1, W2, b2, cost, val_cost
 
+def visualize_single_cost(loss, display= False, title = None, save_name= None, save_path='../figures'):
+    """
+        Visualization and saving the loss of the network.
+
+        :param loss: Loss of the network.
+        :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
+        :param title: (Optional) Title of the plot.
+        :param save_name: (Optional) name of the file to save the plot.
+        :param save_path: (Optional) Path of the folder to save the plot in your local computer.
+
+        :return: None
+
+        """
+
+    if title is not None:
+        plt.title(title)
+
+    plt.plot(loss)
+
+    if display:
+        plt.show()
+    if save_name is not None:
+        if save_path[-1] != '/':
+            save_path += '/'
+        plt.savefig(save_path + save_name)
+        plt.clf()
 
 
 def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='./'):
     """
-    Visualization and saving the loss of the network.
+    Visualization and saving the losses of the network.
 
     :param loss: Loss of the network.
+    :param val_loss: Loss of the network in the validation set.
     :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
     :param title: (Optional) Title of the plot.
     :param save_name: (Optional) name of the file to save the plot.
@@ -634,7 +665,7 @@ def exercise_2():
 
     p, h, s1 = EvaluateClassifier(X_training[:,0:2], W1, b1, W2, b2)
     grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X_training[:,0:2], Y_training[:,0:2], W1, b1, W2, b2, p, h, s1)
-    grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training_1[:,:2], Y_training_1[:,:2], W1, b1, W2, b2)
+    # grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training[:,:2], Y_training[:,:2], W1, b1, W2, b2)
 
     print('Sanity check: Comparing with numerically computed gradients:')
 
@@ -648,7 +679,7 @@ def exercise_2():
     print('-------------------------------')
     print('Sanity check: Overfitting in the training data:')
     GD_params = [100, 0.05, 200]
-    #
+
     W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training[:, :1000],
                                                                             Y_training[:, :1000],
                                                                             X_validation[:, :1000],
@@ -663,10 +694,119 @@ def exercise_3():
     """
     DD2424 Assignment 2, Exercise 3: Add momentum to your update step
 
-    :return:
+    :return: None
     """
+
+    training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+
+    X_training, Y_training, y_training = training_data
+    X_validation, Y_validation, y_validation = validation_data
+    X_test, y_test = test_data
+    GD_params = [100, 0.05, 200]
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :2000],
+                                                                                        Y_training[:, :2000],
+                                                                                        X_validation[:, :2000],
+                                                                                        Y_validation[:, :2000],
+                                                                                        [], [],
+                                                                                        GD_params,
+                                                                                        W1, b1, W2, b2,
+                                                                                        regularization_term=0,
+                                                                                        momentum_term=0.99)
+
+    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.99')
+
+    W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :2000],
+                                                                                        Y_training[:, :2000],
+                                                                                        X_validation[:, :2000],
+                                                                                        Y_validation[:, :2000],
+                                                                                        [], [],
+                                                                                        GD_params,
+                                                                                        W1, b1, W2, b2,
+                                                                                        regularization_term=0,
+                                                                                        momentum_term=0.9)
+
+    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.9')
+
+    W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :500],
+                                                                                        Y_training[:, :500],
+                                                                                        X_validation[:, :500],
+                                                                                        Y_validation[:, :500],
+                                                                                        [], [],
+                                                                                        GD_params,
+                                                                                        W1, b1, W2, b2,
+                                                                                        regularization_term=0,
+                                                                                        momentum_term=0.5)
+
+    visualize_costs(training_set_loss, validation_set_loss, display=True, title='Cross Entropy Loss Evolution with momentum value: 0.5')
+
+def exercise_4():
+
+    def random_search():
+        """
+        Random search to estimate the rough bounds for the values to eta to look for later in the coarse search.
+
+        :return:
+        """
+
+        training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+        X_training, Y_training, y_training = training_data
+        X_validation, Y_validation, y_validation = validation_data
+
+        for eta in [0.00001, 0.00005, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]:
+
+            print('-----------------------')
+            print('eta: ', eta)
+
+            GD_params = [100, eta, 5]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             [], [],
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=0.000001,
+                                                                                             momentum_term=0.5)
+
+            W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+            visualize_single_cost(training_set_loss, display=True, title='Training set loss evolution for eta: '+str(eta))
+
+        for eta in np.arange(0.1, 0.5, 0.05):
+
+            print('-----------------------')
+            print('eta: ', eta)
+
+            GD_params = [100, eta, 5]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             [], [],
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=0.000001,
+                                                                                             momentum_term=0.5)
+
+            W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+            visualize_single_cost(training_set_loss, display=True, title='Training set loss evolution for eta: '+str(eta))
+
+    random_search()
+
+
+
+
 if __name__ == '__main__':
 
     # exercise_1()
     # exercise_2()
-    exercise_3()
+    # exercise_3()
+    exercise_4()
