@@ -452,8 +452,6 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
     :param Y: One-hot representation of the true labels of the data.
     :param X_validation: Input batch of validation data.
     :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param y: True labels of the data.
-    :param y_validation: True labels of the validation data.
     :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
     :param W1: Weight matrix of the first layer of the network.
     :param b1: Bias vector of the first layer of the network.
@@ -501,8 +499,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
     :param Y: One-hot representation of the true labels of the data.
     :param X_validation: Input batch of validation data.
     :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param y: True labels of the data.
-    :param y_validation: True labels of the validation data.
     :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
     :param W1: Weight matrix of the first layer of the network.
     :param b1: Bias vector of the first layer of the network.
@@ -519,10 +515,10 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
     cost = []
     val_cost = []
 
-    v_W1 = np.zeros(W1.shape)
-    v_b1 = np.zeros(b1.shape)
-    v_W2 = np.zeros(W2.shape)
-    v_b2 = np.zeros(b2.shape)
+    v_W1 = initialize_momentum(W1)
+    v_b1 = initialize_momentum(b1)
+    v_W2 = initialize_momentum(W2)
+    v_b2 = initialize_momentum(b2)
 
     # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
 
@@ -789,7 +785,7 @@ def exercise_4():
         """
         First step of coarse search, optimal value for the learning rate may be found between 0.01 and 0.15
 
-        :return: Best pair of eta and lambda based on validation set accuracy performance
+        :return: None
         """
 
         training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
@@ -829,8 +825,8 @@ def exercise_4():
 
                 W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-        sort_them_all = sorted(zip(accuracy_on_validation_set, etas, lambdas))
-        
+        sort_them_all = sorted(zip(accuracies, etas, lambdas))
+
         best_accuracies = [x for x, _ , _ in sort_them_all]
         best_etas = [y for _, y , _ in sort_them_all]
         best_lambdas = [z for _, _ , z in sort_them_all]
@@ -850,10 +846,266 @@ def exercise_4():
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
 
+    def fine_search():
+        """
+        Fine search, where we examine the most interesting pairings that were observed during the coarse search.
+
+        :return: accuracies, etas and lambdas of the search
+        """
+
+        training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+        X_training, Y_training, y_training = training_data
+        X_validation, Y_validation, y_validation = validation_data
+
+        accuracies = []
+        etas = []
+        lambdas = []
+
+        # For a regularization amount as small as 1e-6, the closest to a 44% validation set
+        # accuracy performance was spotted for values of eta ~[0.18, 0.28]
+        regularization_term = 1e-6
+
+        W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e_min = np.log(0.017)
+            e_max = np.log(0.019)
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+        W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e_min = np.log(0.027)
+            e_max = np.log(0.029)
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+        # For a regularization amount as small as 1e-5, the closest to a 44% validation set
+        # accuracy performance was spotted for values of eta ~[0.22, 0.25]
+        regularization_term = 1e-5
+
+        W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        for _ in range(20):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e_min = np.log(0.022)
+            e_max = np.log(0.027)
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+        # For a regularization amount as high as 1e-4, the closest to a 44% validation set
+        # accuracy performance was spotted for values of eta ~0.18
+        regularization_term = 1e-4
+
+        W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e_min = np.log(0.017)
+            e_max = np.log(0.019)
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+        # For a regularization amount as high as 1e-3, the closest to a 44% validation set
+        # accuracy performance was spotted for values of eta ~0.28 and eta ~0.3
+        regularization_term = 1e-3
+
+        W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        for _ in range(20):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e_min = np.log(0.028)
+            e_max = np.log(0.032)
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+        sort_them_all = sorted(zip(accuracies, etas, lambdas))
+
+        best_accuracies = [x for x, _, _ in sort_them_all]
+        best_etas = [y for _, y, _ in sort_them_all]
+        best_lambdas = [z for _, _, z in sort_them_all]
+
+        print('---------------------------------')
+        print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+        print('Best eta: ', best_etas[-1])
+        print('Best lambda: ', best_lambdas[-1])
+
+        print('---------------------------------')
+        print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+        print('Second best eta: ', best_etas[-2])
+        print('Second best lambda: ', best_lambdas[-2])
+
+        print('---------------------------------')
+        print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+        print('Third best eta: ', best_etas[-3])
+        print('Third best lambda: ', best_lambdas[-3])
+
+    def final_search(e_min=np.log(0.017), e_max=np.log(0.019)):
+        """
+        Final search, optimal value for the learning rate may be found between 0.017 and 0.019
+
+        :return: None
+        """
+
+        training_data, validation_data, test_data, W1, b1, W2, b2 = exercise_1()
+        X_training, Y_training, y_training = training_data
+        X_validation, Y_validation, y_validation = validation_data
+
+        accuracies = []
+        etas = []
+        lambdas = []
+
+        regularization_term = 0.0001
+
+        for _ in range(40):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10]
+
+            W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                             Y_training,
+                                                                                             X_validation,
+                                                                                             Y_validation,
+                                                                                             GD_params,
+                                                                                             W1, b1, W2, b2,
+                                                                                             regularization_term=regularization_term)
+            print('---------------------------------')
+            print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
+            accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+            accuracies.append(accuracy_on_validation_set)
+            print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+            W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+        sort_them_all = sorted(zip(accuracies, etas, lambdas))
+
+        best_accuracies = [x for x, _, _ in sort_them_all]
+        best_etas = [y for _, y, _ in sort_them_all]
+        best_lambdas = [z for _, _, z in sort_them_all]
+
+        print('---------------------------------')
+        print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+        print('Best eta: ', best_etas[-1])
+        print('Best lambda: ', best_lambdas[-1])
+
+        print('---------------------------------')
+        print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+        print('Second best eta: ', best_etas[-2])
+        print('Second best lambda: ', best_lambdas[-2])
+
+        print('---------------------------------')
+        print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+        print('Third best eta: ', best_etas[-3])
+        print('Third best lambda: ', best_lambdas[-3])
+
     # random_search()
-    coarse_search()
-
-
+    # coarse_search()
+    # fine_search()
+    final_search()
 
 if __name__ == '__main__':
 
