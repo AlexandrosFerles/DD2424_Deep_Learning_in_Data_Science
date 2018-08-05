@@ -1224,6 +1224,8 @@ def exercise_4():
                     title='Cross Entropy Loss Evolution, $\eta=0.018920249916784752$', save_name='experiment_1')
 
     test_set_accuracy_1 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
+    print('Test-set accuracy of the first setting: ', test_set_accuracy_1)
+
 
     # Experiment no.2: Eta = 0.01713848118474131, lambda = 0.0001
 
@@ -1244,6 +1246,7 @@ def exercise_4():
                     title='Cross Entropy Loss Evolution, $\eta=0.01713848118474131', save_name='experiment_2')
 
     test_set_accuracy_2 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
+    print('Test-set accuracy of the second setting: ', test_set_accuracy_2)
 
     # Experiment no.3: Eta = 0.02878809988519304, lambda = 0.0001
 
@@ -1264,73 +1267,7 @@ def exercise_4():
                     title='Cross Entropy Loss Evolution, $\eta=0.02878809988519304', save_name='experiment_3')
 
     test_set_accuracy_3 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
-
-
-def exercise_5():
-    # Optimize the performance of the network
-
-    training, validation, test = create_sets()
-
-    X_training, Y_training, y_training = training
-    X_validation, Y_validation, y_validation = validation
-    X_test, y_test = test
-
-    def improvement_1(eta, regularization_term):
-        """
-         Use all the available data from training, train for more update steps and use your validation set to make
-        sure you don’t overfit or keep a record of the best model before you begin to overfit
-
-        :return: Learnt weight matrices, training and validation set loss evolution
-        """
-
-        W1, b1, W2, b2 = initialize_weights()
-
-        GD_params = [100, eta, 40]
-
-        W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
-                                                                                         Y_training,
-                                                                                         X_validation,
-                                                                                         Y_validation,
-                                                                                         y_validation,
-                                                                                         GD_params,
-                                                                                         W1, b1, W2, b2,
-                                                                                         regularization_term)
-
-        return W1, b1, W2, b2, training_set_loss, validation_set_loss
-
-    """
-    Uncomment to test the first improvement
-    """
-    # W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1, \
-    # training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304,
-    #                                                                                    regularization_term=0.001)
-    #
-    # visualize_costs(training_set_loss_improvement_1, validation_set_loss_improvement_1, display=True,
-    #                 title='Cross Entropy Loss Evolution, improvement 1', save_name='improvement_1')
-    #
-    # accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1,
-    #                                          b2_improvement_1)
-
-    def improvement_2():
-
-        def he_initialization(d=3072, m=50, K=10):
-            """
-            He initialization on the weight matrices.
-
-            :param d: Dimensionality of input data.
-            :param m: Number of nodes in the hidden layer.
-            :param K: Number of classes.
-
-            :return: Initialized weight and bias matrices based on He initialization of the weights.
-            """
-
-            W1 = w=np.random.randn(d,m)*np.sqrt(2/float(m))
-            W2 = w=np.random.randn(m,K)*np.sqrt(2/float(K))
-
-            b1 = np.zeros(shape=(m,1))
-            b2 = np.zeros(shape=(K,1))
-
-            return W1, b1, W2, b2
+    print('Test-set accuracy of the third setting: ', test_set_accuracy_3)
 
 
 
@@ -1339,5 +1276,4 @@ if __name__ == '__main__':
     # exercise_1()
     # exercise_2()
     # exercise_3()
-    # exercise_4()
-    exercise_5()
+    exercise_4()
