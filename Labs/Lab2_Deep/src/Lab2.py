@@ -36,7 +36,7 @@ def LoadBatch(filename):
     return X, Y, y
 
 
-def initialize_weights(d, m, K, std=0.001):
+def initialize_weights(d=3072, m=50, K=10, std=0.001):
     """
     Initializes the weight and bias arrays for the 2 layers of the network
 
@@ -491,7 +491,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
 
     return W1, b1, W2, b2, cost, val_cost
 
-def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.9):
+def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -524,8 +524,15 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
 
     original_training_cost = ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)
 
-    # for epoch in tqdm(range(epoches)):
-    for epoch in range(epoches):
+    best_W1 = np.copy(W1)
+    best_b1 = np.copy(b1)
+    best_W2 = np.copy(W2)
+    best_b2 = np.copy(b2)
+
+    best_validation_set_accuracy = 0
+
+    for epoch in tqdm(range(epoches)):
+    # for epoch in range(epoches):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches + 1
@@ -540,6 +547,17 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
             W2, v_W2 = add_momentum(v_W2, W2, grad_W2, eta, momentum_term)
             b2, v_b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
 
+        validation_set_accuracy = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+
+        if validation_set_accuracy > best_validation_set_accuracy:
+
+            best_W1 = np.copy(W1)
+            best_b1 = np.copy(b1)
+            best_W2 = np.copy(W2)
+            best_b2 = np.copy(b2)
+
+            best_validation_set_accuracy = validation_set_accuracy
+
         epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
         # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
@@ -552,7 +570,8 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, GDparams, W1, b1, 
         # Decay the learning rate
         eta *= 0.95
 
-    return W1, b1, W2, b2, cost, val_cost
+    # return W1, b1, W2, b2, cost, val_cost
+    return best_W1, best_b1, best_W2, best_b2, cost, val_cost
 
 def visualize_single_cost(loss, display= False, title = None, save_name= None, save_path='../figures/'):
     """
@@ -673,6 +692,7 @@ def exercise_2():
                                                                             Y_training[:, :1000],
                                                                             X_validation[:, :1000],
                                                                             Y_validation[:, :1000],
+                                                                            y_validation[:1000],
                                                                             GD_params,
                                                                             W1, b1, W2, b2)
     visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
@@ -695,6 +715,7 @@ def exercise_3():
                                                                                         Y_training[:, :2000],
                                                                                         X_validation[:, :2000],
                                                                                         Y_validation[:, :2000],
+                                                                                        y_validation[:2000],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -708,6 +729,7 @@ def exercise_3():
                                                                                         Y_training[:, :2000],
                                                                                         X_validation[:, :2000],
                                                                                         Y_validation[:, :2000],
+                                                                                        y_validation[:2000],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -721,6 +743,7 @@ def exercise_3():
                                                                                         Y_training[:, :500],
                                                                                         X_validation[:, :500],
                                                                                         Y_validation[:, :500],
+                                                                                        y_validation[:500],
                                                                                         GD_params,
                                                                                         W1, b1, W2, b2,
                                                                                         regularization_term=0,
@@ -752,6 +775,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
@@ -772,6 +796,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=0.000001,
@@ -814,6 +839,7 @@ def exercise_4():
                                                                                                  Y_training,
                                                                                                  X_validation,
                                                                                                  Y_validation,
+                                                                                                 y_validation,
                                                                                                  GD_params,
                                                                                                  W1, b1, W2, b2,
                                                                                                  regularization_term=regularization_term)
@@ -884,6 +910,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -912,6 +939,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -944,6 +972,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -976,6 +1005,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -1008,6 +1038,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -1070,6 +1101,7 @@ def exercise_4():
                                                                                              Y_training,
                                                                                              X_validation,
                                                                                              Y_validation,
+                                                                                             y_validation,
                                                                                              GD_params,
                                                                                              W1, b1, W2, b2,
                                                                                              regularization_term=regularization_term)
@@ -1117,14 +1149,95 @@ def exercise_5():
         X_training_4, Y_training_4, y_training_4 = LoadBatch('../../cifar-10-batches-py/data_batch_4')
         X_training_5, Y_training_5, y_training_5 = LoadBatch('../../cifar-10-batches-py/data_batch_5')
 
-        X_
+        X_training = np.concatenate((X_training_1, X_training_3), axis=1)
+        X_training = np.copy(np.concatenate((X_training, X_training_4), axis=1))
+        X_training = np.copy(np.concatenate((X_training, X_training_5), axis=1))
+
+        X_training = np.concatenate((X_training, X_training_2[:, :9000]), axis=1)
+
+        Y_training = np.concatenate((Y_training_1, Y_training_3), axis=1)
+        Y_training = np.copy(np.concatenate((Y_training, Y_training_4), axis=1))
+        Y_training = np.copy(np.concatenate((Y_training, Y_training_5), axis=1))
+
+        Y_training = np.concatenate((Y_training, Y_training_2[:, :9000]), axis=1)
+
+        y_training = y_training_1 + y_training_3 + y_training_4 + y_training_5 + y_training_2[:9000]
+
+        X_validation = np.copy(X_training_2[:, 9000:])
+        Y_validation = np.copy(Y_training_2[:, 9000:])
+        y_validation = y_training_2[9000:]
 
         X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
     
-        mean = np.mean(X_training_1)
-        X_training_1 -= mean
-        X_training_2 -= mean
+        mean = np.mean(X_training)
+        X_training -= mean
+        X_validation -= mean
         X_test -= mean
+        
+        return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
+    
+    training, validation, test = create_sets()
+    
+    X_training, Y_training, y_training = training
+    X_validation, Y_validation, y_validation = validation
+    X_test, y_test = test
+
+    # Experiment no.1: Eta = 0.018920249916784752, lambda = 0.0001
+
+    W1, b1, W2, b2 = initialize_weights()
+
+    GD_params = [100, 0.018920249916784752, 30]
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                     Y_training,
+                                                                                     X_validation,
+                                                                                     Y_validation,
+                                                                                     y_validation,
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0.0001)
+
+    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.018920249916784752$', save_name='experiment_1')
+
+    test_set_accuracy_1 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
+
+    # Experiment no.2: Eta = 0.01713848118474131, lambda = 0.0001
+
+    W1, b1, W2, b2 = initialize_weights()
+
+    GD_params = [100, 0.01713848118474131, 30]
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                     Y_training,
+                                                                                     X_validation,
+                                                                                     Y_validation,
+                                                                                     y_validation,
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0.0001)
+
+    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.01713848118474131', save_name='experiment_2')
+
+    test_set_accuracy_2 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
+
+    # Experiment no.3: Eta = 0.02878809988519304, lambda = 0.0001
+
+    W1, b1, W2, b2 = initialize_weights()
+
+    GD_params = [100, 0.02878809988519304, 30]
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                     Y_training,
+                                                                                     X_validation,
+                                                                                     Y_validation,
+                                                                                     y_validation,
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0.001)
+
+    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.02878809988519304', save_name='experiment_3')
+
+    test_set_accuracy_3 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
 
 if __name__ == '__main__':
 
