@@ -4,6 +4,7 @@ from keras.utils import to_categorical as make_class_categorical
 import _pickle as pickle
 from tqdm import tqdm
 
+
 def LoadBatch(filename):
     """
     Loads batch based on the given filename and produces the X, Y, and y arrays
@@ -70,6 +71,7 @@ def ReLU(x):
 
     return np.maximum(x, 0)
 
+
 def softmax(X, theta=1.0, axis=None):
     """
     Softmax over numpy rows and columns, taking care for overflow cases
@@ -131,6 +133,7 @@ def EvaluateClassifier(X, W1, b1, W2, b2):
 
     return p, h, s1
 
+
 def predictClasses(p):
     """
     Predicts classes based on the softmax output of the network
@@ -163,7 +166,7 @@ def ComputeAccuracy(X, y, W1, b1, W2, b2):
     return accuracy
 
 
-def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term= 0):
+def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term=0):
     """
     Computes the cross-entropy loss on a batch of data.
 
@@ -185,6 +188,7 @@ def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term= 0):
     weight_sum = np.power(W1, 2).sum() + np.power(W2, 2).sum()
 
     return cross_entropy_loss + regularization_term * weight_sum
+
 
 def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
     """
@@ -240,7 +244,7 @@ def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
     return W1, b1, W2, b2
 
 
-def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0 , h=1e-5):
+def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0, h=1e-5):
     """
     Computes gradient descent updates on a batch of data with numerical computations of great precision, thus slower computations.
     Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
@@ -306,7 +310,8 @@ def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0 , h=1e-5):
 
     return W1, b1, W2, b2
 
-def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term= 0):
+
+def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term=0):
     """
     Computes gradient descent updates on a batch of data
 
@@ -345,12 +350,12 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term= 0):
 
     # Add regularizers
     grad_W1 = grad_W1 + 2 * regularization_term * W1
-    grad_W2 = grad_W2 +2 * regularization_term * W2
+    grad_W2 = grad_W2 + 2 * regularization_term * W2
 
     return grad_W1, grad_b1, grad_W2, grad_b2
 
 
-def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gradW2_num, gradb2_num, threshold = 1e-4):
+def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gradW2_num, gradb2_num, threshold=1e-4):
     """
     Compares the gradients of both the analytical and numerical method and prints out a message of result
     or failure, depending on how close these gradients are between each other.
@@ -444,7 +449,8 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
 
     return hyperpatameter - v_t, v_t
 
-def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0):
+
+def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term=0):
     """
     Performs mini batch-gradient descent computations.
 
@@ -474,9 +480,10 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
             start = (batch - 1) * number_of_mini_batches + 1
             end = batch * number_of_mini_batches + 1
 
-            p, h, s1 = EvaluateClassifier(X[:,start:end], W1, b1, W2, b2)
+            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2)
 
-            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1, regularization_term)
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
+                                                                  h, s1, regularization_term)
 
             W1 -= eta * grad_W1
             b1 -= eta * grad_b1
@@ -491,7 +498,9 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
 
     return W1, b1, W2, b2, cost, val_cost
 
-def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2, regularization_term = 0, momentum_term=0.9):
+
+def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2,
+                            regularization_term=0, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -532,15 +541,16 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     best_validation_set_accuracy = 0
 
     for epoch in tqdm(range(epoches)):
-    # for epoch in range(epoches):
+        # for epoch in range(epoches):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches + 1
             end = batch * number_of_mini_batches + 1
 
-            p, h, s1 = EvaluateClassifier(X[:,start:end], W1, b1, W2, b2)
+            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2)
 
-            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:,start:end], Y[:,start:end], W1, b1, W2, b2, p, h ,s1, regularization_term)
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
+                                                                  h, s1, regularization_term)
 
             W1, v_W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
             b1, v_b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
@@ -550,7 +560,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
         validation_set_accuracy = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
 
         if validation_set_accuracy > best_validation_set_accuracy:
-
             best_W1 = np.copy(W1)
             best_b1 = np.copy(b1)
             best_W2 = np.copy(W2)
@@ -573,7 +582,8 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
 
-def visualize_single_cost(loss, display= False, title = None, save_name= None, save_path='../figures/'):
+
+def visualize_single_cost(loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
         Visualization and saving the loss of the network.
 
@@ -595,7 +605,7 @@ def visualize_single_cost(loss, display= False, title = None, save_name= None, s
     if save_name is not None:
         if save_path[-1] != '/':
             save_path += '/'
-        plt.savefig(save_path + save_name+'.png')
+        plt.savefig(save_path + save_name + '.png')
 
     if display:
         plt.show()
@@ -603,7 +613,7 @@ def visualize_single_cost(loss, display= False, title = None, save_name= None, s
     plt.clf()
 
 
-def visualize_costs(loss, val_loss, display= False, title = None, save_name= None, save_path='../figures/'):
+def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
     Visualization and saving the losses of the network.
 
@@ -626,14 +636,15 @@ def visualize_costs(loss, val_loss, display= False, title = None, save_name= Non
     plt.legend(loc='upper right')
 
     if save_name is not None:
-        if save_path[-1] !='/':
-            save_path+='/'
+        if save_path[-1] != '/':
+            save_path += '/'
         plt.savefig(save_path + save_name)
 
     if display:
         plt.show()
 
     plt.clf()
+
 
 def create_sets():
     """
@@ -676,6 +687,7 @@ def create_sets():
 
     return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
 
+
 def exercise_1():
     """
     DD2424 Assignemnt 2, Exercise 1: Read the data & initialize the parameters of the network
@@ -699,6 +711,7 @@ def exercise_1():
 
     return training_data, validation_data, test_data, W1, b1, W2, b2
 
+
 def exercise_2():
     """
     DD2424 Assignment 2, Exercise 2: Compute the gradients of the network
@@ -712,8 +725,9 @@ def exercise_2():
     X_validation, Y_validation, y_validation = validation_data
     X_test, y_test = test_data
 
-    p, h, s1 = EvaluateClassifier(X_training[:,0:2], W1, b1, W2, b2)
-    grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X_training[:,0:2], Y_training[:,0:2], W1, b1, W2, b2, p, h, s1)
+    p, h, s1 = EvaluateClassifier(X_training[:, 0:2], W1, b1, W2, b2)
+    grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X_training[:, 0:2], Y_training[:, 0:2], W1, b1, W2, b2, p, h,
+                                                          s1)
     # grad_W1_num, grad_b1_num, grad_W2_num, grad_b2_num = ComputeGradsNumSlow(X_training[:,:2], Y_training[:,:2], W1, b1, W2, b2)
 
     print('Sanity check: Comparing with numerically computed gradients:')
@@ -729,14 +743,16 @@ def exercise_2():
     print('Sanity check: Overfitting in the training data:')
     GD_params = [100, 0.05, 200]
 
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(   X_training[:, :1000],
-                                                                            Y_training[:, :1000],
-                                                                            X_validation[:, :1000],
-                                                                            Y_validation[:, :1000],
-                                                                            y_validation[:1000],
-                                                                            GD_params,
-                                                                            W1, b1, W2, b2)
-    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution', save_name='0_Overfit_training_set', save_path='../figures')
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGD(X_training[:, :1000],
+                                                                         Y_training[:, :1000],
+                                                                         X_validation[:, :1000],
+                                                                         Y_validation[:, :1000],
+                                                                         y_validation[:1000],
+                                                                         GD_params,
+                                                                         W1, b1, W2, b2)
+    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution',
+                    save_name='0_Overfit_training_set', save_path='../figures')
+
 
 def exercise_3():
     """
@@ -752,48 +768,51 @@ def exercise_3():
     X_test, y_test = test_data
     GD_params = [100, 0.05, 200]
 
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :2000],
-                                                                                        Y_training[:, :2000],
-                                                                                        X_validation[:, :2000],
-                                                                                        Y_validation[:, :2000],
-                                                                                        y_validation[:2000],
-                                                                                        GD_params,
-                                                                                        W1, b1, W2, b2,
-                                                                                        regularization_term=0,
-                                                                                        momentum_term=0.99)
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training[:, :2000],
+                                                                                     Y_training[:, :2000],
+                                                                                     X_validation[:, :2000],
+                                                                                     Y_validation[:, :2000],
+                                                                                     y_validation[:2000],
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0,
+                                                                                     momentum_term=0.99)
 
-    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.99', save_name='Momentum_0-99')
-
-    W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
-
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :2000],
-                                                                                        Y_training[:, :2000],
-                                                                                        X_validation[:, :2000],
-                                                                                        Y_validation[:, :2000],
-                                                                                        y_validation[:2000],
-                                                                                        GD_params,
-                                                                                        W1, b1, W2, b2,
-                                                                                        regularization_term=0,
-                                                                                        momentum_term=0.9)
-
-    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.9', save_name='Momentum_0-9')
+    visualize_costs(training_set_loss, validation_set_loss, display=False,
+                    title='Cross Entropy Loss Evolution with momentum value: 0.99', save_name='Momentum_0-99')
 
     W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(   X_training[:, :500],
-                                                                                        Y_training[:, :500],
-                                                                                        X_validation[:, :500],
-                                                                                        Y_validation[:, :500],
-                                                                                        y_validation[:500],
-                                                                                        GD_params,
-                                                                                        W1, b1, W2, b2,
-                                                                                        regularization_term=0,
-                                                                                        momentum_term=0.5)
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training[:, :2000],
+                                                                                     Y_training[:, :2000],
+                                                                                     X_validation[:, :2000],
+                                                                                     Y_validation[:, :2000],
+                                                                                     y_validation[:2000],
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0,
+                                                                                     momentum_term=0.9)
 
-    visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution with momentum value: 0.5', save_name='Momentum_0-5')
+    visualize_costs(training_set_loss, validation_set_loss, display=False,
+                    title='Cross Entropy Loss Evolution with momentum value: 0.9', save_name='Momentum_0-9')
+
+    W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
+
+    W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training[:, :500],
+                                                                                     Y_training[:, :500],
+                                                                                     X_validation[:, :500],
+                                                                                     Y_validation[:, :500],
+                                                                                     y_validation[:500],
+                                                                                     GD_params,
+                                                                                     W1, b1, W2, b2,
+                                                                                     regularization_term=0,
+                                                                                     momentum_term=0.5)
+
+    visualize_costs(training_set_loss, validation_set_loss, display=False,
+                    title='Cross Entropy Loss Evolution with momentum value: 0.5', save_name='Momentum_0-5')
+
 
 def exercise_4():
-
     def random_search():
         """
         Random search to estimate the rough bounds for the values to eta to look for later in the coarse search.
@@ -806,7 +825,6 @@ def exercise_4():
         X_validation, Y_validation, y_validation = validation_data
 
         for eta in [0.00001, 0.00005, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]:
-
             print('-----------------------')
             print('eta: ', eta)
 
@@ -824,10 +842,11 @@ def exercise_4():
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-            visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
+            visualize_single_cost(training_set_loss, display=False,
+                                  title='Training set loss evolution for eta: ' + str(eta),
+                                  save_name='Eta_random_' + str(eta).replace('.', '-'))
 
         for eta in np.arange(0.2, 0.5, 0.05):
-
             print('-----------------------')
             print('eta: ', eta)
 
@@ -845,9 +864,11 @@ def exercise_4():
 
             W1, b1, W2, b2 = initialize_weights(d=X_training.shape[0], m=50, K=Y_training.shape[0])
 
-            visualize_single_cost(training_set_loss, display=False, title='Training set loss evolution for eta: '+str(eta), save_name='Eta_random_'+str(eta).replace('.', '-'))
+            visualize_single_cost(training_set_loss, display=False,
+                                  title='Training set loss evolution for eta: ' + str(eta),
+                                  save_name='Eta_random_' + str(eta).replace('.', '-'))
 
-    def coarse_search(e_min= np.log(0.01), e_max=np.log(0.15)):
+    def coarse_search(e_min=np.log(0.01), e_max=np.log(0.15)):
         """
         First step of coarse search, optimal value for the learning rate may be found between 0.01 and 0.15
 
@@ -861,8 +882,6 @@ def exercise_4():
         accuracies = []
         etas = []
         lambdas = []
-        
-
 
         for regularization_term in [0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1]:
 
@@ -871,7 +890,7 @@ def exercise_4():
                 e = e_min + (e_max - e_min) * eta_term
                 eta = np.exp(e)
                 etas.append(eta)
-                
+
                 lambdas.append(regularization_term)
 
                 GD_params = [100, eta, 10]
@@ -885,7 +904,7 @@ def exercise_4():
                                                                                                  W1, b1, W2, b2,
                                                                                                  regularization_term=regularization_term)
                 print('---------------------------------')
-                print('Learning rate: '+str(eta)+', amount of regularization term: '+str(regularization_term))
+                print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(regularization_term))
                 accuracy_on_validation_set = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
                 accuracies.append(accuracy_on_validation_set)
                 print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
@@ -894,9 +913,9 @@ def exercise_4():
 
         sort_them_all = sorted(zip(accuracies, etas, lambdas))
 
-        best_accuracies = [x for x, _ , _ in sort_them_all]
-        best_etas = [y for _, y , _ in sort_them_all]
-        best_lambdas = [z for _, _ , z in sort_them_all]
+        best_accuracies = [x for x, _, _ in sort_them_all]
+        best_etas = [y for _, y, _ in sort_them_all]
+        best_lambdas = [z for _, _, z in sort_them_all]
 
         print('---------------------------------')
         print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
@@ -1248,7 +1267,6 @@ def exercise_4():
 
 
 def exercise_5():
-
     # Optimize the performance of the network
 
     training, validation, test = create_sets()
@@ -1281,19 +1299,17 @@ def exercise_5():
         return W1, b1, W2, b2, training_set_loss, validation_set_loss
 
     W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1, \
-    training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304, regularization_term = 0.001)
+    training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304,
+                                                                                       regularization_term=0.001)
 
     visualize_costs(training_set_loss_improvement_1, validation_set_loss_improvement_1, display=True,
                     title='Cross Entropy Loss Evolution, improvement 1', save_name='improvement_1')
 
-    accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1)
-
-
-    
+    accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1,
+                                             b2_improvement_1)
 
 
 if __name__ == '__main__':
-
     # exercise_1()
     # exercise_2()
     # exercise_3()
