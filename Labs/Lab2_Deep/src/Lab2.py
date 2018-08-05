@@ -1106,10 +1106,29 @@ def exercise_4():
     # coarse_search()
     # fine_search()
     final_search()
+    
+def exercise_5():
+    
+    def create_sets():
+        
+        X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
+        X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
+        X_training_3, Y_training_3, y_training_3 = LoadBatch('../../cifar-10-batches-py/data_batch_3')
+        X_training_4, Y_training_4, y_training_4 = LoadBatch('../../cifar-10-batches-py/data_batch_4')
+        X_training_5, Y_training_5, y_training_5 = LoadBatch('../../cifar-10-batches-py/data_batch_5')
+
+        X_
+
+        X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
+    
+        mean = np.mean(X_training_1)
+        X_training_1 -= mean
+        X_training_2 -= mean
+        X_test -= mean
 
 if __name__ == '__main__':
 
-    # exercise_1()
+    exercise_1()
     # exercise_2()
     # exercise_3()
     exercise_4()
