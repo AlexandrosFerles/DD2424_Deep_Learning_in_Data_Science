@@ -60,6 +60,26 @@ def initialize_weights(d=3072, m=50, K=10, std=0.001):
     return W1, b1, W2, b2
 
 
+def he_initialization(d=3072, m=50, K=10):
+    """
+    He initialization on the weight matrices.
+
+    :param d: Dimensionality of input data.
+    :param m: Number of nodes in the hidden layer.
+    :param K: Number of classes.
+
+    :return: Initialized weight and bias matrices based on He initialization of the weights.
+    """
+
+    W1 = np.random.randn(d, m) * np.sqrt(2 / float(m))
+    W2 = np.random.randn(m, K) * np.sqrt(2 / float(K))
+
+    b1 = np.zeros(shape=(m, 1))
+    b2 = np.zeros(shape=(K, 1))
+
+    return W1, b1, W2, b2
+
+
 def ReLU(x):
     """
     Rectified Linear Unit function
@@ -731,27 +751,42 @@ def exercise_5():
     #
     # accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1,
     #                                          b2_improvement_1)
+    # print('Accuracy of the first improvement: ', accuracy_improvement_1)
 
-    def improvement_2():
+    def improvement_2(eta=0.018920249916784752, regularization_term=0.0001):
+        """
+        Switch to He-initialization
+        """
 
-        def he_initialization(d=3072, m=50, K=10):
-            """
-            He initialization on the weight matrices.
+        W1_he, b1_he, W2_he, b2_he = he_initialization()
 
-            :param d: Dimensionality of input data.
-            :param m: Number of nodes in the hidden layer.
-            :param K: Number of classes.
+        GD_params = [100, eta, 40]
 
-            :return: Initialized weight and bias matrices based on He initialization of the weights.
-            """
+        W1_he, b1_he, W2_he, b2_he, training_set_loss_he, validation_set_loss_he = MiniBatchGDwithMomentum(X_training,
+                                                                                         Y_training,
+                                                                                         X_validation,
+                                                                                         Y_validation,
+                                                                                         y_validation,
+                                                                                         GD_params,
+                                                                                         W1_he, b1_he, W2_he, b2_he,
+                                                                                         regularization_term)
 
-            W1 = w=np.random.randn(d,m)*np.sqrt(2/float(m))
-            W2 = w=np.random.randn(m,K)*np.sqrt(2/float(K))
+        return W1_he, b1_he, W2_he, b2_he, training_set_loss_he, validation_set_loss_he
 
-            b1 = np.zeros(shape=(m,1))
-            b2 = np.zeros(shape=(K,1))
+    """
+    Uncomment to test the second improvement
+    """
+    W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2, \
+    training_set_loss_improvement_2, validation_set_loss_improvement_2 = improvement_2()
 
-            return W1, b1, W2, b2
+    visualize_costs(training_set_loss_improvement_2, validation_set_loss_improvement_2, display=True,
+                    title='Cross Entropy Loss Evolution, improvement 2', save_name='improvement_2')
+
+    accuracy_improvement_2 = ComputeAccuracy(X_test, y_test, W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2)
+    print('Accuracy of the second improvement: ', accuracy_improvement_2)
+
+
+
 
 if __name__ == '__main__':
 
