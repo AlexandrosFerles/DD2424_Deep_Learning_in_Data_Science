@@ -1298,19 +1298,46 @@ def exercise_5():
 
         return W1, b1, W2, b2, training_set_loss, validation_set_loss
 
-    W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1, \
-    training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304,
-                                                                                       regularization_term=0.001)
+    """
+    Uncomment to test the first improvement
+    """
+    # W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1, \
+    # training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304,
+    #                                                                                    regularization_term=0.001)
+    #
+    # visualize_costs(training_set_loss_improvement_1, validation_set_loss_improvement_1, display=True,
+    #                 title='Cross Entropy Loss Evolution, improvement 1', save_name='improvement_1')
+    #
+    # accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1,
+    #                                          b2_improvement_1)
 
-    visualize_costs(training_set_loss_improvement_1, validation_set_loss_improvement_1, display=True,
-                    title='Cross Entropy Loss Evolution, improvement 1', save_name='improvement_1')
+    def improvement_2():
 
-    accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1,
-                                             b2_improvement_1)
+        def he_initialization(d=3072, m=50, K=10):
+            """
+            He initialization on the weight matrices.
+
+            :param d: Dimensionality of input data.
+            :param m: Number of nodes in the hidden layer.
+            :param K: Number of classes.
+
+            :return: Initialized weight and bias matrices based on He initialization of the weights.
+            """
+
+            W1 = w=np.random.randn(d,m)*np.sqrt(2/float(m))
+            W2 = w=np.random.randn(m,K)*np.sqrt(2/float(K))
+
+            b1 = np.zeros(shape=(m,1))
+            b2 = np.zeros(shape=(K,1))
+
+            return W1, b1, W2, b2
+
+
 
 
 if __name__ == '__main__':
     # exercise_1()
     # exercise_2()
     # exercise_3()
-    exercise_4()
+    # exercise_4()
+    exercise_5()
