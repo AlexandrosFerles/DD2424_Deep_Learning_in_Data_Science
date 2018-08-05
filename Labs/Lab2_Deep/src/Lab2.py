@@ -635,6 +635,47 @@ def visualize_costs(loss, val_loss, display= False, title = None, save_name= Non
 
     plt.clf()
 
+def create_sets():
+    """
+    Creates the full dataset, containing all the available data for training except 1000 images
+    used for the validation set.
+
+    :return: Training, validation and test sets (features, ground-truth labels, and their one-hot representation
+    """
+
+    X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
+    X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
+    X_training_3, Y_training_3, y_training_3 = LoadBatch('../../cifar-10-batches-py/data_batch_3')
+    X_training_4, Y_training_4, y_training_4 = LoadBatch('../../cifar-10-batches-py/data_batch_4')
+    X_training_5, Y_training_5, y_training_5 = LoadBatch('../../cifar-10-batches-py/data_batch_5')
+
+    X_training = np.concatenate((X_training_1, X_training_3), axis=1)
+    X_training = np.copy(np.concatenate((X_training, X_training_4), axis=1))
+    X_training = np.copy(np.concatenate((X_training, X_training_5), axis=1))
+
+    X_training = np.concatenate((X_training, X_training_2[:, :9000]), axis=1)
+
+    Y_training = np.concatenate((Y_training_1, Y_training_3), axis=1)
+    Y_training = np.copy(np.concatenate((Y_training, Y_training_4), axis=1))
+    Y_training = np.copy(np.concatenate((Y_training, Y_training_5), axis=1))
+
+    Y_training = np.concatenate((Y_training, Y_training_2[:, :9000]), axis=1)
+
+    y_training = y_training_1 + y_training_3 + y_training_4 + y_training_5 + y_training_2[:9000]
+
+    X_validation = np.copy(X_training_2[:, 9000:])
+    Y_validation = np.copy(Y_training_2[:, 9000:])
+    y_validation = y_training_2[9000:]
+
+    X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
+
+    mean = np.mean(X_training)
+    X_training -= mean
+    X_validation -= mean
+    X_test -= mean
+
+    return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
+
 def exercise_1():
     """
     DD2424 Assignemnt 2, Exercise 1: Read the data & initialize the parameters of the network
@@ -1137,47 +1178,10 @@ def exercise_4():
     # random_search()
     # coarse_search()
     # fine_search()
-    final_search()
-    
-def exercise_5():
-    
-    def create_sets():
-        
-        X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
-        X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
-        X_training_3, Y_training_3, y_training_3 = LoadBatch('../../cifar-10-batches-py/data_batch_3')
-        X_training_4, Y_training_4, y_training_4 = LoadBatch('../../cifar-10-batches-py/data_batch_4')
-        X_training_5, Y_training_5, y_training_5 = LoadBatch('../../cifar-10-batches-py/data_batch_5')
+    # final_search()
 
-        X_training = np.concatenate((X_training_1, X_training_3), axis=1)
-        X_training = np.copy(np.concatenate((X_training, X_training_4), axis=1))
-        X_training = np.copy(np.concatenate((X_training, X_training_5), axis=1))
-
-        X_training = np.concatenate((X_training, X_training_2[:, :9000]), axis=1)
-
-        Y_training = np.concatenate((Y_training_1, Y_training_3), axis=1)
-        Y_training = np.copy(np.concatenate((Y_training, Y_training_4), axis=1))
-        Y_training = np.copy(np.concatenate((Y_training, Y_training_5), axis=1))
-
-        Y_training = np.concatenate((Y_training, Y_training_2[:, :9000]), axis=1)
-
-        y_training = y_training_1 + y_training_3 + y_training_4 + y_training_5 + y_training_2[:9000]
-
-        X_validation = np.copy(X_training_2[:, 9000:])
-        Y_validation = np.copy(Y_training_2[:, 9000:])
-        y_validation = y_training_2[9000:]
-
-        X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
-    
-        mean = np.mean(X_training)
-        X_training -= mean
-        X_validation -= mean
-        X_test -= mean
-        
-        return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
-    
     training, validation, test = create_sets()
-    
+
     X_training, Y_training, y_training = training
     X_validation, Y_validation, y_validation = validation
     X_test, y_test = test
@@ -1197,7 +1201,8 @@ def exercise_5():
                                                                                      W1, b1, W2, b2,
                                                                                      regularization_term=0.0001)
 
-    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.018920249916784752$', save_name='experiment_1')
+    visualize_costs(training_set_loss, validation_set_loss, display=True,
+                    title='Cross Entropy Loss Evolution, $\eta=0.018920249916784752$', save_name='experiment_1')
 
     test_set_accuracy_1 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
 
@@ -1216,7 +1221,8 @@ def exercise_5():
                                                                                      W1, b1, W2, b2,
                                                                                      regularization_term=0.0001)
 
-    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.01713848118474131', save_name='experiment_2')
+    visualize_costs(training_set_loss, validation_set_loss, display=True,
+                    title='Cross Entropy Loss Evolution, $\eta=0.01713848118474131', save_name='experiment_2')
 
     test_set_accuracy_2 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
 
@@ -1235,13 +1241,60 @@ def exercise_5():
                                                                                      W1, b1, W2, b2,
                                                                                      regularization_term=0.001)
 
-    visualize_costs(training_set_loss,validation_set_loss, display=True, title='Cross Entropy Loss Evolution, $\eta=0.02878809988519304', save_name='experiment_3')
+    visualize_costs(training_set_loss, validation_set_loss, display=True,
+                    title='Cross Entropy Loss Evolution, $\eta=0.02878809988519304', save_name='experiment_3')
 
     test_set_accuracy_3 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
 
+
+def exercise_5():
+
+    # Optimize the performance of the network
+
+    training, validation, test = create_sets()
+
+    X_training, Y_training, y_training = training
+    X_validation, Y_validation, y_validation = validation
+    X_test, y_test = test
+
+    def improvement_1(eta, regularization_term):
+        """
+         Use all the available data from training, train for more update steps and use your validation set to make
+        sure you don’t overfit or keep a record of the best model before you begin to overfit
+
+        :return: Learnt weight matrices, training and validation set loss evolution
+        """
+
+        W1, b1, W2, b2 = initialize_weights()
+
+        GD_params = [100, eta, 40]
+
+        W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
+                                                                                         Y_training,
+                                                                                         X_validation,
+                                                                                         Y_validation,
+                                                                                         y_validation,
+                                                                                         GD_params,
+                                                                                         W1, b1, W2, b2,
+                                                                                         regularization_term)
+
+        return W1, b1, W2, b2, training_set_loss, validation_set_loss
+
+    W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1, \
+    training_set_loss_improvement_1, validation_set_loss_improvement_1 = improvement_1(eta=0.02878809988519304, regularization_term = 0.001)
+
+    visualize_costs(training_set_loss_improvement_1, validation_set_loss_improvement_1, display=True,
+                    title='Cross Entropy Loss Evolution, improvement 1', save_name='improvement_1')
+
+    accuracy_improvement_1 = ComputeAccuracy(X_test, y_test, W1_improvement_1, b1_improvement_1, W2_improvement_1, b2_improvement_1)
+
+
+    
+
+
 if __name__ == '__main__':
 
-    exercise_1()
+    # exercise_1()
     # exercise_2()
     # exercise_3()
     exercise_4()
