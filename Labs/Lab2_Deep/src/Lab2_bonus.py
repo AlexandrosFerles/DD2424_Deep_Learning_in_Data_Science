@@ -625,14 +625,177 @@ def exercise_2():
     """
     Uncomment for first try
     """
-    W1_try_1, b1_try_1, W2_try_1, b2_try_1, \
-    training_set_loss_try_1, validation_set_loss_try_1 = try_1()
+    # W1_try_1, b1_try_1, W2_try_1, b2_try_1, \
+    # training_set_loss_try_1, validation_set_loss_try_1 = try_1()
+    #
+    # visualize_costs(training_set_loss_try_1, validation_set_loss_try_1, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, try 1', save_name='try_1')
+    #
+    # accuracy_try_1 = ComputeAccuracy(X_test, y_test, W1_try_1, b1_try_1, W2_try_1, b2_try_1)
+    # print('Accuracy of the fourth improvement: ', accuracy_try_1)
 
-    visualize_costs(training_set_loss_try_1, validation_set_loss_try_1, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 1', save_name='try_1')
+    def try_2(eta=0.018920249916784752, regularization_term=0.0001):
+        W1_leaky_2, b1_leaky_2, W2_leaky_2, b2_leaky_2 = initialize_weights()
 
-    accuracy_try_1 = ComputeAccuracy(X_test, y_test, W1_try_1, b1_try_1, W2_try_1, b2_try_1)
-    print('Accuracy of the fourth improvement: ', accuracy_try_1)
+        GD_params = [100, eta, 30]
+
+        W1_leaky_2, b1_leaky_2, W2_leaky_2, b2_leaky_2, training_set_loss_leaky_2, validation_set_loss_leaky_2 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_2, b1_leaky_2, W2_leaky_2, b2_leaky_2,
+                                    regularization_term,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_2, b1_leaky_2, W2_leaky_2, b2_leaky_2, training_set_loss_leaky_2, validation_set_loss_leaky_2
+
+    """
+    Uncomment for second try
+    """
+    W1_try_2, b1_try_2, W2_try_2, b2_try_2, training_set_loss_try_2, validation_set_loss_try_2 = try_2()
+
+    visualize_costs(training_set_loss_try_2, validation_set_loss_try_2, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 2', save_name='try_2')
+
+    accuracy_try_2 = ComputeAccuracy(X_test, y_test, W1_try_2, b1_try_2, W2_try_2, b2_try_2)
+    print('Accuracy of the fourth improvement: ', accuracy_try_2)
+    
+    def try_3(eta=0.02878809988519304, regularization_term=0.001):
+        W1_leaky_3, b1_leaky_3, W2_leaky_3, b2_leaky_3 = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_3, b1_leaky_3, W2_leaky_3, b2_leaky_3, training_set_loss_leaky_3, validation_set_loss_leaky_3 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_3, b1_leaky_3, W2_leaky_3, b2_leaky_3,
+                                    regularization_term,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_3, b1_leaky_3, W2_leaky_3, b2_leaky_3, training_set_loss_leaky_3, validation_set_loss_leaky_3
+
+    """
+    Uncomment for third try
+    """
+    W1_try_3, b1_try_3, W2_try_3, b2_try_3, training_set_loss_try_3, validation_set_loss_try_3 = try_3()
+
+    visualize_costs(training_set_loss_try_3, validation_set_loss_try_3, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 3', save_name='try_3')
+
+    accuracy_try_3 = ComputeAccuracy(X_test, y_test, W1_try_3, b1_try_3, W2_try_3, b2_try_3)
+    print('Accuracy of the fourth improvement: ', accuracy_try_3)
+
+    def try_4(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        Leaky ReLU with annealing the learning rate
+        :return:
+        """
+        W1_leaky_4, b1_leaky_4, W2_leaky_4, b2_leaky_4 = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_4, b1_leaky_4, W2_leaky_4, b2_leaky_4, training_set_loss_leaky_4, validation_set_loss_leaky_4 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_4, b1_leaky_4, W2_leaky_4, b2_leaky_4,
+                                    regularization_term,
+                                    with_annealing=True,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_4, b1_leaky_4, W2_leaky_4, b2_leaky_4, training_set_loss_leaky_4, validation_set_loss_leaky_4
+
+    """
+    Uncomment for fourth try
+    """
+    W1_try_4, b1_try_4, W2_try_4, b2_try_4, \
+    training_set_loss_try_4, validation_set_loss_try_4 = try_4()
+
+    visualize_costs(training_set_loss_try_4, validation_set_loss_try_4, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, Learning rate annealing', save_name='try_4')
+
+    accuracy_try_4 = ComputeAccuracy(X_test, y_test, W1_try_4, b1_try_4, W2_try_4, b2_try_4)
+    print('Accuracy of the fourth improvement: ', accuracy_try_4)
+    
+    def try_5(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        Leaky ReLU with He initialization
+        """
+        W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5 = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5, training_set_loss_leaky_5, validation_set_loss_leaky_5 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5,
+                                    regularization_term,
+                                    with_annealing=True,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5, training_set_loss_leaky_5, validation_set_loss_leaky_5
+
+    """
+    Uncomment for fifth try
+    """
+    W1_try_5, b1_try_5, W2_try_5, b2_try_5, \
+    training_set_loss_try_5, validation_set_loss_try_5 = try_5()
+
+    visualize_costs(training_set_loss_try_5, validation_set_loss_try_5, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, He initialization', save_name='try_5')
+
+    accuracy_try_5 = ComputeAccuracy(X_test, y_test, W1_try_5, b1_try_5, W2_try_5, b2_try_5)
+    print('Accuracy of the fifth improvement: ', accuracy_try_5)
+    
+    def try_6(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        Leaky ReLU with He initialization
+        """
+        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6 = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6, training_set_loss_leaky_6, validation_set_loss_leaky_6 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6,
+                                    regularization_term,
+                                    with_annealing=True,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6, training_set_loss_leaky_6, validation_set_loss_leaky_6
+
+    """
+    Uncomment for sixth try
+    """
+    W1_try_6, b1_try_6, W2_try_6, b2_try_6, \
+    training_set_loss_try_6, validation_set_loss_try_6 = try_6()
+
+    visualize_costs(training_set_loss_try_6, validation_set_loss_try_6, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, 100 nodes in the hidden layer', save_name='try_6')
+
+    accuracy_try_6 = ComputeAccuracy(X_test, y_test, W1_try_6, b1_try_6, W2_try_6, b2_try_6)
+    print('Accuracy of the sixth improvement: ', accuracy_try_6)
+    
+    
         
         
 
