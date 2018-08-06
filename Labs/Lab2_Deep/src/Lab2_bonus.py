@@ -71,8 +71,8 @@ def he_initialization(d=3072, m=50, K=10):
     :return: Initialized weight and bias matrices based on He initialization of the weights.
     """
 
-    W1 = np.random.randn(d, m) * np.sqrt(2 / float(m))
-    W2 = np.random.randn(m, K) * np.sqrt(2 / float(K))
+    W1 = np.random.randn(m, d) * np.sqrt(2 / float(m))
+    W2 = np.random.randn(K, m) * np.sqrt(2 / float(K))
 
     b1 = np.zeros(shape=(m, 1))
     b2 = np.zeros(shape=(K, 1))
@@ -520,7 +520,7 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
 
 
 def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2,
-                            regularization_term=0, momentum_term=0.9):
+                            regularization_term=0, with_annealing = False, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -534,6 +534,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     :param W2: Weight matrix of the second layer of the network.
     :param b2: Bias vector of the second layer of the network.
     :param regularization_term: Amount of regularization applied.
+    :param with_annealing: Set to true to allow decaying the learning rate by half every 5 epochs.
 
     :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
     """
@@ -597,7 +598,11 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
         val_cost.append(val_epoch_cost)
 
         # Decay the learning rate
-        eta *= 0.95
+        if with_annealing:
+            if epoch > 1 and epoch // 5 == 0:
+                eta /= 2.0
+        else:
+            eta *= 0.95
 
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
@@ -707,7 +712,7 @@ def create_sets():
 
     return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
 
-def exercise_5():
+def exercise_1():
     # Optimize the performance of the network
 
     training, validation, test = create_sets()
@@ -760,7 +765,7 @@ def exercise_5():
 
         W1_he, b1_he, W2_he, b2_he = he_initialization()
 
-        GD_params = [100, eta, 40]
+        GD_params = [100, eta, 30]
 
         W1_he, b1_he, W2_he, b2_he, training_set_loss_he, validation_set_loss_he = MiniBatchGDwithMomentum(X_training,
                                                                                          Y_training,
@@ -776,18 +781,89 @@ def exercise_5():
     """
     Uncomment to test the second improvement
     """
-    W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2, \
-    training_set_loss_improvement_2, validation_set_loss_improvement_2 = improvement_2()
+    # W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2, \
+    # training_set_loss_improvement_2, validation_set_loss_improvement_2 = improvement_2()
+    #
+    # visualize_costs(training_set_loss_improvement_2, validation_set_loss_improvement_2, display=True,
+    #                 title='Cross Entropy Loss Evolution, improvement 2', save_name='improvement_2')
+    #
+    # accuracy_improvement_2 = ComputeAccuracy(X_test, y_test, W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2)
+    # print('Accuracy of the second improvement: ', accuracy_improvement_2)
 
-    visualize_costs(training_set_loss_improvement_2, validation_set_loss_improvement_2, display=True,
-                    title='Cross Entropy Loss Evolution, improvement 2', save_name='improvement_2')
+    def improvement_3(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        ﻿You could also explore whether having more hidden nodes improves the final classification rate. 
+        One would expect that with more hidden nodes then the amount of regularization would have to increase.
+        """
 
-    accuracy_improvement_2 = ComputeAccuracy(X_test, y_test, W1_improvement_2, b1_improvement_2, W2_improvement_2, b2_improvement_2)
-    print('Accuracy of the second improvement: ', accuracy_improvement_2)
+        W1_100, b1_100, W2_100, b2_100 = initialize_weights(m=100)
+
+        GD_params = [100, eta, 30]
+
+        W1_100, b1_100, W2_100, b2_100, training_set_loss_100, validation_set_loss_100 = MiniBatchGDwithMomentum(X_training,
+                                                                                         Y_training,
+                                                                                         X_validation,
+                                                                                         Y_validation,
+                                                                                         y_validation,
+                                                                                         GD_params,
+                                                                                         W1_100, b1_100, W2_100, b2_100,
+                                                                                         regularization_term)
+
+        return W1_100, b1_100, W2_100, b2_100, training_set_loss_100, validation_set_loss_100
+
+    """
+    Uncomment to test the third improvement
+    """
+    # W1_improvement_3, b1_improvement_3, W3_improvement_3, b3_improvement_3, \
+    # training_set_loss_improvement_3, validation_set_loss_improvement_3 = improvement_3()
+    #
+    # visualize_costs(training_set_loss_improvement_3, validation_set_loss_improvement_3, display=True,
+    #                 title='Cross Entropy Loss Evolution, improvement 3', save_name='improvement_3')
+    #
+    # accuracy_improvement_3 = ComputeAccuracy(X_test, y_test, W1_improvement_3, b1_improvement_3, W3_improvement_3, b3_improvement_3)
+    # print('Accuracy of the third improvement: ', accuracy_improvement_3)
+    
+    def improvement_4(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        ﻿Play around with different approaches to anneal the learning rate.
+        For example you can keep the learning rate fixed over several epochs then decay it by a factor of 10 after n epochs.
+        """
+        
+        W1_annealing, b1_annealing, W2_annealing, b2_annealing = initialize_weights()
+        
+        GD_params = [100, eta, 30]
+
+        W1_annealing, b1_annealing, W2_annealing, b2_annealing, training_set_loss_annealing, validation_set_loss_annealing = \
+            MiniBatchGDwithMomentum( X_training,
+                                     Y_training,
+                                     X_validation,
+                                     Y_validation,
+                                     y_validation,
+                                     GD_params,
+                                     W1_annealing, b1_annealing, W2_annealing, b2_annealing,
+                                     regularization_term,
+                                     with_annealing=True)
+
+        return W1_annealing, b1_annealing, W2_annealing, b2_annealing, training_set_loss_annealing, validation_set_loss_annealing
+
+    """
+    Uncomment to test the fourth improvement
+    """
+    W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4, \
+    training_set_loss_improvement_4, validation_set_loss_improvement_4 = improvement_4()
+
+    visualize_costs(training_set_loss_improvement_4, validation_set_loss_improvement_4, display=True,
+                    title='Cross Entropy Loss Evolution, improvement 4', save_name='improvement_4')
+
+    accuracy_improvement_4 = ComputeAccuracy(X_test, y_test, W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4)
+    print('Accuracy of the fourth improvement: ', accuracy_improvement_4)
+
+def exercise_2():
+
 
 
 
 
 if __name__ == '__main__':
 
-    exercise_5()
+    exercise_1()
