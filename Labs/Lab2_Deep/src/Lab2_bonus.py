@@ -3,7 +3,10 @@ from matplotlib import pyplot as plt
 from keras.utils import to_categorical as make_class_categorical
 import _pickle as pickle
 from tqdm import tqdm
-
+import skimage as sk
+from skimage import util
+from keras.preprocessing.image import ImageDataGenerator
+import random
 
 def LoadBatch(filename):
     """
@@ -373,6 +376,98 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
 
+def MiniBatchGDwithAugmenting(X, Y, X_validation, Y_validation, y_training, y_validation, GDparams, W1, b1, W2, b2,
+                            regularization_term=0, with_annealing = False, with_leaky_relu= False, momentum_term=0.9):
+    """
+    Performs mini batch-gradient descent computations on augmented images.
+
+    :param X: Input batch of data
+    :param Y: One-hot representation of the true labels of the data.
+    :param X_validation: Input batch of validation data.
+    :param Y_validation: One-hot representation of the true labels of the validation data.
+    :param y_training: True labels of the training data.
+    :param y_validation: True labels of the validation data. 
+    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
+    :param W1: Weight matrix of the first layer of the network.
+    :param b1: Bias vector of the first layer of the network.
+    :param W2: Weight matrix of the second layer of the network.
+    :param b2: Bias vector of the second layer of the network.
+    :param regularization_term: Amount of regularization applied.
+    :param with_annealing: Set to true to allow decaying the learning rate by half every 5 epochs.
+
+    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
+    """
+    number_of_mini_batches = GDparams[0]
+    eta = GDparams[1]
+    epoches = GDparams[2]
+
+    cost = []
+    val_cost = []
+
+    v_W1 = initialize_momentum(W1)
+    v_b1 = initialize_momentum(b1)
+    v_W2 = initialize_momentum(W2)
+    v_b2 = initialize_momentum(b2)
+
+    # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
+
+    original_training_cost = ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)
+
+    best_W1 = np.copy(W1)
+    best_b1 = np.copy(b1)
+    best_W2 = np.copy(W2)
+    best_b2 = np.copy(b2)
+
+    best_validation_set_accuracy = 0
+
+    for epoch in tqdm(range(epoches)):
+        # for epoch in range(epoches):
+        
+        augmented_X = np.copy(jitter_batch(X, y_training))
+
+        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
+            start = (batch - 1) * number_of_mini_batches + 1
+            end = batch * number_of_mini_batches + 1
+
+            p, h, s1 = EvaluateClassifier(augmented_X[:, start:end], W1, b1, W2, b2, with_leaky_relu)
+
+            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(augmented_X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
+                                                                  h, s1, regularization_term)
+
+            W1, v_W1 = add_momentum(v_W1, W1, grad_W1, eta, momentum_term)
+            b1, v_b1 = add_momentum(v_b1, b1, grad_b1, eta, momentum_term)
+            W2, v_W2 = add_momentum(v_W2, W2, grad_W2, eta, momentum_term)
+            b2, v_b2 = add_momentum(v_b2, b2, grad_b2, eta, momentum_term)
+
+        validation_set_accuracy = ComputeAccuracy(X_validation, y_validation, W1, b1, W2, b2)
+
+        if validation_set_accuracy > best_validation_set_accuracy:
+            best_W1 = np.copy(W1)
+            best_b1 = np.copy(b1)
+            best_W2 = np.copy(W2)
+            best_b2 = np.copy(b2)
+
+            best_validation_set_accuracy = validation_set_accuracy
+
+        epoch_cost = ComputeCost(augmented_X, Y, W1, W2, b1, b2)
+        # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
+        if epoch_cost > 3 * original_training_cost:
+            break
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+
+        cost.append(epoch_cost)
+        val_cost.append(val_epoch_cost)
+
+        # Decay the learning rate
+        if with_annealing:
+            if epoch > 1 and epoch // 5 == 0:
+                eta /= 2.0
+        else:
+            eta *= 0.95
+
+    # return W1, b1, W2, b2, cost, val_cost
+    return best_W1, best_b1, best_W2, best_b2, cost, val_cost
+
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
     Visualization and saving the losses of the network.
@@ -446,6 +541,52 @@ def create_sets():
 
     return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
 
+def random_noise(image_array):
+    """
+    Add random noise to an array of images
+    """
+    return sk.util.random_noise(image_array)
+
+def create_augmented_dataset(X):
+    """
+    Performs random permutations to an array of images
+    """
+
+    X_augmented = np.zeros(X.shape)
+
+    from keras.preprocessing.image import ImageDataGenerator
+    datagen = ImageDataGenerator(
+        rotation_range=90,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        horizontal_flip=True)
+
+    data = np.ndarray(shape=(X.shape[1], 32, 32, 3))
+    for datum in range(X.shape[1]):
+        data[datum, :] = X[:, datum].reshape(3, 32, 32).transpose(1, 2, 0)
+        for X_batch, _ in datagen.flow(data[datum:datum + 1], y[datum:datum + 1], batch_size=1):
+            X_augmented[:, datum] = X_batch[0].transpose(2, 1, 0).reshape(3072)
+            break
+
+    return X_augmented
+
+def jitter_batch(X, y):
+    """
+    Jitters a batch of images
+    """
+
+    X_jittered = create_augmented_dataset(X, y)
+
+    # With probability 50% we add random noise to an image along with other permutations
+    for datum in range(X_jittered.shape[1]):
+        add_noise = random.random()
+        print(add_noise)
+        if add_noise > 0.5:
+            X_jittered[:,datum] = random_noise(X_jittered[:,datum])
+
+    return X
+
+
 def exercise_1():
     # Optimize the performance of the network
 
@@ -468,8 +609,8 @@ def exercise_1():
         GD_params = [100, eta, 40]
 
         W1, b1, W2, b2, training_set_loss, validation_set_loss = MiniBatchGDwithMomentum(X_training,
-                                                                                         Y_training,
-                                                                                         X_validation,
+                                                                                         # Y_training,
+                                                                                         # X_validation,
                                                                                          Y_validation,
                                                                                          y_validation,
                                                                                          GD_params,
@@ -592,6 +733,42 @@ def exercise_1():
     accuracy_improvement_4 = ComputeAccuracy(X_test, y_test, W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4)
     print('Accuracy of the fourth improvement: ', accuracy_improvement_4)
 
+    def improvement_5(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        Apply random transformations to the images.
+        """
+
+        W1_jittering, b1_jittering, W2_jittering, b2_jittering = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_jittering, b1_jittering, W2_jittering, b2_jittering, training_set_loss_jittering, validation_set_loss_jittering = \
+            MiniBatchGDwithAugmenting(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_training,
+                                    y_validation,
+                                    GD_params,
+                                    W1_jittering, b1_jittering, W2_jittering, b2_jittering,
+                                    regularization_term)
+
+        return W1_jittering, b1_jittering, W2_jittering, b2_jittering, training_set_loss_jittering, validation_set_loss_jittering
+    
+    """
+    Uncomment to test the fifth improvement
+    """
+    W1_improvement_5, b1_improvement_5, W2_improvement_5, b2_improvement_5, \
+    training_set_loss_improvement_5, validation_set_loss_improvement_5 = improvement_5()
+
+    visualize_costs(training_set_loss_improvement_5, validation_set_loss_improvement_5, display=True,
+                    title='Cross Entropy Loss Evolution, improvement 5', save_name='improvement_5')
+
+    accuracy_improvement_5 = ComputeAccuracy(X_test, y_test, W1_improvement_5, b1_improvement_5, W2_improvement_5, b2_improvement_5)
+    print('Accuracy of the fifth improvement: ', accuracy_improvement_5)
+
+
+
 def exercise_2():
     """
     Train with a different activation function than ReLu
@@ -655,13 +832,13 @@ def exercise_2():
     """
     Uncomment for second try
     """
-    W1_try_2, b1_try_2, W2_try_2, b2_try_2, training_set_loss_try_2, validation_set_loss_try_2 = try_2()
-
-    visualize_costs(training_set_loss_try_2, validation_set_loss_try_2, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 2', save_name='try_2')
-
-    accuracy_try_2 = ComputeAccuracy(X_test, y_test, W1_try_2, b1_try_2, W2_try_2, b2_try_2)
-    print('Accuracy of the fourth improvement: ', accuracy_try_2)
+    # W1_try_2, b1_try_2, W2_try_2, b2_try_2, training_set_loss_try_2, validation_set_loss_try_2 = try_2()
+    #
+    # visualize_costs(training_set_loss_try_2, validation_set_loss_try_2, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, try 2', save_name='try_2')
+    #
+    # accuracy_try_2 = ComputeAccuracy(X_test, y_test, W1_try_2, b1_try_2, W2_try_2, b2_try_2)
+    # print('Accuracy of the fourth improvement: ', accuracy_try_2)
     
     def try_3(eta=0.02878809988519304, regularization_term=0.001):
         W1_leaky_3, b1_leaky_3, W2_leaky_3, b2_leaky_3 = initialize_weights()
@@ -684,13 +861,13 @@ def exercise_2():
     """
     Uncomment for third try
     """
-    W1_try_3, b1_try_3, W2_try_3, b2_try_3, training_set_loss_try_3, validation_set_loss_try_3 = try_3()
-
-    visualize_costs(training_set_loss_try_3, validation_set_loss_try_3, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 3', save_name='try_3')
-
-    accuracy_try_3 = ComputeAccuracy(X_test, y_test, W1_try_3, b1_try_3, W2_try_3, b2_try_3)
-    print('Accuracy of the fourth improvement: ', accuracy_try_3)
+    # W1_try_3, b1_try_3, W2_try_3, b2_try_3, training_set_loss_try_3, validation_set_loss_try_3 = try_3()
+    #
+    # visualize_costs(training_set_loss_try_3, validation_set_loss_try_3, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, try 3', save_name='try_3')
+    #
+    # accuracy_try_3 = ComputeAccuracy(X_test, y_test, W1_try_3, b1_try_3, W2_try_3, b2_try_3)
+    # print('Accuracy of the fourth improvement: ', accuracy_try_3)
 
     def try_4(eta=0.018920249916784752, regularization_term=0.001):
         """
@@ -718,14 +895,14 @@ def exercise_2():
     """
     Uncomment for fourth try
     """
-    W1_try_4, b1_try_4, W2_try_4, b2_try_4, \
-    training_set_loss_try_4, validation_set_loss_try_4 = try_4()
-
-    visualize_costs(training_set_loss_try_4, validation_set_loss_try_4, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, Learning rate annealing', save_name='try_4')
-
-    accuracy_try_4 = ComputeAccuracy(X_test, y_test, W1_try_4, b1_try_4, W2_try_4, b2_try_4)
-    print('Accuracy of the fourth improvement: ', accuracy_try_4)
+    # W1_try_4, b1_try_4, W2_try_4, b2_try_4, \
+    # training_set_loss_try_4, validation_set_loss_try_4 = try_4()
+    #
+    # visualize_costs(training_set_loss_try_4, validation_set_loss_try_4, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, Learning rate annealing', save_name='try_4')
+    #
+    # accuracy_try_4 = ComputeAccuracy(X_test, y_test, W1_try_4, b1_try_4, W2_try_4, b2_try_4)
+    # print('Accuracy of the fourth improvement: ', accuracy_try_4)
     
     def try_5(eta=0.018920249916784752, regularization_term=0.001):
         """
@@ -752,48 +929,81 @@ def exercise_2():
     """
     Uncomment for fifth try
     """
-    W1_try_5, b1_try_5, W2_try_5, b2_try_5, \
-    training_set_loss_try_5, validation_set_loss_try_5 = try_5()
-
-    visualize_costs(training_set_loss_try_5, validation_set_loss_try_5, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, He initialization', save_name='try_5')
-
-    accuracy_try_5 = ComputeAccuracy(X_test, y_test, W1_try_5, b1_try_5, W2_try_5, b2_try_5)
-    print('Accuracy of the fifth improvement: ', accuracy_try_5)
+    # W1_try_5, b1_try_5, W2_try_5, b2_try_5, \
+    # training_set_loss_try_5, validation_set_loss_try_5 = try_5()
+    #
+    # visualize_costs(training_set_loss_try_5, validation_set_loss_try_5, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, He initialization', save_name='try_5')
+    #
+    # accuracy_try_5 = ComputeAccuracy(X_test, y_test, W1_try_5, b1_try_5, W2_try_5, b2_try_5)
+    # print('Accuracy of the fifth improvement: ', accuracy_try_5)
     
-    def try_6(eta=0.018920249916784752, regularization_term=0.001):
+    def try_7(eta=0.018920249916784752, regularization_term=0.001):
         """
         Leaky ReLU with increase in the number of hidden nodes
         """
-        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6 = initialize_weights(m=100)
+        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7 = initialize_weights(m=100)
 
         GD_params = [100, eta, 30]
 
-        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6, training_set_loss_leaky_6, validation_set_loss_leaky_6 = \
+        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7 = \
             MiniBatchGDwithMomentum(X_training,
                                     Y_training,
                                     X_validation,
                                     Y_validation,
                                     y_validation,
                                     GD_params,
-                                    W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6,
+                                    W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7,
                                     regularization_term,
                                     with_annealing=False,
                                     with_leaky_relu=True)
 
-        return W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6, training_set_loss_leaky_6, validation_set_loss_leaky_6
+        return W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7
 
     """
     Uncomment for sixth try
     """
-    W1_try_6, b1_try_6, W2_try_6, b2_try_6, \
-    training_set_loss_try_6, validation_set_loss_try_6 = try_6()
+    # W1_try_6, b1_try_6, W2_try_6, b2_try_6, \
+    # training_set_loss_try_6, validation_set_loss_try_6 = try_6()
+    #
+    # visualize_costs(training_set_loss_try_6, validation_set_loss_try_6, display=True,
+    #                 title='Cross Entropy Loss Evolution, Leaky ReLU, 100 nodes in the hidden layer', save_name='try_6')
+    #
+    # accuracy_try_6 = ComputeAccuracy(X_test, y_test, W1_try_6, b1_try_6, W2_try_6, b2_try_6)
+    # print('Accuracy of the sixth improvement: ', accuracy_try_6)
+    
+    def try_7(eta=0.018920249916784752, regularization_term=0.001):
+        """
+        Leaky ReLU with jittering
+        """
+        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7 = initialize_weights(m=100)
 
-    visualize_costs(training_set_loss_try_6, validation_set_loss_try_6, display=True,
-                    title='Cross Entropy Loss Evolution, Leaky ReLU, 100 nodes in the hidden layer', save_name='try_6')
+        GD_params = [100, eta, 30]
 
-    accuracy_try_6 = ComputeAccuracy(X_test, y_test, W1_try_6, b1_try_6, W2_try_6, b2_try_6)
-    print('Accuracy of the sixth improvement: ', accuracy_try_6)
+        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7 = \
+            MiniBatchGDwithAugmenting(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                      y_training,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7,
+                                    regularization_term)
+
+        return W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7
+    
+    """
+    Uncomment for seventh try
+    """
+    W1_try_7, b1_try_7, W2_try_7, b2_try_7, \
+    training_set_loss_try_7, validation_set_loss_try_7 = try_7()
+
+    visualize_costs(training_set_loss_try_7, validation_set_loss_try_7, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, 1random jittering', save_name='try_7')
+
+    accuracy_try_7 = ComputeAccuracy(X_test, y_test, W1_try_7, b1_try_7, W2_try_7, b2_try_7)
+    print('Accuracy of the sixth improvement: ', accuracy_try_7)
 
 if __name__ == '__main__':
 
