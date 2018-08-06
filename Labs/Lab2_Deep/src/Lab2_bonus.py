@@ -36,7 +36,6 @@ def LoadBatch(filename):
 
     return X, Y, y
 
-
 def initialize_weights(d=3072, m=50, K=10, std=0.001):
     """
     Initializes the weight and bias arrays for the 2 layers of the network
@@ -59,7 +58,6 @@ def initialize_weights(d=3072, m=50, K=10, std=0.001):
 
     return W1, b1, W2, b2
 
-
 def he_initialization(d=3072, m=50, K=10):
     """
     He initialization on the weight matrices.
@@ -79,7 +77,6 @@ def he_initialization(d=3072, m=50, K=10):
 
     return W1, b1, W2, b2
 
-
 def ReLU(x):
     """
     Rectified Linear Unit function
@@ -91,6 +88,16 @@ def ReLU(x):
 
     return np.maximum(x, 0)
 
+def Leaky_ReLU(x):
+    """
+    Leaky Rectified Linear Unit function
+
+    :param x: Input to the function
+
+    :return: Output of ReLU(x)
+    """
+
+    return np.maximum(0.01*x, x)
 
 def softmax(X, theta=1.0, axis=None):
     """
@@ -132,8 +139,7 @@ def softmax(X, theta=1.0, axis=None):
 
     return p
 
-
-def EvaluateClassifier(X, W1, b1, W2, b2):
+def EvaluateClassifier(X, W1, b1, W2, b2, with_leaky_relu= False):
     """
     Computes the Softmax output of the 2 layer network, based on input data X and trained weight and bias arrays
 
@@ -147,12 +153,14 @@ def EvaluateClassifier(X, W1, b1, W2, b2):
     """
 
     s1 = np.dot(W1, X) + b1
-    h = ReLU(s1)
+    if not with_leaky_relu:
+        h = ReLU(s1)
+    else:
+        h = Leaky_ReLU(s1)
     s = np.dot(W2, h) + b2
     p = softmax(s, axis=0)
 
     return p, h, s1
-
 
 def predictClasses(p):
     """
@@ -163,7 +171,6 @@ def predictClasses(p):
     """
 
     return np.argmax(p, axis=0)
-
 
 def ComputeAccuracy(X, y, W1, b1, W2, b2):
     """
@@ -184,7 +191,6 @@ def ComputeAccuracy(X, y, W1, b1, W2, b2):
     accuracy = round(np.sum(np.where(predictions - y == 0, 1, 0)) * 100 / len(y), 2)
 
     return accuracy
-
 
 def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term=0):
     """
@@ -208,128 +214,6 @@ def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term=0):
     weight_sum = np.power(W1, 2).sum() + np.power(W2, 2).sum()
 
     return cross_entropy_loss + regularization_term * weight_sum
-
-
-def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
-    """
-    Computes gradient descent updates on a batch of data with numerical computations.
-    Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
-
-    :param X: Input data
-    :param Y: One-hot representation of the true labels of input data X
-    :param W1: Weight matrix of the first layer
-    :param b1: Bias vector of the first layer
-    :param W2: Weight matrix of the second layer
-    :param b2: Bias vector of the second layer
-    :param regularization_term: Contribution of the regularization in the weight updates
-
-    :return: Weight and bias updates of the first and second layer of our network computed with numerical computations
-    """
-
-    grad_W1 = np.zeros((W1.shape[0], W1.shape[1]))
-    grad_b1 = np.zeros((W1.shape[0], 1))
-    grad_W2 = np.zeros((W2.shape[0], W2.shape[1]))
-    grad_b2 = np.zeros((W2.shape[0], 1))
-
-    c = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2, b2=b2, regularization_term=regularization_term)
-
-    for i in range(b1.shape[0]):
-        b1_try = np.copy(b1)
-        b1_try[i, 0] += h
-        c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1_try, W2=W2, b2=b2, regularization_term=regularization_term)
-        grad_b1[i, 0] = (c2 - c) / h
-
-    for i in range(b2.shape[0]):
-        b2_try = np.copy(b2)
-        b2_try[i, 0] += h
-        c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2, b2=b2_try, regularization_term=regularization_term)
-        grad_b2[i, 0] = (c2 - c) / h
-
-    for i in range(W1.shape[0]):
-        for j in range(W1.shape[1]):
-            W1_try = np.copy(W1)
-            W1_try[i, j] += h
-            c2 = ComputeCost(X=X, Y=Y, W1=W1_try, b1=b1, W2=W2, regularization_term=regularization_term)
-
-            grad_W1[i, j] = (c2 - c) / h
-
-    for i in range(W2.shape[0]):
-        for j in range(W2.shape[1]):
-            W2_try = np.copy(W2)
-            W2_try[i, j] += h
-            c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2_try, regularization_term=regularization_term)
-
-            grad_W2[i, j] = (c2 - c) / h
-
-    return W1, b1, W2, b2
-
-
-def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0, h=1e-5):
-    """
-    Computes gradient descent updates on a batch of data with numerical computations of great precision, thus slower computations.
-    Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
-
-    :param X: Input data
-    :param Y: One-hot representation of the true labels of input data X
-    :param W1: Weight matrix of the first layer
-    :param b1: Bias vector of the first layer
-    :param W2: Weight matrix of the second layer
-    :param b2: Bias vector of the second layer
-    :param regularization_term: Contribution of the regularization in the weight updates
-
-    :return: Weight and bias updates of the first and second layer of our network computed with numerical computations with high precision.
-    """
-
-    grad_W1 = np.zeros((W1.shape[0], W1.shape[1]))
-    grad_b1 = np.zeros((b1.shape[0], 1))
-    grad_W2 = np.zeros((W2.shape[0], W2.shape[1]))
-    grad_b2 = np.zeros((b2.shape[0], 1))
-
-    for i in tqdm(range(b1.shape[0])):
-        b1_try = np.copy(b1)
-        b1_try[i, 0] -= h
-        c1 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1_try, W2=W2, b2=b2, regularization_term=regularization_term)
-        b1_try = np.copy(b1)
-        b1_try[i, 0] += h
-        c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1_try, W2=W2, b2=b2, regularization_term=regularization_term)
-        grad_b1[i, 0] = (c2 - c1) / (2 * h)
-
-    for i in tqdm(range(b2.shape[0])):
-        b2_try = np.copy(b2)
-        b2_try[i, 0] -= h
-        c1 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2, b2=b2_try, regularization_term=regularization_term)
-
-        b2_try = np.copy(b2)
-        b2_try[i, 0] += h
-        c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2, b2=b2_try, regularization_term=regularization_term)
-        grad_b2[i, 0] = (c2 - c1) / (2 * h)
-
-    for i in tqdm(range(W1.shape[0])):
-        for j in range(W1.shape[1]):
-            W1_try = np.copy(W1)
-            W1_try[i, j] -= h
-            c1 = ComputeCost(X=X, Y=Y, W1=W1_try, b1=b1, W2=W2, b2=b2, regularization_term=regularization_term)
-
-            W1_try = np.copy(W1)
-            W1_try[i, j] += h
-            c2 = ComputeCost(X=X, Y=Y, W1=W1_try, b1=b1, W2=W2, b2=b2, regularization_term=regularization_term)
-
-            grad_W1[i, j] = (c2 - c1) / (2 * h)
-
-    for i in tqdm(range(W2.shape[0])):
-        for j in range(W2.shape[1]):
-            W2_try = np.copy(W2)
-            W2_try[i, j] -= h
-            c1 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2_try, b2=b2, regularization_term=regularization_term)
-
-            W2_try = np.copy(W2)
-            W2_try[i, j] += h
-            c2 = ComputeCost(X=X, Y=Y, W1=W1, b1=b1, W2=W2_try, b2=b2, regularization_term=regularization_term)
-
-            grad_W2[i, j] = (c2 - c1) / (2 * h)
-
-    return W1, b1, W2, b2
-
 
 def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term=0):
     """
@@ -374,73 +258,6 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term=0):
 
     return grad_W1, grad_b1, grad_W2, grad_b2
 
-
-def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gradW2_num, gradb2_num, threshold=1e-4):
-    """
-    Compares the gradients of both the analytical and numerical method and prints out a message of result
-    or failure, depending on how close these gradients are between each other.
-
-    :param gradW1: Gradient of W1, analytically computed
-    :param gradb1: Gradient of b1, analytically computed
-    :param gradW2: Gradient of W2, analytically computed
-    :param gradb2: Gradient of b2, analytically computed
-    :param gradW1_num: Gradient of W1, numerically computed
-    :param gradb1_num: Gradient of b1, numerically computed
-    :param gradW2_num: Gradient of W2, numerically computed
-    :param gradb2_num: Gradient of b2, numerically computed
-
-    :return: None
-    """
-
-    W1_abs = np.abs(gradW1 - gradW1_num)
-    b1_abs = np.abs(gradb1 - gradb1_num)
-
-    W2_abs = np.abs(gradW2 - gradW2_num)
-    b2_abs = np.abs(gradb2 - gradb2_num)
-
-    W1_nominator = np.average(W1_abs)
-    b1_nominator = np.average(b1_abs)
-
-    W2_nominator = np.average(W2_abs)
-    b2_nominator = np.average(b2_abs)
-
-    gradW1_abs = np.absolute(gradW1)
-    gradW1_num_abs = np.absolute(gradW1_num)
-
-    gradW2_abs = np.absolute(gradW2)
-    gradW2_num_abs = np.absolute(gradW2_num)
-
-    gradb1_abs = np.absolute(gradb1)
-    gradb1_num_abs = np.absolute(gradb1)
-
-    gradb2_abs = np.absolute(gradb2)
-    gradb2_num_abs = np.absolute(gradb2)
-
-    sum_W1 = gradW1_abs + gradW1_num_abs
-    sum_W2 = gradW2_abs + gradW2_num_abs
-    sum_b1 = gradb1_abs + gradb1_num_abs
-    sum_b2 = gradb2_abs + gradb2_num_abs
-
-    check_W1 = W1_nominator / np.amax(sum_W1)
-    check_b1 = b1_nominator / np.amax(sum_b1)
-
-    check_W2 = W2_nominator / np.amax(sum_W2)
-    check_b2 = b2_nominator / np.amax(sum_b2)
-
-    if check_W1 < threshold and check_b1 < threshold and check_W2 < threshold and check_b2 < threshold:
-        print("Success!!")
-        print("Average error on weights of first layer= ", check_W1)
-        print("Average error on bias of first layer=", check_b1)
-        print("Average error on weights of second layer= ", check_W2)
-        print("Average error on bias of second layer= ", check_b2)
-    else:
-        print("Failure")
-        print("Average error on weights of first layer= ", check_W1)
-        print("Average error on bias of first layer=", check_b1)
-        print("Average error on weights of second layer= ", check_W2)
-        print("Average error on bias of second layer= ", check_b2)
-
-
 def initialize_momentum(hyperparameter):
     """
     Initializes the corresponding momentum of a hyperparameter matrix or vector
@@ -450,7 +267,6 @@ def initialize_momentum(hyperparameter):
     """
 
     return np.zeros(hyperparameter.shape)
-
 
 def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     """
@@ -469,58 +285,8 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
 
     return hyperpatameter - v_t, v_t
 
-
-def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term=0):
-    """
-    Performs mini batch-gradient descent computations.
-
-    :param X: Input batch of data
-    :param Y: One-hot representation of the true labels of the data.
-    :param X_validation: Input batch of validation data.
-    :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
-    :param W1: Weight matrix of the first layer of the network.
-    :param b1: Bias vector of the first layer of the network.
-    :param W2: Weight matrix of the second layer of the network.
-    :param b2: Bias vector of the second layer of the network.
-    :param regularization_term: Amount of regularization applied.
-
-    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
-    """
-    number_of_mini_batches = GDparams[0]
-    eta = GDparams[1]
-    epoches = GDparams[2]
-
-    cost = []
-    val_cost = []
-
-    for _ in tqdm(range(epoches)):
-
-        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
-            start = (batch - 1) * number_of_mini_batches + 1
-            end = batch * number_of_mini_batches + 1
-
-            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2)
-
-            grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
-                                                                  h, s1, regularization_term)
-
-            W1 -= eta * grad_W1
-            b1 -= eta * grad_b1
-            W2 -= eta * grad_W2
-            b2 -= eta * grad_b2
-
-        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, 0)
-        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
-
-        cost.append(epoch_cost)
-        val_cost.append(val_epoch_cost)
-
-    return W1, b1, W2, b2, cost, val_cost
-
-
 def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2,
-                            regularization_term=0, with_annealing = False, momentum_term=0.9):
+                            regularization_term=0, with_annealing = False, with_leaky_relu= False, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -568,7 +334,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
             start = (batch - 1) * number_of_mini_batches + 1
             end = batch * number_of_mini_batches + 1
 
-            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2)
+            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2, with_leaky_relu)
 
             grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
                                                                   h, s1, regularization_term)
@@ -607,37 +373,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
 
-
-def visualize_single_cost(loss, display=False, title=None, save_name=None, save_path='../figures/'):
-    """
-        Visualization and saving the loss of the network.
-
-        :param loss: Loss of the network.
-        :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
-        :param title: (Optional) Title of the plot.
-        :param save_name: (Optional) name of the file to save the plot.
-        :param save_path: (Optional) Path of the folder to save the plot in your local computer.
-
-        :return: None
-
-        """
-
-    if title is not None:
-        plt.title(title)
-
-    plt.plot(loss)
-
-    if save_name is not None:
-        if save_path[-1] != '/':
-            save_path += '/'
-        plt.savefig(save_path + save_name + '.png')
-
-    if display:
-        plt.show()
-
-    plt.clf()
-
-
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
     Visualization and saving the losses of the network.
@@ -669,7 +404,6 @@ def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, s
         plt.show()
 
     plt.clf()
-
 
 def create_sets():
     """
@@ -859,6 +593,48 @@ def exercise_1():
     print('Accuracy of the fourth improvement: ', accuracy_improvement_4)
 
 def exercise_2():
+    """
+    Train with a different activation function than ReLu
+    """
+    
+    training, validation, test = create_sets()
+
+    X_training, Y_training, y_training = training
+    X_validation, Y_validation, y_validation = validation
+    X_test, y_test = test
+
+    def try_1(eta=0.018920249916784752, regularization_term=0.001):
+        
+        W1_leaky_1, b1_leaky_1, W2_leaky_1, b2_leaky_1 = initialize_weights()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_1, b1_leaky_1, W2_leaky_1, b2_leaky_1, training_set_loss_leaky_1, validation_set_loss_leaky_1 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_1, b1_leaky_1, W2_leaky_1, b2_leaky_1,
+                                    regularization_term,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_1, b1_leaky_1, W2_leaky_1, b2_leaky_1, training_set_loss_leaky_1, validation_set_loss_leaky_1
+
+    """
+    Uncomment for first try
+    """
+    W1_try_1, b1_try_1, W2_try_1, b2_try_1, \
+    training_set_loss_try_1, validation_set_loss_try_1 = try_1()
+
+    visualize_costs(training_set_loss_try_1, validation_set_loss_try_1, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 1', save_name='try_1')
+
+    accuracy_try_1 = ComputeAccuracy(X_test, y_test, W1_try_1, b1_try_1, W2_try_1, b2_try_1)
+    print('Accuracy of the fourth improvement: ', accuracy_try_1)
+        
+        
 
 
 
