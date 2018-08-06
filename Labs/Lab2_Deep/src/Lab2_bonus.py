@@ -731,7 +731,7 @@ def exercise_2():
         """
         Leaky ReLU with He initialization
         """
-        W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5 = initialize_weights()
+        W1_leaky_5, b1_leaky_5, W2_leaky_5, b2_leaky_5 = he_initialization()
 
         GD_params = [100, eta, 30]
 
@@ -763,9 +763,9 @@ def exercise_2():
     
     def try_6(eta=0.018920249916784752, regularization_term=0.001):
         """
-        Leaky ReLU with He initialization
+        Leaky ReLU with increase in the number of hidden nodes
         """
-        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6 = initialize_weights()
+        W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6 = initialize_weights(m=100)
 
         GD_params = [100, eta, 30]
 
@@ -778,7 +778,7 @@ def exercise_2():
                                     GD_params,
                                     W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6,
                                     regularization_term,
-                                    with_annealing=True,
+                                    with_annealing=False,
                                     with_leaky_relu=True)
 
         return W1_leaky_6, b1_leaky_6, W2_leaky_6, b2_leaky_6, training_set_loss_leaky_6, validation_set_loss_leaky_6
@@ -794,15 +794,8 @@ def exercise_2():
 
     accuracy_try_6 = ComputeAccuracy(X_test, y_test, W1_try_6, b1_try_6, W2_try_6, b2_try_6)
     print('Accuracy of the sixth improvement: ', accuracy_try_6)
-    
-    
-        
-        
-
-
-
-
 
 if __name__ == '__main__':
 
     exercise_1()
+    exercise_2()
