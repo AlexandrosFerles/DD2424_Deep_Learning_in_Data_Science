@@ -9,7 +9,7 @@ Learning rate: 0.018794276687985924, amount of regularization term: 1e-06
 Accuracy performance on the validation set:  42.25
 ---------------------------------
 Learning rate: 0.018241269856306787, amount of regularization term: 1e-06
-Accuracy performance on the validation set:  41.24ß
+Accuracy performance on the validation set:  41.24
 ---------------------------------
 Learning rate: 0.018524400049430092, amount of regularization term: 1e-06
 Accuracy performance on the validation set:  39.84

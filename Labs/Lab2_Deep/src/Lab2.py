@@ -4,7 +4,6 @@ from keras.utils import to_categorical as make_class_categorical
 import _pickle as pickle
 from tqdm import tqdm
 
-
 def LoadBatch(filename):
     """
     Loads batch based on the given filename and produces the X, Y, and y arrays
@@ -36,7 +35,6 @@ def LoadBatch(filename):
 
     return X, Y, y
 
-
 def initialize_weights(d=3072, m=50, K=10, std=0.001):
     """
     Initializes the weight and bias arrays for the 2 layers of the network
@@ -59,7 +57,6 @@ def initialize_weights(d=3072, m=50, K=10, std=0.001):
 
     return W1, b1, W2, b2
 
-
 def ReLU(x):
     """
     Rectified Linear Unit function
@@ -70,7 +67,6 @@ def ReLU(x):
     """
 
     return np.maximum(x, 0)
-
 
 def softmax(X, theta=1.0, axis=None):
     """
@@ -112,7 +108,6 @@ def softmax(X, theta=1.0, axis=None):
 
     return p
 
-
 def EvaluateClassifier(X, W1, b1, W2, b2):
     """
     Computes the Softmax output of the 2 layer network, based on input data X and trained weight and bias arrays
@@ -133,7 +128,6 @@ def EvaluateClassifier(X, W1, b1, W2, b2):
 
     return p, h, s1
 
-
 def predictClasses(p):
     """
     Predicts classes based on the softmax output of the network
@@ -143,7 +137,6 @@ def predictClasses(p):
     """
 
     return np.argmax(p, axis=0)
-
 
 def ComputeAccuracy(X, y, W1, b1, W2, b2):
     """
@@ -164,7 +157,6 @@ def ComputeAccuracy(X, y, W1, b1, W2, b2):
     accuracy = round(np.sum(np.where(predictions - y == 0, 1, 0)) * 100 / len(y), 2)
 
     return accuracy
-
 
 def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term=0):
     """
@@ -188,7 +180,6 @@ def ComputeCost(X, Y, W1, W2, b1, b2, regularization_term=0):
     weight_sum = np.power(W1, 2).sum() + np.power(W2, 2).sum()
 
     return cross_entropy_loss + regularization_term * weight_sum
-
 
 def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
     """
@@ -242,7 +233,6 @@ def ComputeGradsNum(X, Y, W1, b1, W2, b2, regularization_term, h=1e-5):
             grad_W2[i, j] = (c2 - c) / h
 
     return W1, b1, W2, b2
-
 
 def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0, h=1e-5):
     """
@@ -310,7 +300,6 @@ def ComputeGradsNumSlow(X, Y, W1, b1, W2, b2, regularization_term=0, h=1e-5):
 
     return W1, b1, W2, b2
 
-
 def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term=0):
     """
     Computes gradient descent updates on a batch of data
@@ -353,7 +342,6 @@ def ComputeGradients(X, Y, W1, b1, W2, b2, p, h, s1, regularization_term=0):
     grad_W2 = grad_W2 + 2 * regularization_term * W2
 
     return grad_W1, grad_b1, grad_W2, grad_b2
-
 
 def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gradW2_num, gradb2_num, threshold=1e-4):
     """
@@ -420,7 +408,6 @@ def check_similarity(gradW1, gradb1, gradW2, gradb2, gradW1_num, gradb1_num, gra
         print("Average error on weights of second layer= ", check_W2)
         print("Average error on bias of second layer= ", check_b2)
 
-
 def initialize_momentum(hyperparameter):
     """
     Initializes the corresponding momentum of a hyperparameter matrix or vector
@@ -430,7 +417,6 @@ def initialize_momentum(hyperparameter):
     """
 
     return np.zeros(hyperparameter.shape)
-
 
 def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     """
@@ -448,7 +434,6 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     v_t = momentum_term * v_t_prev + eta * gradient
 
     return hyperpatameter - v_t, v_t
-
 
 def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regularization_term=0):
     """
@@ -497,7 +482,6 @@ def MiniBatchGD(X, Y, X_validation, Y_validation, GDparams, W1, b1, W2, b2, regu
         val_cost.append(val_epoch_cost)
 
     return W1, b1, W2, b2, cost, val_cost
-
 
 def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2,
                             regularization_term=0, momentum_term=0.9):
@@ -582,7 +566,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
 
-
 def visualize_single_cost(loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
         Visualization and saving the loss of the network.
@@ -611,7 +594,6 @@ def visualize_single_cost(loss, display=False, title=None, save_name=None, save_
         plt.show()
 
     plt.clf()
-
 
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
@@ -644,7 +626,6 @@ def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, s
         plt.show()
 
     plt.clf()
-
 
 def create_sets():
     """
@@ -687,7 +668,6 @@ def create_sets():
 
     return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
 
-
 def exercise_1():
     """
     DD2424 Assignemnt 2, Exercise 1: Read the data & initialize the parameters of the network
@@ -710,7 +690,6 @@ def exercise_1():
     W1, b1, W2, b2 = initialize_weights(d=X_training_1.shape[0], m=50, K=Y_training_1.shape[0])
 
     return training_data, validation_data, test_data, W1, b1, W2, b2
-
 
 def exercise_2():
     """
@@ -752,7 +731,6 @@ def exercise_2():
                                                                          W1, b1, W2, b2)
     visualize_costs(training_set_loss, validation_set_loss, display=False, title='Cross Entropy Loss Evolution',
                     save_name='0_Overfit_training_set', save_path='../figures')
-
 
 def exercise_3():
     """
@@ -810,7 +788,6 @@ def exercise_3():
 
     visualize_costs(training_set_loss, validation_set_loss, display=False,
                     title='Cross Entropy Loss Evolution with momentum value: 0.5', save_name='Momentum_0-5')
-
 
 def exercise_4():
     def random_search():
@@ -1268,9 +1245,6 @@ def exercise_4():
 
     test_set_accuracy_3 = ComputeAccuracy(X_test, y_test, W1, b1, W2, b2)
     print('Test-set accuracy of the third setting: ', test_set_accuracy_3)
-
-
-
 
 if __name__ == '__main__':
     # exercise_1()

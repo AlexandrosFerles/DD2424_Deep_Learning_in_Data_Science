@@ -547,14 +547,13 @@ def random_noise(image_array):
     """
     return sk.util.random_noise(image_array)
 
-def create_augmented_dataset(X):
+def create_augmented_dataset(X, y):
     """
     Performs random permutations to an array of images
     """
 
     X_augmented = np.zeros(X.shape)
 
-    from keras.preprocessing.image import ImageDataGenerator
     datagen = ImageDataGenerator(
         rotation_range=90,
         width_shift_range=0.1,
@@ -585,7 +584,6 @@ def jitter_batch(X, y):
             X_jittered[:,datum] = random_noise(X_jittered[:,datum])
 
     return X
-
 
 def exercise_1():
     # Optimize the performance of the network
@@ -724,14 +722,14 @@ def exercise_1():
     """
     Uncomment to test the fourth improvement
     """
-    W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4, \
-    training_set_loss_improvement_4, validation_set_loss_improvement_4 = improvement_4()
-
-    visualize_costs(training_set_loss_improvement_4, validation_set_loss_improvement_4, display=True,
-                    title='Cross Entropy Loss Evolution, improvement 4', save_name='improvement_4')
-
-    accuracy_improvement_4 = ComputeAccuracy(X_test, y_test, W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4)
-    print('Accuracy of the fourth improvement: ', accuracy_improvement_4)
+    # W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4, \
+    # training_set_loss_improvement_4, validation_set_loss_improvement_4 = improvement_4()
+    #
+    # visualize_costs(training_set_loss_improvement_4, validation_set_loss_improvement_4, display=True,
+    #                 title='Cross Entropy Loss Evolution, improvement 4', save_name='improvement_4')
+    #
+    # accuracy_improvement_4 = ComputeAccuracy(X_test, y_test, W1_improvement_4, b1_improvement_4, W4_improvement_4, b4_improvement_4)
+    # print('Accuracy of the fourth improvement: ', accuracy_improvement_4)
 
     def improvement_5(eta=0.018920249916784752, regularization_term=0.001):
         """
@@ -766,8 +764,6 @@ def exercise_1():
 
     accuracy_improvement_5 = ComputeAccuracy(X_test, y_test, W1_improvement_5, b1_improvement_5, W2_improvement_5, b2_improvement_5)
     print('Accuracy of the fifth improvement: ', accuracy_improvement_5)
-
-
 
 def exercise_2():
     """
@@ -974,22 +970,21 @@ def exercise_2():
     
     def try_7(eta=0.018920249916784752, regularization_term=0.001):
         """
-        Leaky ReLU with jittering
+        Leaky ReLU with He initialization and 100 nodes in the hidden layer
         """
-        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7 = initialize_weights(m=100)
+        W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7 = he_initialization(m=100)
 
         GD_params = [100, eta, 30]
 
         W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7 = \
-            MiniBatchGDwithAugmenting(X_training,
-                                    Y_training,
-                                    X_validation,
-                                    Y_validation,
-                                      y_training,
-                                    y_validation,
-                                    GD_params,
-                                    W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7,
-                                    regularization_term)
+            MiniBatchGDwithMomentum(X_training,
+                                      Y_training,
+                                      X_validation,
+                                      Y_validation,
+                                      y_validation,
+                                      GD_params,
+                                      W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7,
+                                      regularization_term)
 
         return W1_leaky_7, b1_leaky_7, W2_leaky_7, b2_leaky_7, training_set_loss_leaky_7, validation_set_loss_leaky_7
     
@@ -1003,7 +998,7 @@ def exercise_2():
                     title='Cross Entropy Loss Evolution, Leaky ReLU, 1random jittering', save_name='try_7')
 
     accuracy_try_7 = ComputeAccuracy(X_test, y_test, W1_try_7, b1_try_7, W2_try_7, b2_try_7)
-    print('Accuracy of the sixth improvement: ', accuracy_try_7)
+    print('Accuracy of the seventh improvement: ', accuracy_try_7)
 
 if __name__ == '__main__':
 
