@@ -551,11 +551,11 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
             best_validation_set_accuracy = validation_set_accuracy
 
-        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
+        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)
         # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
             break
-        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2, regularization_term)
 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)

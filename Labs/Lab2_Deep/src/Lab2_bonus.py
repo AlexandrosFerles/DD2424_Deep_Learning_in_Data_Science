@@ -289,7 +289,7 @@ def add_momentum(v_t_prev, hyperpatameter, gradient, eta, momentum_term=0.99):
     return hyperpatameter - v_t, v_t
 
 def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, W1, b1, W2, b2,
-                            regularization_term=0, with_annealing = False, with_leaky_relu= False, momentum_term=0.9):
+                            regularization_term=0, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
@@ -303,7 +303,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     :param W2: Weight matrix of the second layer of the network.
     :param b2: Bias vector of the second layer of the network.
     :param regularization_term: Amount of regularization applied.
-    :param with_annealing: Set to true to allow decaying the learning rate by half every 5 epochs.
 
     :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
     """
@@ -337,7 +336,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
             start = (batch - 1) * number_of_mini_batches + 1
             end = batch * number_of_mini_batches + 1
 
-            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2, with_leaky_relu)
+            p, h, s1 = EvaluateClassifier(X[:, start:end], W1, b1, W2, b2)
 
             grad_W1, grad_b1, grad_W2, grad_b2 = ComputeGradients(X[:, start:end], Y[:, start:end], W1, b1, W2, b2, p,
                                                                   h, s1, regularization_term)
@@ -357,21 +356,17 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
             best_validation_set_accuracy = validation_set_accuracy
 
-        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2)
+        epoch_cost = ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)
         # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
             break
-        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2, regularization_term)
 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)
 
         # Decay the learning rate
-        if with_annealing:
-            if epoch > 1 and epoch // 5 == 0:
-                eta /= 2.0
-        else:
-            eta *= 0.95
+        eta *= 0.95
 
     # return W1, b1, W2, b2, cost, val_cost
     return best_W1, best_b1, best_W2, best_b2, cost, val_cost
@@ -449,11 +444,11 @@ def MiniBatchGDwithAugmenting(X, Y, X_validation, Y_validation, y_training, y_va
 
             best_validation_set_accuracy = validation_set_accuracy
 
-        epoch_cost = ComputeCost(augmented_X, Y, W1, W2, b1, b2)
+        epoch_cost = ComputeCost(augmented_X, Y, W1, W2, b1, b2, regularization_term)
         # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
             break
-        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2)
+        val_epoch_cost = ComputeCost(X_validation, Y_validation, W1, W2, b1, b2, regularization_term)
 
         cost.append(epoch_cost)
         val_cost.append(val_epoch_cost)
