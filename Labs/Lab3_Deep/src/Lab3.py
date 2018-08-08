@@ -162,6 +162,74 @@ def EvaluateClassifier(X, weights, biases):
 
     return p, intermediate_activations, intermediate_outputs
 
+def BatchNormalize(s, mean_s, var_s, epsilon=1e-6):
+    """
+    Normalizes the scores of a btach based on their mean and variance.
+
+    :param s: Scores evaluated as output of a layer of the network.
+    :param mean_s: Mean of the scores.
+    :param var_s: Variance of the scores.
+    :param epsilon: A small number that is present to ensure that no division by zero will be performed.
+
+    :return: The normalized scores,
+    """
+
+    var_s += epsilon
+    temp = np.power(np.diag(var_s), -0.5)
+
+    return temp * (s-mean_s)
+
+def forward_pass_batch_normalization(X, weights, biases):
+    """
+    Evalueates the forward pass result of the classifier network using batch normalization.
+
+    :param X: Input data.
+    :param weights: Weight arrays of the k-layer network.
+    :param biases: Bias vectors of the k-layer network.
+
+    :return: Softmax probabilities (predictions) of the true labels of the data.
+    """
+
+    s = np.dot(weights[0], X) + biases[0]
+
+    intermediate_outputs = [s]
+    intermediate_activations = [ReLU(s)]
+
+    mean_s = s.mean(axis=1)
+    var_s = s.var(axis=1)
+
+    means = [mean_s]
+    variances = [var_s]
+
+    normalized_score = BatchNormalize(s, mean_s, var_s)
+
+    batch_normalization_outputs = [normalized_score]
+    batch_normalization_activations = [ReLU(normalized_score)]
+
+    for index in range(1, len(weights) -1):
+
+        s = np.dot(weights[index], batch_normalization_activations[-1]) + biases[index]
+
+        intermediate_outputs.append(s)
+        intermediate_activations.append(ReLU(s))
+
+        mean_s = s.mean(axis=1)
+        var_s = s.var(axis=1)
+
+        means.append(mean_s)
+        variances.append(var_s)
+
+        normalized_score = BatchNormalize(s, mean_s, var_s)
+
+        batch_normalization_outputs.append(normalized_score)
+        batch_normalization_activations.append(ReLU(normalized_score))
+
+
+    s = np.dot(weights[-1], batch_normalization_activations[-1]) + biases[-1]
+    p = softmax(s, axis=0)
+
+    return p, batch_normalization_activations, batch_normalization_outputs, means, variances, intermediate_outputs, intermediate_activations
+
 def predictClasses(p):
     """
     Predicts classes based on the softmax output of the network
@@ -480,6 +548,129 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
     return best_weights, best_biases, cost, val_cost
 
+
+def BatchNormalize(s, mean_s, var_s, epsilon=1e-6):
+    """
+    Normalizes the scores of a btach based on their mean and variance.
+
+    :param s: Scores evaluated as output of a layer of the network.
+    :param mean_s: Mean of the scores.
+    :param var_s: Variance of the scores.
+    :param epsilon: A small number that is present to ensure that no division by zero will be performed.
+
+    :return: The normalized scores,
+    """
+
+    var_s += epsilon
+    temp = np.power(np.diag(var_s), -0.5)
+
+    return temp * (s - mean_s)
+
+def ForwardPassBatchNormalization(X, weights, biases):
+    """
+    Evalueates the forward pass result of the classifier network using batch normalization.
+
+    :param X: Input data.
+    :param weights: Weight arrays of the k-layer network.
+    :param biases: Bias vectors of the k-layer network.
+
+    :return: Softmax probabilities (predictions) of the true labels of the data.
+    """
+
+    s = np.dot(weights[0], X) + biases[0]
+
+    intermediate_outputs = [s]
+    intermediate_activations = [ReLU(s)]
+
+    mean_s = s.mean(axis=1)
+    var_s = s.var(axis=1)
+
+    means = [mean_s]
+    variances = [var_s]
+
+    normalized_score = BatchNormalize(s, mean_s, var_s)
+
+    batch_normalization_outputs = [normalized_score]
+    batch_normalization_activations = [ReLU(normalized_score)]
+
+    for index in range(1, len(weights) - 1):
+        s = np.dot(weights[index], batch_normalization_activations[-1]) + biases[index]
+
+        intermediate_outputs.append(s)
+        intermediate_activations.append(ReLU(s))
+
+        mean_s = s.mean(axis=1)
+        var_s = s.var(axis=1)
+
+        means.append(mean_s)
+        variances.append(var_s)
+
+        normalized_score = BatchNormalize(s, mean_s, var_s)
+
+        batch_normalization_outputs.append(normalized_score)
+        batch_normalization_activations.append(ReLU(normalized_score))
+
+    s = np.dot(weights[-1], batch_normalization_activations[-1]) + biases[-1]
+    p = softmax(s, axis=0)
+
+    return p, batch_normalization_activations, batch_normalization_outputs, means, variances, intermediate_outputs, intermediate_activations
+
+def BatchNormBackPass(g, s, mean_s, var_s):
+
+    grad_v = ((-0.5) * (g * np.power(var_s, -1.5) * (s - mean_s)).sum(axis=1)).reshape(var_s.shape[0], 1)
+    grad_m = (-g * np.power(var_s, -0.5).sum(axis=1)).reshape(mean_s.shape[0], 1)
+
+    grad_s = g * np.power(var_s, -0.5) + (2/float(s.shape[1])) * grad_v * (s - mean_s) + grad_m / s.shape[1]
+
+    return grad_s
+
+def BackwardPassBatchNormalization(X, Y, weights, biases, p, batch_norm_outputs, batch_norm_activations, means, variances, regularization_term):
+
+    # Back-propagate output layer at first
+
+    weight_updates = []
+    bias_updates = []
+
+    g = p - Y
+
+    bias_updates.append(g.sum(axis=1).reshape(biases[-1].shape))
+    weight_updates.append(np.dot(g, batch_norm_activations[-1].T))
+
+    g = np.dot(g.T, weights[-1])
+    ind = 1 * (batch_norm_outputs[-1] > 0)
+    g = g.T * ind
+
+    for i in reversed(range(len(weights) -1)):
+    # Back-propagate the gradient vector g to the layer before
+
+        g = BatchNormBackPass(g, batch_norm_outputs[i], means[i], variances[i])
+
+        if i == 0:
+            weight_updates.append(np.dot(g, X.T))
+        else:
+            weight_updates.append(np.dot(g, batch_norm_activations[i-1].T))
+
+        bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
+
+        g = np.dot(g.T, weights[i])
+        ind = 1 * (batch_norm_outputs[i] > 0)
+        g = g.T * ind
+
+    for elem in weight_updates:
+        elem /= X.shape[1]
+
+    for elem in bias_updates:
+        elem /= X.shape[1]
+
+    # Reverse the updates to match the order of the layers
+    weight_updates = list(reversed(weight_updates)).copy()
+    bias_updates = list(reversed(bias_updates)).copy()
+
+    for index in range(len(weight_updates)):
+        weight_updates[index] += 2*regularization_term * weight_updates[index]
+
+    return weight_updates, bias_updates
+
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
     Visualization and saving the losses of the network.
@@ -671,11 +862,14 @@ def exercise_2():
     for i in range(len(training_cost_he)):
         print(f'Cost of training with He initialization at epoch {i+1} is {training_cost_he}')
 
+def exercise_3():
+
 
 
 if __name__ =='__main__':
 
     # exercise_1()
-    exercise_2()
+    # exercise_2()
+    exercise_3()
 
     print('Finished!')
