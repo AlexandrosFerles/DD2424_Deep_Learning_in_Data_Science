@@ -6,8 +6,8 @@ Topics include:
 
 Assignment 1: 1-layer network for MultiClass classification in the CIFAR-10 dataset, through gradient descent based optimization in Cross-Entropy and SVM Loss respectively.
 
-Assignment 2: 2-layer network for MultiClass classification in the CIFAR-10 dataset.
+Assignment 2: 2-layer network for MultiClass classification in the CIFAR-10 dataset, through gradient descent based optimization.
 
-Assignment 3: To be updated!
+Assignment 3: k-layer network for MultiClass classification with batch normalization CIFAR-10 dataset, through gradient descent based optimization.
 
 Assignment 4: To be updated! 
