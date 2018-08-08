@@ -131,7 +131,7 @@ def EvaluateClassifier(X, weights, biases):
     h = ReLU(s)
     intermediate_activations.append(h)
 
-    for i in range(1, len(weights) - 2):
+    for i in range(1, len(weights) - 1):
 
         s = np.dot(weights[i], intermediate_activations[-1]) + biases[i]
         intermediate_outputs.append(s)
@@ -194,7 +194,7 @@ def ComputeCost(X, Y, weights, biases, regularization_term=0):
 
     return cross_entropy_loss + regularization_term * weight_sum
 
-def ComputeGradsNumSlow(X, Y, weights, biases, regularization_term=0, h=1e-5):
+def ComputeGradsNumSlow(X, Y, weights, biases, start_index=0, h=1e-5):
     """
     Computes gradient descent updates on a batch of data with numerical computations of great precision, thus slower computations.
     Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
@@ -203,19 +203,20 @@ def ComputeGradsNumSlow(X, Y, weights, biases, regularization_term=0, h=1e-5):
     :param Y: One-hot representation of the true labels of input data X.
     :param weights: Weights arrays of the k layers.
     :param biases: Bias vectors of the k layers.
-    :param regularization_term: Contribution of the regularization in the weight updates.
+    :param start_index: In case there are already some weights and bias precomputed, we need to compute the numerical gradients for
+                        those weights and bias that have other shapes (the 2 last layers in fact).
 
     :return: Weight and bias updates of the k layers of our network computed with numerical computations with high precision.
     """
-    
+
     grad_weights = []
     grad_biases = []
-    
-    for layer_index in range(len(weights)):
-        
+
+    for layer_index in range(start_index, len(weights)):
+
         W = weights[layer_index]
         b = biases[layer_index]
-        
+
         grad_W = np.zeros(W.shape)
         grad_b = np.zeros(b.shape)
 
@@ -245,7 +246,7 @@ def ComputeGradsNumSlow(X, Y, weights, biases, regularization_term=0, h=1e-5):
                 W_try = np.copy(W)
                 W_try[i, j] += h
                 temp_weights = weights.copy()
-                temp_weights[len(weights) + layer_index] = W_try
+                temp_weights[layer_index] = W_try
                 c2 = ComputeCost(X=X, Y=Y, weights=temp_weights, biases=biases)
 
                 grad_W[i, j] = (c2 - c1) / (2 * h)
@@ -289,7 +290,7 @@ def ComputeGradients(X, Y, weights, biases, p, outputs, activations, regularizat
         if i == 0:
             weight_updates.append(np.dot(g, X.T))
         else:
-            weight_updates.append(np.dot(g, activations[i].T))
+            weight_updates.append(np.dot(g, activations[i-1].T))
 
         bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
@@ -490,9 +491,31 @@ def exercise_1():
 
     # Check with numerically computed gradients for 3-layer network
 
+    # grad_weights_3_num, grad_bias_3_num = ComputeGradsNumSlow(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases)
+
     weights, biases = initialize_weights([[50, 3072], [20, 50], [10, 20]])
 
-    grad_weights_3_num, grad_bias_3_num = ComputeGradsNumSlow(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases)
+    w1_num = np.load('3_layers_num_weights0.npy')
+    w2_num = np.load('3_layers_num_weights1.npy')
+    w3_num = np.load('3_layers_num_weights2.npy')
+
+    b1_num = np.load('3_layers_num_bias0.npy')
+    b2_num = np.load('3_layers_num_bias1.npy')
+    b3_num = np.load('3_layers_num_bias2.npy')
+
+    grad_weights_3_num = [w1_num, w2_num, w3_num]
+    grad_bias_3_num = [b1_num, b2_num, b3_num]
+
+    p, activations, outputs = EvaluateClassifier(X_training_1[:, 0:2], weights, biases)
+    grad_weights, grad_biases = ComputeGradients(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases, p, outputs, activations)
+
+    check_similarity(grad_weights, grad_biases, grad_weights_3_num, grad_bias_3_num)
+    breakpoint = True
+
+
+
+
+
 def exercise_2():
 
     # Test that you are able to replicate the results of a 2-layer network
