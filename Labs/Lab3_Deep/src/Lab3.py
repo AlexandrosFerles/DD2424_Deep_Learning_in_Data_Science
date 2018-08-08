@@ -61,6 +61,25 @@ def initialize_weights(shapes_list, std=0.001):
 
     return weights, biases
 
+def he_initialization_k_layers(shapes_list):
+    """
+    He initialization on the weight matrices.
+
+    :param shapes_list: List that contains the dimensions of each layer of the network.
+
+    :return: Initialized weight and bias matrices based on He initialization of the weights.
+    """
+
+    weights = []
+    biases = []
+
+    for pair in shapes_list:
+
+        weights.append(np.random.randn(pair[0], pair[1]) * np.sqrt(2 / float(pair[0])))
+        biases.append(np.zeros(shape=(pair[0], 1)))
+
+    return weights, biases
+
 def ReLU(x):
     """
     Rectified Linear Unit function
@@ -461,6 +480,38 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
     return best_weights, best_biases, cost, val_cost
 
+def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
+    """
+    Visualization and saving the losses of the network.
+
+    :param loss: Loss of the network.
+    :param val_loss: Loss of the network in the validation set.
+    :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
+    :param title: (Optional) Title of the plot.
+    :param save_name: (Optional) name of the file to save the plot.
+    :param save_path: (Optional) Path of the folder to save the plot in your local computer.
+
+    :return: None
+
+    """
+
+    if title is not None:
+        plt.title(title)
+
+    plt.plot(loss, 'g', label='Training set ')
+    plt.plot(val_loss, 'r', label='Validation set')
+    plt.legend(loc='upper right')
+
+    if save_name is not None:
+        if save_path[-1] != '/':
+            save_path += '/'
+        plt.savefig(save_path + save_name)
+
+    if display:
+        plt.show()
+
+    plt.clf()
+
 def exercise_1():
 
     X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
@@ -472,7 +523,9 @@ def exercise_1():
     X_training_2 -= mean
     X_test -= mean
 
-    # Check with numerically computed gradients for 2-layer network
+    """
+    Check with numerically computed gradients for a 2-layer network
+    """
 
     # weights, biases = initialize_weights([[50, 3072], [10, 50]])
     # W1_num = np.load('grad_W1_num.npy')
@@ -489,36 +542,45 @@ def exercise_1():
     #
     # check_similarity(grad_weights, grad_biases, num_weights, num_biases)
 
-    # Check with numerically computed gradients for 3-layer network
+    """
+    Check with numerically computed gradients for a 3-layer network
+    """
 
     # grad_weights_3_num, grad_bias_3_num = ComputeGradsNumSlow(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases)
 
-    weights, biases = initialize_weights([[50, 3072], [20, 50], [10, 20]])
+    # weights, biases = initialize_weights([[50, 3072], [20, 50], [10, 20]])
+    #
+    # w1_num = np.load('3_layers_num_weights0.npy')
+    # w2_num = np.load('3_layers_num_weights1.npy')
+    # w3_num = np.load('3_layers_num_weights2.npy')
+    #
+    # b1_num = np.load('3_layers_num_bias0.npy')
+    # b2_num = np.load('3_layers_num_bias1.npy')
+    # b3_num = np.load('3_layers_num_bias2.npy')
+    #
+    # grad_weights_3_num = [w1_num, w2_num, w3_num]
+    # grad_bias_3_num = [b1_num, b2_num, b3_num]
+    #
+    # p, activations, outputs = EvaluateClassifier(X_training_1[:, 0:2], weights, biases)
+    # grad_weights, grad_biases = ComputeGradients(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases, p, outputs, activations)
+    #
+    # check_similarity(grad_weights, grad_biases, grad_weights_3_num, grad_bias_3_num)
 
-    w1_num = np.load('3_layers_num_weights0.npy')
-    w2_num = np.load('3_layers_num_weights1.npy')
-    w3_num = np.load('3_layers_num_weights2.npy')
+    """
+    Check with numerically computed gradients for a 4-layer network
+    """
+    weights, biases = initialize_weights([[50, 3072], [20, 50], [15, 20], [10, 15]])
 
-    b1_num = np.load('3_layers_num_bias0.npy')
-    b2_num = np.load('3_layers_num_bias1.npy')
-    b3_num = np.load('3_layers_num_bias2.npy')
-
-    grad_weights_3_num = [w1_num, w2_num, w3_num]
-    grad_bias_3_num = [b1_num, b2_num, b3_num]
+    grad_weights_4_num, grad_bias_4_num = ComputeGradsNumSlow(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights,
+                                                              biases, start_index=len(weights) - 2)
 
     p, activations, outputs = EvaluateClassifier(X_training_1[:, 0:2], weights, biases)
-    grad_weights, grad_biases = ComputeGradients(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases, p, outputs, activations)
+    grad_weights, grad_biases = ComputeGradients(X_training_1[:, 0:2], Y_training_1[:, 0:2], weights, biases, p,
+                                                 outputs, activations)
 
-    check_similarity(grad_weights, grad_biases, grad_weights_3_num, grad_bias_3_num)
-    breakpoint = True
-
-
-
-
+    check_similarity(grad_weights, grad_biases, grad_weights_4_num, grad_bias_4_num)
 
 def exercise_2():
-
-    # Test that you are able to replicate the results of a 2-layer network
 
     X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
     X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
@@ -528,28 +590,92 @@ def exercise_2():
     X_training_1 -= mean
     X_training_2 -= mean
     X_test -= mean
+    """
+    Test that you are able to replicate the results of a 2-layer network
+    """
+    # weights, biases = initialize_weights([[50, 3072], [10, 50]])
+    #
+    # GD_params = [100, 0.0171384811847413, 10]
+    #
+    # weights, biases, training_cost, validation_cost = MiniBatchGDwithMomentum(X_training_1,
+    #                                                                           Y_training_1,
+    #                                                                           X_training_2,
+    #                                                                           Y_training_2,
+    #                                                                           y_training_2,
+    #                                                                           GD_params,
+    #                                                                           weights, biases,
+    #                                                                           regularization_term=0.0001)
+    #
+    # validation_set_accuracy = ComputeAccuracy(X_training_2, y_training_2, weights, biases)
+    # print('Validation set accuracy of this setting: ', validation_set_accuracy)
 
-    weights, biases = initialize_weights([[50, 3072], [10, 50]])
+    """
+    Try with a 3-layer network
+    """
 
-    # p, intermediate_activations, intermediate_outputs = EvaluateClassifier(X_training_1, weights, biases)
-    cost = ComputeCost(X_training_1, Y_training_1, weights, biases)
+    # What happens after a few epochs? Are you learning anything?
+    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
+    #
+    # GD_params = [100, 0.0171384811847413, 15]
+    #
+    # weights, biases, training_cost, validation_cost = MiniBatchGDwithMomentum(X_training_1,
+    #                                                                           Y_training_1,
+    #                                                                           X_training_2,
+    #                                                                           Y_training_2,
+    #                                                                           y_training_2,
+    #                                                                           GD_params,
+    #                                                                           weights, biases,
+    #                                                                           regularization_term=0.0001)
+    #
+    # for i in range(len(training_cost)):
+    #
+    #     print(f'Cost at training epoch {i+1} is {training_cost[i]}')
 
-    GD_params = [100, 0.0171384811847413, 5]
+    # What happens if you play around with the learning rate?
 
-    weights, biases, training_cost, validation_cost = MiniBatchGDwithMomentum(X_training_1,
+    # for eta in [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]:
+    #
+    #     weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+    #
+    #     print('------------------')
+    #     print('Eta: ', eta)
+    #     GD_params = [100, eta, 10]
+    #
+    #     weights, biases, training_cost, validation_cost = MiniBatchGDwithMomentum(X_training_1,
+    #                                                                               Y_training_1,
+    #                                                                               X_training_2,
+    #                                                                               Y_training_2,
+    #                                                                               y_training_2,
+    #                                                                               GD_params,
+    #                                                                               weights, biases,
+    #                                                                               regularization_term=0.0001)
+    #
+    #     for i in range(len(training_cost)):
+    #         print(f'Cost at training epoch {i+1} is {training_cost[i]}')
+
+    # What happens if you use He initialization?
+
+    weights_he, biases_he = he_initialization_k_layers([[50, 3072], [50, 30], [10, 30]])
+
+    GD_params = [100, 0.0171384811847413, 15]
+
+    weights_he, biases_he, training_cost_he, validation_cost_he = MiniBatchGDwithMomentum(X_training_1,
                                                                               Y_training_1,
                                                                               X_training_2,
                                                                               Y_training_2,
                                                                               y_training_2,
                                                                               GD_params,
-                                                                              weights, biases,
+                                                                              weights_he, biases_he,
                                                                               regularization_term=0.0001)
 
-    validation_set_accuracy = ComputeAccuracy(X_training_2, y_training_2, weights, biases)
-    print('Validation set accuracy of this setting: ', validation_set_accuracy)
+    for i in range(len(training_cost_he)):
+        print(f'Cost of training with He initialization at epoch {i+1} is {training_cost_he}')
+
+
 
 if __name__ =='__main__':
 
-    exercise_1()
+    # exercise_1()
+    exercise_2()
 
     print('Finished!')
