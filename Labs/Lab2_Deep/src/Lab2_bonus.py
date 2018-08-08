@@ -994,6 +994,71 @@ def exercise_2():
 
     accuracy_try_7 = ComputeAccuracy(X_test, y_test, W1_try_7, b1_try_7, W2_try_7, b2_try_7)
     print('Accuracy of the seventh improvement: ', accuracy_try_7)
+    
+    def try_8(eta=0.02878809988519304, regularization_term=0.001):
+        """
+        Best pair of eta, lambda with He initialization        
+        """
+        W1_leaky_8, b1_leaky_8, W2_leaky_8, b2_leaky_8 = he_initialization()
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_8, b1_leaky_8, W2_leaky_8, b2_leaky_8, training_set_loss_leaky_8, validation_set_loss_leaky_8 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_8, b1_leaky_8, W2_leaky_8, b2_leaky_8,
+                                    regularization_term,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_8, b1_leaky_8, W2_leaky_8, b2_leaky_8, training_set_loss_leaky_8, validation_set_loss_leaky_8
+
+    """
+    Uncomment for eighth try
+    """
+    W1_try_8, b1_try_8, W2_try_8, b2_try_8, training_set_loss_try_8, validation_set_loss_try_8 = try_8()
+
+    visualize_costs(training_set_loss_try_8, validation_set_loss_try_8, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 8', save_name='try_8')
+
+    accuracy_try_8 = ComputeAccuracy(X_test, y_test, W1_try_8, b1_try_8, W2_try_8, b2_try_8)
+    print('Accuracy of the eighth improvement: ', accuracy_try_8)
+    
+    def try_9(eta=0.02878809988519304, regularization_term=0.001):
+        """
+        Best pair of eta, lambda with He initialization AND 100 nodes in the hidden layer
+        :return:
+        """
+        W1_leaky_9, b1_leaky_9, W2_leaky_9, b2_leaky_9 = he_initialization(m=100)
+
+        GD_params = [100, eta, 30]
+
+        W1_leaky_9, b1_leaky_9, W2_leaky_9, b2_leaky_9, training_set_loss_leaky_9, validation_set_loss_leaky_9 = \
+            MiniBatchGDwithMomentum(X_training,
+                                    Y_training,
+                                    X_validation,
+                                    Y_validation,
+                                    y_validation,
+                                    GD_params,
+                                    W1_leaky_9, b1_leaky_9, W2_leaky_9, b2_leaky_9,
+                                    regularization_term,
+                                    with_leaky_relu=True)
+
+        return W1_leaky_9, b1_leaky_9, W2_leaky_9, b2_leaky_9, training_set_loss_leaky_9, validation_set_loss_leaky_9
+
+    """
+    Uncomment for ninth try
+    """
+    W1_try_9, b1_try_9, W2_try_9, b2_try_9, training_set_loss_try_9, validation_set_loss_try_9 = try_9()
+
+    visualize_costs(training_set_loss_try_9, validation_set_loss_try_9, display=True,
+                    title='Cross Entropy Loss Evolution, Leaky ReLU, try 9', save_name='try_9')
+
+    accuracy_try_9 = ComputeAccuracy(X_test, y_test, W1_try_9, b1_try_9, W2_try_9, b2_try_9)
+    print('Accuracy of the ninth improvement: ', accuracy_try_9)
 
 if __name__ == '__main__':
 
