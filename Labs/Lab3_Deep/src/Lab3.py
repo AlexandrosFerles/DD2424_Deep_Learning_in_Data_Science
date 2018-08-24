@@ -627,7 +627,7 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
 
     # third part of the gradient
     grad_J_mb = -np.sum(g * np.power(V_b, -0.5))
-    part_3 = grad_J_vb / float(s.shape[1])
+    part_3 = grad_J_mb / float(s.shape[1])
 
     # t1 = (g) * np.power(var_s, -1.5)
     # t2 = t1 * diff
