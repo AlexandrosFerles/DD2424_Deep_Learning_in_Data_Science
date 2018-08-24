@@ -274,6 +274,67 @@ def ComputeGradsNumSlow(X, Y, weights, biases, start_index=0, h=1e-5):
 
     return grad_weights, grad_biases
 
+def ComputeGradsNumSlowBatchNorm(X, Y, weights, biases, start_index=0, h=1e-5):
+    """
+    Computes gradient descent updates on a batch of data with numerical computations of great precision, thus slower computations.
+    Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
+
+    :param X: Input data.
+    :param Y: One-hot representation of the true labels of input data X.
+    :param weights: Weights arrays of the k layers.
+    :param biases: Bias vectors of the k layers.
+    :param start_index: In case there are already some weights and bias precomputed, we need to compute the numerical gradients for
+                        those weights and bias that have other shapes (the 2 last layers in fact).
+
+    :return: Weight and bias updates of the k layers of our network computed with numerical computations with high precision.
+    """
+
+    grad_weights = []
+    grad_biases = []
+
+    for layer_index in range(start_index, len(weights)):
+
+        W = weights[layer_index]
+        b = biases[layer_index]
+
+        grad_W = np.zeros(W.shape)
+        grad_b = np.zeros(b.shape)
+
+        for i in tqdm(range(b.shape[0])):
+            b_try = np.copy(b)
+            b_try[i, 0] -= h
+            temp_biases = biases.copy()
+            temp_biases[layer_index] = b_try
+            c1 = ComputeCostBatchNormalization(X=X, Y=Y, weights=weights, biases=temp_biases)
+            b_try = np.copy(b)
+            b_try[i, 0] += h
+            temp_biases = biases.copy()
+            temp_biases[layer_index] = b_try
+            c2 = ComputeCostBatchNormalization(X=X, Y=Y, weights=weights, biases=temp_biases)
+
+            grad_b[i, 0] = (c2 - c1) / (2 * h)
+
+        grad_biases.append(grad_b)
+
+        for i in tqdm(range(W.shape[0])):
+            for j in range(W.shape[1]):
+                W_try = np.copy(W)
+                W_try[i, j] -= h
+                temp_weights = weights.copy()
+                temp_weights[layer_index] = W_try
+                c1 = ComputeCostBatchNormalization(X=X, Y=Y, weights=temp_weights, biases=biases)
+                W_try = np.copy(W)
+                W_try[i, j] += h
+                temp_weights = weights.copy()
+                temp_weights[layer_index] = W_try
+                c2 = ComputeCostBatchNormalization(X=X, Y=Y, weights=temp_weights, biases=biases)
+
+                grad_W[i, j] = (c2 - c1) / (2 * h)
+
+        grad_weights.append(grad_W)
+
+    return grad_weights, grad_biases
+
 def ComputeGradients(X, Y, weights, biases, p, outputs, activations, regularization_term=0):
     """
     Computes gradient descent updates on a batch of data
@@ -633,55 +694,66 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
 
     return part_1 + part_2 + part_3
 
-def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term):
+def ComputeGradsNumSlowBatchNorm(X, Y, weights, biases, start_index=0, h=1e-5):
+    """
+    Computes gradient descent updates on a batch of data with numerical computations of great precision, thus slower computations.
+    Contributed by Josephine Sullivan for educational purposes for the DD2424 Deep Learning in Data Science course.
 
-    # Back-propagate output layer at first
+    :param X: Input data.
+    :param Y: One-hot representation of the true labels of input data X.
+    :param weights: Weights arrays of the k layers.
+    :param biases: Bias vectors of the k layers.
+    :param start_index: In case there are already some weights and bias precomputed, we need to compute the numerical gradients for
+                        those weights and bias that have other shapes (the 2 last layers in fact).
 
-    weight_updates = []
-    bias_updates = []
+    :return: Weight and bias updates of the k layers of our network computed with numerical computations with high precision.
+    """
 
-    g = p - Y
+    grad_weights = []
+    grad_biases = []
 
-    bias_updates.append(g.sum(axis=1).reshape(biases[-1].shape))
-    weight_updates.append(np.dot(g, intermediate_activations[-1].T))
+    for layer_index in range(start_index, len(weights)):
 
-    g = np.dot(g.T , weights[-1])
-    ind = 1 * (intermediate_activations[-1] > 0)
-    g = g.T  * ind
+        W = weights[layer_index]
+        b = biases[layer_index]
 
-    for i in reversed(range(len(weights) -1)):
-    # Back-propagate the gradient vector g to the layer before
+        grad_W = np.zeros(W.shape)
+        grad_b = np.zeros(b.shape)
 
-        g = BatchNormBackPass(g, intermediate_outputs[i], means[i], variances[i])
+        for i in tqdm(range(b.shape[0])):
+            b_try = np.copy(b)
+            b_try[i, 0] -= h
+            temp_biases = biases.copy()
+            temp_biases[layer_index] = b_try
+            c1 = ComputeCostBatchNormalization(X=X, Y=Y, weights=weights, biases=temp_biases, regularization_term=0)
+            b_try = np.copy(b)
+            b_try[i, 0] += h
+            temp_biases = biases.copy()
+            temp_biases[layer_index] = b_try
+            c2 = ComputeCostBatchNormalization(X=X, Y=Y, weights=weights, biases=temp_biases, regularization_term=0)
 
-        if i == 0:
-            weight_updates.append(np.dot(g, X.T))
-            bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
-            break
-        else:
-            weight_updates.append(np.dot(g, intermediate_activations[i-1].T))
+            grad_b[i, 0] = (c2 - c1) / (2 * h)
 
-        bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
+        grad_biases.append(grad_b)
 
-        g = np.dot(g.T , weights[i])
-        ind = 1 * (intermediate_outputs[i-1] > 0)
-        g = g.T * ind
+        for i in tqdm(range(W.shape[0])):
+            for j in range(W.shape[1]):
+                W_try = np.copy(W)
+                W_try[i, j] -= h
+                temp_weights = weights.copy()
+                temp_weights[layer_index] = W_try
+                c1 = ComputeCostBatchNormalization(X=X, Y=Y, weights=temp_weights, biases=biases, regularization_term=0)
+                W_try = np.copy(W)
+                W_try[i, j] += h
+                temp_weights = weights.copy()
+                temp_weights[layer_index] = W_try
+                c2 = ComputeCostBatchNormalization(X=X, Y=Y, weights=temp_weights, biases=biases, regularization_term=0)
 
-    for elem in weight_updates:
-        elem /= X.shape[1]
+                grad_W[i, j] = (c2 - c1) / (2 * h)
 
-    for elem in bias_updates:
-        elem /= X.shape[1]
+        grad_weights.append(grad_W)
 
-    # Reverse the updates to match the order of the layers
-    weight_updates = list(reversed(weight_updates)).copy()
-    bias_updates = list(reversed(bias_updates)).copy()
-
-    for index in range(len(weight_updates)):
-        weight_updates[index] += 2*regularization_term * weight_updates[index]
-
-    return weight_updates, bias_updates
-
+    return grad_weights, grad_biases
 def ExponentialMovingAverage(means, exponential_means, variances, exponential_variances, a=0.99):
 
     for index, elem in enumerate(exponential_means):
