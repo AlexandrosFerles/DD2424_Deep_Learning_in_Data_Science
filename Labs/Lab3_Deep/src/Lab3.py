@@ -617,27 +617,19 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
 def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
 
     # First part of the gradient:
-    V_b = np.diag(var_s+ epsilon)
-    part_1 = g * np.power(V_b, -0.5)
+    V_b = np.power(var_s+ epsilon, -0.5)
+    part_1 = g * np.diag(V_b)
 
-    # second part pf the gradient
+    # Second part pf the gradient
     diff = s - mean_s
-    grad_J_vb = -0.5 * np.sum(g * np.power(V_b, -1.5) * np.diag(diff))
-    part_2 = (2/float(s.shape[1])) * grad_J_vb * np.diag(diff)
+    grad_J_vb = -0.5 * np.sum(g * np.power(var_s+ epsilon, -1.5) * diff, axis=1)
+    grad_J_vb = np.expand_dims(grad_J_vb, axis=1)
+    part_2 = (2/float(s.shape[1])) * grad_J_vb * diff
 
-    # third part of the gradient
-    grad_J_mb = -np.sum(g * np.power(V_b, -0.5))
+    # Third part of the gradient
+    grad_J_mb = -np.sum(g* V_b, axis=1)
+    grad_J_mb = np.expand_dims(grad_J_mb, axis=1)
     part_3 = grad_J_mb / float(s.shape[1])
-
-    # t1 = (g) * np.power(var_s, -1.5)
-    # t2 = t1 * diff
-    # grad_v = -0.5 * t2
-    # grad_v = np.copy(grad_v.sum(axis=1)).reshape(grad_v.shape[0], 1)
-    #
-    # grad_m = - g * (np.power(var_s, -0.5))
-    # grad_m = np.copy(grad_m.sum(axis=1)).reshape(grad_m.shape[0], 1)
-    #
-    # grad_s = (g * np.power(var_s, -0.5)) + (2/float(s.shape[1])) * grad_v * (s - mean_s) + grad_m / s.shape[1]
 
     return part_1 + part_2 + part_3
 
@@ -650,12 +642,12 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_output
 
     g = p - Y
 
-    weight_updates.append(np.dot(g, intermediate_activations[-1].T))
     bias_updates.append(g.sum(axis=1).reshape(biases[-1].shape))
+    weight_updates.append(np.dot(g, intermediate_activations[-1].T))
 
-    g = np.dot(g.T, weights[-1])
+    g = np.dot(g.T , weights[-1])
     ind = 1 * (intermediate_activations[-1] > 0)
-    g = g.T * ind
+    g = g.T  * ind
 
     for i in reversed(range(len(weights) -1)):
     # Back-propagate the gradient vector g to the layer before
@@ -671,7 +663,7 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_output
 
         bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
-        g = np.dot(g.T, weights[i])
+        g = np.dot(g.T , weights[i])
         ind = 1 * (intermediate_outputs[i-1] > 0)
         g = g.T * ind
 
@@ -737,9 +729,12 @@ def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation
     for epoch in tqdm(range(epoches)):
         # for epoch in range(epoches):
 
+        if epoch ==1:
+            print(f'End batch of previous layer was: {end}')
+
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
-            end = batch * number_of_mini_batches
+            end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
 
             p, batch_norm_activations, batch_norm_outputs, means, variances, intermediate_activations, intermediate_outputs = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
 
