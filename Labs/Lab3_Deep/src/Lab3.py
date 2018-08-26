@@ -553,10 +553,9 @@ def BatchNormalize(s, mean_s, var_s, epsilon=1e-6):
     :return: The normalized scores,
     """
 
-    temp = np.diag(np.power((var_s + epsilon), -0.5 ))
     diff = s- mean_s
 
-    return temp * diff
+    return diff / (np.sqrt(var_s + epsilon))
 
 def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     """
@@ -589,7 +588,6 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
         variances = [var_s]
 
     normalized_score = BatchNormalize(s, mean_s, var_s)
-    # normalized_score = (s - mean_s) / np.sqrt(var_s)
 
     batch_normalization_outputs = [normalized_score]
     batch_normalization_activations = [ReLU(normalized_score)]
@@ -613,7 +611,6 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
             var_s = exponential_variances[index]
 
         normalized_score = BatchNormalize(s, mean_s, var_s)
-        # normalized_score = (s - mean_s) / np.sqrt(var_s)
 
         batch_normalization_outputs.append(normalized_score)
         batch_normalization_activations.append(ReLU(normalized_score))
@@ -679,7 +676,7 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
 
     # First part of the gradient:
     V_b = np.power(var_s+ epsilon, -0.5)
-    part_1 = g * np.diag(V_b)
+    part_1 = g * V_b
 
     # Second part pf the gradient
     diff = s - mean_s
@@ -693,6 +690,55 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
     part_3 = grad_J_mb / float(s.shape[1])
 
     return part_1 + part_2 + part_3
+
+def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term):
+
+    # Back-propagate output layer at first
+
+    weight_updates = []
+    bias_updates = []
+
+    g = p - Y
+
+    bias_updates.append(g.sum(axis=1).reshape(biases[-1].shape))
+    weight_updates.append(np.dot(g, intermediate_activations[-1].T))
+
+    g = np.dot(g.T , weights[-1])
+    ind = 1 * (intermediate_activations[-1] > 0)
+    g = g.T * ind
+
+    for i in reversed(range(len(weights) -1)):
+    # Back-propagate the gradient vector g to the layer before
+
+        g = BatchNormBackPass(g, intermediate_outputs[i], means[i], variances[i])
+
+        if i == 0:
+            weight_updates.append(np.dot(g, X.T))
+            bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
+            break
+        else:
+            weight_updates.append(np.dot(g, intermediate_activations[i-1].T))
+
+        bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
+
+        g = np.dot(g.T , weights[i])
+        ind = 1 * (intermediate_outputs[i-1] > 0)
+        g = g.T * ind
+
+    for elem in weight_updates:
+        elem /= X.shape[1]
+
+    for elem in bias_updates:
+        elem /= X.shape[1]
+
+    # Reverse the updates to match the order of the layers
+    weight_updates = list(reversed(weight_updates)).copy()
+    bias_updates = list(reversed(bias_updates)).copy()
+
+    for index in range(len(weight_updates)):
+        weight_updates[index] += 2*regularization_term * weight_updates[index]
+
+    return weight_updates, bias_updates
 
 def ComputeGradsNumSlowBatchNorm(X, Y, weights, biases, start_index=0, h=1e-5):
     """
@@ -754,6 +800,7 @@ def ComputeGradsNumSlowBatchNorm(X, Y, weights, biases, start_index=0, h=1e-5):
         grad_weights.append(grad_W)
 
     return grad_weights, grad_biases
+
 def ExponentialMovingAverage(means, exponential_means, variances, exponential_variances, a=0.99):
 
     for index, elem in enumerate(exponential_means):
@@ -1044,28 +1091,53 @@ def exercise_3():
     X_training_2 -= mean
     X_test -= mean
 
+    # weights, biases = initialize_weights([[50, 3072], [10, 50] ])
+    #
+    # grad_weights_2_num_bn, grad_bias_2_num_bn = ComputeGradsNumSlowBatchNorm(X_training_1[:, 0:2], Y_training_1[:, 0:2],
+    #                                                                          weights, biases)
+
+    weights, biases = initialize_weights([[50, 3072], [10, 50] ])
+
+    p, batch_normalization_activations, batch_normalization_outputs, means, variances, intermediate_activations, intermediate_outputs = ForwardPassBatchNormalization(X_training_1[:, :2], weights, biases)
+
+    grad_weights_2_bn, grad_bias_2_bn = BackwardPassBatchNormalization(X_training_1[:, :2], Y_training_1[:, :2], weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term=0)
+
+    # Load the numerical ones:
+
+    b1_num_2_layers = np.load('grad_b1_2_layers_bn.npy')
+    b2_num_2_layers = np.load('grad_b2_2_layers_bn.npy')
+
+    W1_num_2_layers = np.load('grad_W1_2_layers_bn.npy')
+    W2_num_2_layers = np.load('grad_W2_2_layers_bn.npy')
+
+    grad_bias_2_num_bn = [b1_num_2_layers, b2_num_2_layers]
+    grad_weights_2_num_bn = [W1_num_2_layers, W2_num_2_layers]
+
+    check_similarity(grad_biases=grad_bias_2_bn, grad_weights=grad_weights_2_bn, num_biases=grad_bias_2_num_bn,
+                     num_weights=grad_weights_2_num_bn)
+
     # weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
 
-    GD_params = [100, 0.0171384811847413, 20]
-
-    weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
-
-    weights, biases, training_cost, validation_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(X_training_1,
-                                                                                                Y_training_1,
-                                                                                                X_training_2,
-                                                                                                Y_training_2,
-                                                                                                y_training_2,
-                                                                                                GD_params,
-                                                                                                weights, biases,
-                                                                                                regularization_term=0.0001)
-
-    for i in range(len(training_cost)):
-
-        print(f'Cost at training epoch {i+1} is {training_cost[i]}')
-
-    test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, weights, biases, exponentials = [exponential_means, exponential_variances])
-
-    print(f'Test set accuracy performance: {test_set_accuracy}')
+    # GD_params = [100, 0.0171384811847413, 20]
+    #
+    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
+    #
+    # weights, biases, training_cost, validation_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(X_training_1,
+    #                                                                                             Y_training_1,
+    #                                                                                             X_training_2,
+    #                                                                                             Y_training_2,
+    #                                                                                             y_training_2,
+    #                                                                                             GD_params,
+    #                                                                                             weights, biases,
+    #                                                                                             regularization_term=0.0001)
+    #
+    # for i in range(len(training_cost)):
+    #
+    #     print(f'Cost at training epoch {i+1} is {training_cost[i]}')
+    #
+    # test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, weights, biases, exponentials = [exponential_means, exponential_variances])
+    #
+    # print(f'Test set accuracy performance: {test_set_accuracy}')
 
 
 
