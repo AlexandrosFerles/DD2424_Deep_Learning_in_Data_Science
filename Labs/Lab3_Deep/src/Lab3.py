@@ -676,7 +676,6 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
 
     return cross_entropy_loss + regularization_term * weight_sum
 
-
 def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
 
     # First part of the gradient:
@@ -847,19 +846,16 @@ def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation
 
     best_validation_set_accuracy = 0
 
-    for epoch in tqdm(range(epoches)):
-        # for epoch in range(epoches):
-
-        if epoch ==1:
-            print(f'End batch of previous layer was: {end}')
+    # for epoch in tqdm(range(epoches)):
+    for epoch in range(epoches):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
             end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
 
-            p, batch_norm_activations, batch_norm_outputs, means, variances, intermediate_activations, intermediate_outputs = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
+            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
 
-            grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term)
+            grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
 
             weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
 
@@ -922,6 +918,47 @@ def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, s
         plt.show()
 
     plt.clf()
+
+def create_sets():
+    """
+    Creates the full dataset, containing all the available data for training except 1000 images
+    used for the validation set.
+
+    :return: Training, validation and test sets (features, ground-truth labels, and their one-hot representation
+    """
+
+    X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
+    X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
+    X_training_3, Y_training_3, y_training_3 = LoadBatch('../../cifar-10-batches-py/data_batch_3')
+    X_training_4, Y_training_4, y_training_4 = LoadBatch('../../cifar-10-batches-py/data_batch_4')
+    X_training_5, Y_training_5, y_training_5 = LoadBatch('../../cifar-10-batches-py/data_batch_5')
+
+    X_training = np.concatenate((X_training_1, X_training_3), axis=1)
+    X_training = np.copy(np.concatenate((X_training, X_training_4), axis=1))
+    X_training = np.copy(np.concatenate((X_training, X_training_5), axis=1))
+
+    X_training = np.concatenate((X_training, X_training_2[:, :9000]), axis=1)
+
+    Y_training = np.concatenate((Y_training_1, Y_training_3), axis=1)
+    Y_training = np.copy(np.concatenate((Y_training, Y_training_4), axis=1))
+    Y_training = np.copy(np.concatenate((Y_training, Y_training_5), axis=1))
+
+    Y_training = np.concatenate((Y_training, Y_training_2[:, :9000]), axis=1)
+
+    y_training = y_training_1 + y_training_3 + y_training_4 + y_training_5 + y_training_2[:9000]
+
+    X_validation = np.copy(X_training_2[:, 9000:])
+    Y_validation = np.copy(Y_training_2[:, 9000:])
+    y_validation = y_training_2[9000:]
+
+    X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
+
+    mean = np.mean(X_training)
+    X_training -= mean
+    X_validation -= mean
+    X_test -= mean
+
+    return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
 
 def exercise_1():
 
@@ -1116,15 +1153,24 @@ def exercise_3():
         Compare for 3 layers
         """
 
-        weights, biases = initialize_weights([[50, 3072], [20, 50], [10, 20]])
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+        w3_num, b3_num = ComputeGradsNumSlowBatchNorm(X_training_1[:, :2], Y_training_1[:, :2], weights, biases)
 
-        p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :4], weights, biases)
-        weights_3, biases_3= BackwardPassBatchNormalization(X_training_1[:, :4], Y_training_1[:, :4], weights, biases, p, batch_normalization_outputs, batch_normalization_activations, intermediate_outputs, means, variances, regularization_term=0)
+        np.savez('3_layers_num', w0=w3_num[0], w1=w3_num[1], w2=w3_num[2], b0=b3_num[0], b1=b3_num[1], b2=b3_num[2])
 
-        three_layers = np.load('3_layers.npz')
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-        check_similarity(weights_3, biases_3, [three_layers['w0'], three_layers['w1'], three_layers['w2']], [three_layers['b0'], three_layers['b1'], three_layers['b2']])
+        p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :2], weights, biases)
 
+        weights_3, biases_3 = BackwardPassBatchNormalization(X_training_1[:, :2], Y_training_1[:, :2], weights, biases,
+                                                             p, batch_normalization_outputs,
+                                                             batch_normalization_activations, intermediate_outputs,
+                                                             means, variances, regularization_term=0)
+
+        check_similarity(weights_3, biases_3, w3_num, b3_num)
+        """
+        Compare for 4 layers
+        """
         weights, biases = initialize_weights([[50, 3072], [20, 50], [15, 20], [10, 15]])
 
         p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :4], weights, biases)
@@ -1134,31 +1180,51 @@ def exercise_3():
 
         check_similarity(weights_4, biases_4, [four_layers['w0'], four_layers['w1'], four_layers['w2'], four_layers['w3']], [four_layers['b0'], four_layers['b1'], four_layers['b2'], four_layers['b3']])
 
+    def random_search():
 
-    # GD_params = [100, 0.0171384811847413, 20]
-    #
-    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
-    #
-    # weights, biases, training_cost, validation_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(X_training_1,
-    #                                                                                             Y_training_1,
-    #                                                                                             X_training_2,
-    #                                                                                             Y_training_2,
-    #                                                                                             y_training_2,
-    #                                                                                             GD_params,
-    #                                                                                             weights, biases,
-    #                                                                                             regularization_term=0.0001)
-    #
-    # for i in range(len(training_cost)):
-    #
-    #     print(f'Cost at training epoch {i+1} is {training_cost[i]}')
-    #
-    # test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, weights, biases, exponentials = [exponential_means, exponential_variances])
-    #
-    # print(f'Test set accuracy performance: {test_set_accuracy}')
+        for eta in [0.00001, 0.00005, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]:
+            print('-----------------------')
+            print('eta: ', eta)
 
+            GD_params = [100, eta, 5]
 
-    part_1()
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
+            best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization( X_training_1,
+                                                                                                                                 Y_training_1,
+                                                                                                                                 X_training_2,
+                                                                                                                                 Y_training_2,
+                                                                                                                                 y_training_2,
+                                                                                                                                 GD_params,
+                                                                                                                                 weights,
+                                                                                                                                 biases,
+                                                                                                                                 regularization_term=0.000001)
+
+            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+
+        for eta in np.arange(0.15, 1.05, 0.05):
+
+            print('-----------------------')
+            print('eta: ', eta)
+
+            GD_params = [100, eta, 5]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(    X_training_1,
+                                                                                                                                    Y_training_1,
+                                                                                                                                    X_training_2,
+                                                                                                                                    Y_training_2,
+                                                                                                                                    y_training_2,
+                                                                                                                                    GD_params,
+                                                                                                                                    weights,
+                                                                                                                                    biases,
+                                                                                                                                    regularization_term=0.000001)
+
+            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+
+    # part_1()
+    random_search()
 
 
 if __name__ =='__main__':
