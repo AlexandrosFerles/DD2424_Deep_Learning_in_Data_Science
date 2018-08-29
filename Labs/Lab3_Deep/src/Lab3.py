@@ -541,7 +541,9 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
     return best_weights, best_biases, cost, val_cost
 
-def BatchNormalize(s, mean_s, var_s, epsilon=1e-6):
+# ---------------------- BATCH NORMALIZATION FUNCTIONS ---------------------- #
+
+def BatchNormalize(s, mean_s, var_s, epsilon=1e-10):
     """
     Normalizes the scores of a batch based on their mean and variance.
 
@@ -553,13 +555,13 @@ def BatchNormalize(s, mean_s, var_s, epsilon=1e-6):
     :return: The normalized scores,
     """
 
-    diff = s- mean_s
+    diff = s - mean_s
 
     return diff / (np.sqrt(var_s + epsilon))
 
 def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     """
-    Evalueates the forward pass result of the classifier network using batch normalization.
+    Evaluates the forward pass result of the classifier network using batch normalization.
 
     :param X: Input data.
     :param weights: Weight arrays of the k-layer network.
@@ -571,14 +573,15 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     s = np.dot(weights[0], X) + biases[0]
 
     intermediate_outputs = [s]
-    intermediate_activations = [ReLU(s)]
 
     if exponentials is not None:
+
         exponential_means = exponentials[0]
         exponential_variances = exponentials[1]
 
         mean_s = exponential_means[0]
         var_s = exponential_variances[0]
+
     else:
 
         mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
@@ -593,10 +596,10 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     batch_normalization_activations = [ReLU(normalized_score)]
 
     for index in range(1, len(weights) - 1):
+
         s = np.dot(weights[index], batch_normalization_activations[-1]) + biases[index]
 
         intermediate_outputs.append(s)
-        intermediate_activations.append(ReLU(s))
 
         if exponentials is None:
             mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
@@ -616,12 +619,13 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
         batch_normalization_activations.append(ReLU(normalized_score))
 
     s = np.dot(weights[-1], batch_normalization_activations[-1]) + biases[-1]
+
     p = softmax(s, axis=0)
 
     if exponentials is not None:
         return p
     else:
-        return p, batch_normalization_activations, batch_normalization_outputs, means, variances, intermediate_activations, intermediate_outputs
+        return p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances
 
 def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None):
     """
@@ -653,7 +657,7 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
     :param weights: Weights arrays of the k layers
     :param biases: Bias vectors of the k layers
     :param regularization_term: Amount of regularization applied.
-    :param exponentials: Contains the exponential means and variances computed, they are used in call after training.
+    :param exponentials: (Optional) Contains the exponential means and variances computed, they are used in call after training.
 
     :return: Cross-entropy loss.
     """
@@ -672,39 +676,37 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
 
     return cross_entropy_loss + regularization_term * weight_sum
 
-def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-5):
+
+def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
 
     # First part of the gradient:
-    V_b = np.power(var_s+ epsilon, -0.5)
+    V_b = (var_s+ epsilon) ** (-0.5)
     part_1 = g * V_b
 
     # Second part pf the gradient
     diff = s - mean_s
-    grad_J_vb = -0.5 * np.sum(g * np.power(var_s+ epsilon, -1.5) * diff, axis=1)
+    grad_J_vb = -0.5 * np.sum(g * (var_s+epsilon) ** (-1.5) * diff, axis=1)
     grad_J_vb = np.expand_dims(grad_J_vb, axis=1)
     part_2 = (2/float(s.shape[1])) * grad_J_vb * diff
 
     # Third part of the gradient
-    grad_J_mb = -np.sum(g* V_b, axis=1)
+    grad_J_mb = -np.sum(g * V_b, axis=1)
     grad_J_mb = np.expand_dims(grad_J_mb, axis=1)
     part_3 = grad_J_mb / float(s.shape[1])
 
     return part_1 + part_2 + part_3
 
-def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term):
+def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term):
 
     # Back-propagate output layer at first
 
-    weight_updates = []
-    bias_updates = []
-
     g = p - Y
 
-    bias_updates.append(g.sum(axis=1).reshape(biases[-1].shape))
-    weight_updates.append(np.dot(g, intermediate_activations[-1].T))
+    bias_updates = [g.sum(axis=1).reshape(biases[-1].shape)]
+    weight_updates = [np.dot(g, bn_activations[-1].T)]
 
-    g = np.dot(g.T , weights[-1])
-    ind = 1 * (intermediate_activations[-1] > 0)
+    g = np.dot(g.T, weights[-1])
+    ind = 1 * (bn_outputs[-1] > 0)
     g = g.T * ind
 
     for i in reversed(range(len(weights) -1)):
@@ -717,13 +719,13 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_output
             bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
             break
         else:
-            weight_updates.append(np.dot(g, intermediate_activations[i-1].T))
+            weight_updates.append(np.dot(g, bn_activations[i-1].T))
+            bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
-        bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
-
-        g = np.dot(g.T , weights[i])
-        ind = 1 * (intermediate_outputs[i-1] > 0)
+        g = np.dot(g.T, weights[i])
+        ind = 1 * (bn_outputs[i-1] > 0)
         g = g.T * ind
+
 
     for elem in weight_updates:
         elem /= X.shape[1]
@@ -736,7 +738,7 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, intermediate_output
     bias_updates = list(reversed(bias_updates)).copy()
 
     for index in range(len(weight_updates)):
-        weight_updates[index] += 2*regularization_term * weight_updates[index]
+        weight_updates[index] += 2*regularization_term * weights[index]
 
     return weight_updates, bias_updates
 
@@ -1091,32 +1093,47 @@ def exercise_3():
     X_training_2 -= mean
     X_test -= mean
 
-    # weights, biases = initialize_weights([[50, 3072], [10, 50] ])
-    #
-    # grad_weights_2_num_bn, grad_bias_2_num_bn = ComputeGradsNumSlowBatchNorm(X_training_1[:, 0:2], Y_training_1[:, 0:2],
-    #                                                                          weights, biases)
+    def part_1():
 
-    weights, biases = initialize_weights([[50, 3072], [10, 50] ])
+        """
+        Convince yourself that the backward pass works by comparing with
+        numerical computed gradients.
+        """
 
-    p, batch_normalization_activations, batch_normalization_outputs, means, variances, intermediate_activations, intermediate_outputs = ForwardPassBatchNormalization(X_training_1[:, :2], weights, biases)
+        """
+        Compare for 2 layers
+        """
+        weights, biases = initialize_weights([[50, 3072], [10, 50]])
 
-    grad_weights_2_bn, grad_bias_2_bn = BackwardPassBatchNormalization(X_training_1[:, :2], Y_training_1[:, :2], weights, biases, p, intermediate_outputs, intermediate_activations, means, variances, regularization_term=0)
+        p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :4], weights, biases)
+        weights_2, biases_2 = BackwardPassBatchNormalization(X_training_1[:, :4], Y_training_1[:, :4], weights, biases, p, batch_normalization_outputs, batch_normalization_activations, intermediate_outputs, means, variances, regularization_term=0)
 
-    # Load the numerical ones:
+        two_layers = np.load('2_layers.npz')
 
-    b1_num_2_layers = np.load('grad_b1_2_layers_bn.npy')
-    b2_num_2_layers = np.load('grad_b2_2_layers_bn.npy')
+        check_similarity(weights_2, biases_2, [two_layers['w0'], two_layers['w1'] ], [two_layers['b0'], two_layers['b1']])
 
-    W1_num_2_layers = np.load('grad_W1_2_layers_bn.npy')
-    W2_num_2_layers = np.load('grad_W2_2_layers_bn.npy')
+        """
+        Compare for 3 layers
+        """
 
-    grad_bias_2_num_bn = [b1_num_2_layers, b2_num_2_layers]
-    grad_weights_2_num_bn = [W1_num_2_layers, W2_num_2_layers]
+        weights, biases = initialize_weights([[50, 3072], [20, 50], [10, 20]])
 
-    check_similarity(grad_biases=grad_bias_2_bn, grad_weights=grad_weights_2_bn, num_biases=grad_bias_2_num_bn,
-                     num_weights=grad_weights_2_num_bn)
+        p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :4], weights, biases)
+        weights_3, biases_3= BackwardPassBatchNormalization(X_training_1[:, :4], Y_training_1[:, :4], weights, biases, p, batch_normalization_outputs, batch_normalization_activations, intermediate_outputs, means, variances, regularization_term=0)
 
-    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10,30]])
+        three_layers = np.load('3_layers.npz')
+
+        check_similarity(weights_3, biases_3, [three_layers['w0'], three_layers['w1'], three_layers['w2']], [three_layers['b0'], three_layers['b1'], three_layers['b2']])
+
+        weights, biases = initialize_weights([[50, 3072], [20, 50], [15, 20], [10, 15]])
+
+        p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X_training_1[:, :4], weights, biases)
+        weights_4, biases_4 = BackwardPassBatchNormalization(X_training_1[:, :4], Y_training_1[:, :4], weights, biases, p, batch_normalization_outputs, batch_normalization_activations, intermediate_outputs, means, variances, regularization_term=0)
+
+        four_layers = np.load('4_layers.npz')
+
+        check_similarity(weights_4, biases_4, [four_layers['w0'], four_layers['w1'], four_layers['w2'], four_layers['w3']], [four_layers['b0'], four_layers['b1'], four_layers['b2'], four_layers['b3']])
+
 
     # GD_params = [100, 0.0171384811847413, 20]
     #
@@ -1140,6 +1157,7 @@ def exercise_3():
     # print(f'Test set accuracy performance: {test_set_accuracy}')
 
 
+    part_1()
 
 
 
