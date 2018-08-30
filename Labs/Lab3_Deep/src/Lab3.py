@@ -884,7 +884,7 @@ def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation
         # Decay the learning rate
         eta *= 0.95
 
-    print(f'Best validation set accuracy: {best_validation_set_accuracy}')
+    # print(f'Best validation set accuracy: {best_validation_set_accuracy}')
     return best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances
 
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
@@ -1200,7 +1200,12 @@ def exercise_3():
                                                                                                                                  biases,
                                                                                                                                  regularization_term=0.000001)
 
-            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+            for epoch, loss in enumerate(cost):
+                print(f'Cross-entropy loss at epoch no.{epoch}: {loss}')
+
+
+
+            print(f'Validation set accuracy: {ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
 
         for eta in np.arange(0.15, 1.05, 0.05):
 
@@ -1220,12 +1225,121 @@ def exercise_3():
                                                                                                                                     weights,
                                                                                                                                     biases,
                                                                                                                                     regularization_term=0.000001)
+            for epoch, loss in enumerate(cost):
+                print(f'Cross-entropy loss at epoch no.{epoch}: {loss}')
 
-            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+
+    def coarse_search():
+        """
+        First step of coarse search, where good values for eta derived from random_search are tested along
+        with many tries for the amount of regularization.
+
+        :return: None
+        """
+
+        accuracies = []
+        etas = []
+        lambdas = []
+
+        # for regularization_term in [1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1]:
+        for regularization_term in [1e-5, 1e-4]:
+
+            e_min = 0.01
+            e_max = 0.1
+
+            for _ in range(1):
+
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
+                etas.append(eta)
+
+                lambdas.append(regularization_term)
+
+                GD_params = [100, eta, 10]
+
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+                best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(    X_training_1,
+                                                                                                                                        Y_training_1,
+                                                                                                                                        X_training_2,
+                                                                                                                                        Y_training_2,
+                                                                                                                                        y_training_2,
+                                                                                                                                        GD_params,
+                                                                                                                                        weights,
+                                                                                                                                        biases,
+                                                                                                                                        regularization_term)
+
+                print('---------------------------------')
+                print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(
+                    regularization_term))
+                accuracy_on_validation_set = ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, [exponential_means, exponential_variances])
+                accuracies.append(accuracy_on_validation_set)
+                print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+            e_min = 0.6
+            e_max = 1
+
+            for _ in range(1):
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
+                etas.append(eta)
+
+                lambdas.append(regularization_term)
+
+                GD_params = [100, eta, 10]
+
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+                best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(
+                    X_training_1,
+                    Y_training_1,
+                    X_training_2,
+                    Y_training_2,
+                    y_training_2,
+                    GD_params,
+                    weights,
+                    biases,
+                    regularization_term)
+
+                print('---------------------------------')
+                print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(
+                    regularization_term))
+                accuracy_on_validation_set = ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights,
+                                                                               best_biases, [exponential_means,
+                                                                                             exponential_variances])
+                accuracies.append(accuracy_on_validation_set)
+                print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
+
+
+
+
+        sort_them_all = sorted(zip(accuracies, etas, lambdas))
+
+        best_accuracies = [x for x, _, _ in sort_them_all]
+        best_etas = [y for _, y, _ in sort_them_all]
+        best_lambdas = [z for _, _, z in sort_them_all]
+
+        print('---------------------------------')
+        print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+        print('Best eta: ', best_etas[-1])
+        print('Best lambda: ', best_lambdas[-1])
+
+        print('---------------------------------')
+        print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+        print('Second best eta: ', best_etas[-2])
+        print('Second best lambda: ', best_lambdas[-2])
+
+        print('---------------------------------')
+        print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+        print('Third best eta: ', best_etas[-3])
+        print('Third best lambda: ', best_lambdas[-3])
 
     # part_1()
     random_search()
-
+    # coarse_search()
 
 if __name__ =='__main__':
 
