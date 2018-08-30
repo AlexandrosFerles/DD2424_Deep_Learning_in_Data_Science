@@ -1199,9 +1199,10 @@ def exercise_3():
                                                                                                                                  weights,
                                                                                                                                  biases,
                                                                                                                                  regularization_term=0.000001)
-
+            print()
             for epoch, loss in enumerate(cost):
                 print(f'Cross-entropy loss at epoch no.{epoch}: {loss}')
+            print()
 
 
 
@@ -1224,9 +1225,10 @@ def exercise_3():
                                                                                                                                     GD_params,
                                                                                                                                     weights,
                                                                                                                                     biases,
-                                                                                                                                    regularization_term=0.000001)
+            print()                                                                                                                     regularization_term=0.000001)
             for epoch, loss in enumerate(cost):
                 print(f'Cross-entropy loss at epoch no.{epoch}: {loss}')
+            print()
 
             print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
 
