@@ -89,7 +89,7 @@ def ReLU(x):
     :return: Output of ReLU(x)
     """
 
-    return np.maximum(x, 0)
+    return np.maximum(0, x)
 
 def softmax(X, theta=1.0, axis=None):
     """
@@ -593,6 +593,7 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     normalized_score = BatchNormalize(s, mean_s, var_s)
 
     batch_normalization_outputs = [normalized_score]
+    test = ReLU(normalized_score)
     batch_normalization_activations = [ReLU(normalized_score)]
 
     for index in range(1, len(weights) - 1):
@@ -680,10 +681,12 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
 
     # First part of the gradient:
     V_b = (var_s+ epsilon) ** (-0.5)
+    # V_b = np.power( (var_s+ epsilon), -0.5)
     part_1 = g * V_b
 
     # Second part pf the gradient
     diff = s - mean_s
+    # grad_J_vb = -0.5 * np.sum(g * np.power((var_s+epsilon), -1.5) * diff, axis=1)
     grad_J_vb = -0.5 * np.sum(g * (var_s+epsilon) ** (-1.5) * diff, axis=1)
     grad_J_vb = np.expand_dims(grad_J_vb, axis=1)
     part_2 = (2/float(s.shape[1])) * grad_J_vb * diff
@@ -699,14 +702,14 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
 
     # Back-propagate output layer at first
 
-    g = p - Y
+    g = -(Y - p).T
 
-    bias_updates = [g.sum(axis=1).reshape(biases[-1].shape)]
-    weight_updates = [np.dot(g, bn_activations[-1].T)]
+    bias_updates = [g.T.sum(axis=1).reshape(biases[-1].shape)]
+    weight_updates = [np.dot(g.T, bn_activations[-1].T)]
 
-    g = np.dot(g.T, weights[-1])
+    g = np.dot(g, weights[-1])
     ind = 1 * (bn_outputs[-1] > 0)
-    g = g.T * ind
+    g = np.multiply(g.T, ind)
 
     for i in reversed(range(len(weights) -1)):
     # Back-propagate the gradient vector g to the layer before
@@ -723,8 +726,7 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
 
         g = np.dot(g.T, weights[i])
         ind = 1 * (bn_outputs[i-1] > 0)
-        g = g.T * ind
-
+        g = np.multiply(g.T, ind)
 
     for elem in weight_updates:
         elem /= X.shape[1]
@@ -849,13 +851,14 @@ def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation
     # for epoch in tqdm(range(epoches)):
     for epoch in range(epoches):
 
-        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
+        for batch in range(1, int(X.shape[1] / number_of_mini_batches)+ 1):
             start = (batch - 1) * number_of_mini_batches
-            end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
+            end = batch * number_of_mini_batches
 
             p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
 
             grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
+            # grad_weights, grad_biases = backward_pass(X[:, start:end], Y[:, start:end], p,   intermediate_outputs, batch_norm_outputs, [X[:, start:end]] + batch_norm_activations,  weights,  biases, means, variances, regularization_term)
 
             weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
 
@@ -1130,7 +1133,7 @@ def exercise_3():
     X_training_2 -= mean
     X_test -= mean
 
-    def part_1():
+    def compare_with_numerical_gradients():
 
         """
         Convince yourself that the backward pass works by comparing with
@@ -1227,13 +1230,12 @@ def exercise_3():
                                                                                                                                     weights,
                                                                                                                                     biases,
                                                                                                                                     regularization_term=0.000001)
-
             print()
             for epoch, loss in enumerate(cost):
                 print(f'Cross-entropy loss at epoch no.{epoch}: {loss}')
             print()
 
-            print(f'Test set accuracy: {ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
+            print(f'Validation set accuracy: {ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights, best_biases, exponentials=[exponential_means, exponential_variances])}')
 
     def coarse_search():
         """
@@ -1342,14 +1344,18 @@ def exercise_3():
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
 
-    # part_1()
-    random_search()
+    # compare_with_numerical_gradients()
+    # random_search()
     # coarse_search()
 
 if __name__ =='__main__':
 
+    X_training_1, Y_training_1, y_training_1 = LoadBatch('../../cifar-10-batches-py/data_batch_1')
+    X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
+    X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
+
     # exercise_1()
     # exercise_2()
-    exercise_3()
+    # exercise_3()
 
     print('Finished!')
