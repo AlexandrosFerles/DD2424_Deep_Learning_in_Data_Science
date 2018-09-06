@@ -438,7 +438,7 @@ def initialize_momentum(arrays):
         momentum_matrices.append(np.zeros(elem.shape))
     return momentum_matrices
 
-def add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term):
+def add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term=0.9):
     """
     Add momentum to an array (weight or bias) of the network.
 
@@ -593,7 +593,6 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None):
     normalized_score = BatchNormalize(s, mean_s, var_s)
 
     batch_normalization_outputs = [normalized_score]
-    test = ReLU(normalized_score)
     batch_normalization_activations = [ReLU(normalized_score)]
 
     for index in range(1, len(weights) - 1):
@@ -658,35 +657,37 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
     :param weights: Weights arrays of the k layers
     :param biases: Bias vectors of the k layers
     :param regularization_term: Amount of regularization applied.
-    :param exponentials: (Optional) Contains the exponential means and variances computed, they are used in call after training.
+    :param exponentials: Contains the exponential means and variances computed, they are used in call after training.
 
     :return: Cross-entropy loss.
     """
-
-    if exponentials is not None:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials)
-    else:
+    if exponentials is None:
         p = ForwardPassBatchNormalization(X, weights, biases, exponentials)[0]
+    else:
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials)
 
-    cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(X.shape[1])
+    cross_entropy_loss = 0
+    for datum_index in range(X.shape[1]):
+
+        cross_entropy_loss -= np.log(np.dot(Y[:, datum_index].T, p[:, datum_index]))
 
     weight_sum = 0
     for weight in weights:
 
         weight_sum += np.power(weight, 2).sum()
 
-    return cross_entropy_loss + regularization_term * weight_sum
+    return (cross_entropy_loss / float(X.shape[1]))+ regularization_term * weight_sum
 
 def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
 
     # First part of the gradient:
     V_b = (var_s+ epsilon) ** (-0.5)
-    # V_b = np.power( (var_s+ epsilon), -0.5)
+    V_b = np.power( (var_s+ epsilon), -0.5)
     part_1 = g * V_b
 
     # Second part pf the gradient
     diff = s - mean_s
-    # grad_J_vb = -0.5 * np.sum(g * np.power((var_s+epsilon), -1.5) * diff, axis=1)
+    grad_J_vb = -0.5 * np.sum(g * np.power((var_s+epsilon), -1.5) * diff, axis=1)
     grad_J_vb = -0.5 * np.sum(g * (var_s+epsilon) ** (-1.5) * diff, axis=1)
     grad_J_vb = np.expand_dims(grad_J_vb, axis=1)
     part_2 = (2/float(s.shape[1])) * grad_J_vb * diff
@@ -700,46 +701,42 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
 
 def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term):
 
-    # Back-propagate output layer at first
+    # Output layer
+    g = p - Y
 
-    g = -(Y - p).T
+    bias_updates = [np.sum(g, axis=1).reshape(biases[-1].shape)]
+    weight_updates = [np.dot(g, bn_activations[-1].T)]
 
-    bias_updates = [g.T.sum(axis=1).reshape(biases[-1].shape)]
-    weight_updates = [np.dot(g.T, bn_activations[-1].T)]
-
-    g = np.dot(g, weights[-1])
+    g = np.dot(g.T, weights[-1])
     ind = 1 * (bn_outputs[-1] > 0)
-    g = np.multiply(g.T, ind)
+    g = g.T * ind
 
-    for i in reversed(range(len(weights) -1)):
-    # Back-propagate the gradient vector g to the layer before
+    for layer in reversed(range(len(weights) -1)):
 
-        g = BatchNormBackPass(g, intermediate_outputs[i], means[i], variances[i])
+        g = BatchNormBackPass(g, intermediate_outputs[layer], means[layer], variances[layer])
 
-        if i == 0:
-            weight_updates.append(np.dot(g, X.T))
-            bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
-            break
+        if layer > 0:
+
+            bias_updates.append(np.sum(g, axis=1).reshape(biases[layer].shape))
+            weight_updates.append(np.dot(g, bn_activations[layer-1].T))
+
+            g = np.dot(g.T, weights[layer])
+            ind = 1 * (bn_outputs[layer - 1] > 0)
+            g = g.T * ind
+
         else:
-            weight_updates.append(np.dot(g, bn_activations[i-1].T))
-            bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
-        g = np.dot(g.T, weights[i])
-        ind = 1 * (bn_outputs[i-1] > 0)
-        g = np.multiply(g.T, ind)
+            bias_updates.append(np.sum(g, axis=1).reshape(biases[layer].shape))
+            weight_updates.append(np.dot(g, X.T))
 
-    for elem in weight_updates:
+    weight_updates=list(reversed(weight_updates))
+    bias_updates=list(reversed(bias_updates))
+
+    for index, elem in enumerate(weight_updates):
+
         elem /= X.shape[1]
-
-    for elem in bias_updates:
-        elem /= X.shape[1]
-
-    # Reverse the updates to match the order of the layers
-    weight_updates = list(reversed(weight_updates)).copy()
-    bias_updates = list(reversed(bias_updates)).copy()
-
-    for index in range(len(weight_updates)):
-        weight_updates[index] += 2*regularization_term * weights[index]
+        bias_updates[index] /= X.shape[1]
+        elem += 2 * regularization_term * weights[index]
 
     return weight_updates, bias_updates
 
@@ -811,84 +808,66 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
         exponential_means[index] = a * elem + (1-a) * means[index]
         exponential_variances[index] = a * exponential_variances[index] + (1-a) * variances[index]
 
-    return exponential_means, exponential_variances
+    return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation, GDparams, weights, biases,
-                                    regularization_term, momentum_term=0.9):
+
+def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation, GDparams, weights, biases, regularization_term, momentum_term=0.9):
     """
-    Performs mini batch-gradient descent computations with batch normalization.
+    Performs mini-gradient descent training in the weights and biases of the network, and computes
+    the loss on training and validation sets, and the exponential moving averages.
 
-    :param X: Input batch of data
-    :param Y: One-hot representation of the true labels of the data.
-    :param X_validation: Input batch of validation data.
-    :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param y_validation: True labels of the validation data.
-    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
-    :param weights: Weight matrices of the k layers
-    :param biases: Bias vectors of the k layers
-    :param regularization_term: Amount of regularization applied.
+    :param X: Input training data of the network.
+    :param Y: One-hot representations of X.
+    :param X_validation: Validation input data.
+    :param Y_validation: One-hot representations of X_validation.
+    :param y_validation: True labels of the validation data
+    :param GDparams: Gradient-descent parameters (number of mini batches per epoch, learning rate, epochs)
+    :param weights: Original pre-training weights of the network.
+    :param biases: Original pre-training biases of the network.
+    :param regularization_term: Amount of regularization applied to the weights.
+    :param momentum_term: Percentage of previous state to account for in every weight and bias update.
 
-    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
+    :return: Trained weights and biases, loss on training and validation set per training epoch, expoenntial moving means and variances.
     """
-    number_of_mini_batches = GDparams[0]
-    eta = GDparams[1]
-    epoches = GDparams[2]
 
-    cost = []
-    val_cost = []
+    train_loss = [ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term)]
+    validation_loss = [ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term)]
 
-    momentum_weights = initialize_momentum(weights)
-    momentum_biases = initialize_momentum(biases)
+    momentum_weights, momentum_biases = initialize_momentum(weights), initialize_momentum(biases)
 
-    original_training_cost= ComputeCost(X, Y, weights, biases, regularization_term)
-    # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
+    for epoch in tqdm(range(GDparams[2])):
 
-    best_weights = weights
-    best_biases = biases
+        for batch in range(1, int(X.shape[1] / GDparams[0])):
 
-    best_validation_set_accuracy = 0
+            start = (batch - 1) * GDparams[0]
+            end = batch * GDparams[0]
 
-    # for epoch in tqdm(range(epoches)):
-    for epoch in range(epoches):
+            p, bn_activations, bn_outputs, intermediate_scores, mean, var = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
+            grad_LW, grad_Lb = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, intermediate_scores, bn_activations, intermediate_scores, mean, var, regularization_term)
 
-        for batch in range(1, int(X.shape[1] / number_of_mini_batches)+ 1):
-            start = (batch - 1) * number_of_mini_batches
-            end = batch * number_of_mini_batches
+            if (epoch == 0) and (start == 0):
 
-            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases)
+                exponentials = [mean, var]
 
-            grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
-            # grad_weights, grad_biases = backward_pass(X[:, start:end], Y[:, start:end], p,   intermediate_outputs, batch_norm_outputs, [X[:, start:end]] + batch_norm_activations,  weights,  biases, means, variances, regularization_term)
+                for i in range(len(weights)):
+                    weights[i] -= momentum_weights[i]
+                    biases[i] -= momentum_biases[i]
 
-            weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
-
-            if epoch == 0 and start == 0:
-                exponential_means = means.copy()
-                exponential_variances = variances.copy()
             else:
-                exponential_means, exponential_variances = ExponentialMovingAverage(means, exponential_means, variances, exponential_variances)
 
-        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=[exponential_means, exponential_variances])
-        if epoch_cost > 3 * original_training_cost:
+                exponentials = ExponentialMovingAverage(mean, exponentials[0], var, exponentials[1])
+
+                weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_LW, momentum_weights, biases, grad_Lb, momentum_biases, GDparams[1])
+
+        train_loss.append(ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term))
+        if train_loss[-1] > 3 * train_loss[0]:
+            print(f'Train loss at epoch no.{epoch} loss exceeded by 3 times or more the original train loss. Exiting training process...')
             break
-        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=[exponential_means, exponential_variances])
+        validation_loss.append(ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term))
 
-        cost.append(epoch_cost)
-        val_cost.append(val_epoch_cost)
+        GDparams[1] *= 0.95
 
-        validation_set_accuracy = ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials=[exponential_means, exponential_variances])
-
-        if validation_set_accuracy > best_validation_set_accuracy:
-
-            best_weights = weights
-            best_biases = biases
-            best_validation_set_accuracy = validation_set_accuracy
-
-        # Decay the learning rate
-        eta *= 0.95
-
-    # print(f'Best validation set accuracy: {best_validation_set_accuracy}')
-    return best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances
+    return weights, biases, train_loss, validation_loss, exponentials
 
 def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
     """
@@ -1128,7 +1107,7 @@ def exercise_3():
     X_training_2, Y_training_2, y_training_2 = LoadBatch('../../cifar-10-batches-py/data_batch_2')
     X_test, _, y_test = LoadBatch('../../cifar-10-batches-py/test_batch')
 
-    mean = np.mean(X_training_1)
+    mean = np.mean(X_training_1, axis=0).reshape(1, X_training_1.shape[1])
     X_training_1 -= mean
     X_training_2 -= mean
     X_test -= mean
@@ -1182,6 +1161,17 @@ def exercise_3():
         four_layers = np.load('4_layers.npz')
 
         check_similarity(weights_4, biases_4, [four_layers['w0'], four_layers['w1'], four_layers['w2'], four_layers['w3']], [four_layers['b0'], four_layers['b1'], four_layers['b2'], four_layers['b3']])
+
+    def sanity():
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+        GD_params = [100, 0.05, 200]
+
+        best_weights, best_biases, training_loss, validation_loss, exponentials = MiniBatchGDBatchNormalization(X_training_1[:, :1000], Y_training_1[:, :1000], X_training_2[:, :1000], Y_training_2[:, :1000], y_training_2[:1000], GD_params, weights, biases, regularization_term=1e-6)
+
+        visualize_costs(training_loss, validation_loss, display=True, title='Overfitting at a small dataset')
+        print(f'Training set accuracy: {ComputeAccuracyBatchNormalization(X_training_1[:, :100], y_training_1[:100], best_weights, best_biases)}')
+        print(f'Validation set accuracy: {ComputeAccuracyBatchNormalization(X_training_2[:, :100], y_training_2[:100], best_weights, best_biases)}')
 
     def random_search():
 
@@ -1553,13 +1543,11 @@ def exercise_3():
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
 
-
-
-
-
     # compare_with_numerical_gradients()
+    sanity()
     # random_search()
     # coarse_search()
+
 
 if __name__ =='__main__':
 
@@ -1569,6 +1557,6 @@ if __name__ =='__main__':
 
     # exercise_1()
     # exercise_2()
-    # exercise_3()
+    exercise_3()
 
     print('Finished!')
