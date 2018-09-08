@@ -1,0 +1,222 @@
+---------------------------------
+Learning rate: 0.017735018087604103, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  42.97
+---------------------------------
+Learning rate: 0.01746419667496226, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  43.42
+---------------------------------
+Learning rate: 0.018093247549295238, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  41.48
+---------------------------------
+Learning rate: 0.018926477020422043, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  40.29
+---------------------------------
+Learning rate: 0.018826625600027246, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.48
+---------------------------------
+Learning rate: 0.018152155213339433, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  39.51
+---------------------------------
+Learning rate: 0.018836422206563137, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.19
+---------------------------------
+Learning rate: 0.017318336044510982, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  37.65
+---------------------------------
+Learning rate: 0.01885412675376466, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  37.88
+---------------------------------
+Learning rate: 0.018946688167993896, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  39.03
+---------------------------------
+Learning rate: 0.028960908730851248, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  42.87
+---------------------------------
+Learning rate: 0.0287033408950022, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  41.32
+---------------------------------
+Learning rate: 0.02841414426365495, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  39.58
+---------------------------------
+Learning rate: 0.027022855138298597, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.95
+---------------------------------
+Learning rate: 0.028156600897847682, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.03
+---------------------------------
+Learning rate: 0.028437042628515177, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.55
+---------------------------------
+Learning rate: 0.028820806455506942, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.28
+---------------------------------
+Learning rate: 0.0284238099200546, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  38.53
+---------------------------------
+Learning rate: 0.027915506311373562, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  37.95
+---------------------------------
+Learning rate: 0.027003392358550114, amount of regularization term: 1e-06
+Accuracy performance on the validation set:  37.9
+---------------------------------
+Learning rate: 0.026925585997753746, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  43.73
+---------------------------------
+Learning rate: 0.023723641054404398, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  41.75
+---------------------------------
+Learning rate: 0.022483372485230017, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  40.07
+---------------------------------
+Learning rate: 0.025430739862279717, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.79
+---------------------------------
+Learning rate: 0.02671165395390538, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.22
+---------------------------------
+Learning rate: 0.025250034299789642, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.16
+---------------------------------
+Learning rate: 0.025909239708745313, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  37.67
+---------------------------------
+Learning rate: 0.024733656705384535, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  37.83
+---------------------------------
+Learning rate: 0.026431224756495963, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  38.25
+---------------------------------
+Learning rate: 0.02539972801275479, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  37.55
+---------------------------------
+Learning rate: 0.024573734109593313, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.25
+---------------------------------
+Learning rate: 0.022930380017020732, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.57
+---------------------------------
+Learning rate: 0.024770554882598137, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.44
+---------------------------------
+Learning rate: 0.023074642421019833, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.68
+---------------------------------
+Learning rate: 0.025248652008698212, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  38.69
+---------------------------------
+Learning rate: 0.026615902418217503, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  38.79
+---------------------------------
+Learning rate: 0.025389880259531226, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  38.72
+---------------------------------
+Learning rate: 0.024788775655680183, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  37.81
+---------------------------------
+Learning rate: 0.02256797035058726, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.55
+---------------------------------
+Learning rate: 0.02246710359818993, amount of regularization term: 1e-05
+Accuracy performance on the validation set:  39.74
+---------------------------------
+Learning rate: 0.01716377462060044, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  43.13
+---------------------------------
+Learning rate: 0.018920249916784752, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  44.16
+---------------------------------
+Learning rate: 0.018886526520259746, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  42.58
+---------------------------------
+Learning rate: 0.01895775207484601, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  41.09
+---------------------------------
+Learning rate: 0.017837232132587935, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  40.02
+---------------------------------
+Learning rate: 0.01860508913597894, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  39.29
+---------------------------------
+Learning rate: 0.01757275265658167, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  39.37
+---------------------------------
+Learning rate: 0.01867519552075304, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  39.14
+---------------------------------
+Learning rate: 0.01831889680782945, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  39.39
+---------------------------------
+Learning rate: 0.018383226218418123, amount of regularization term: 0.0001
+Accuracy performance on the validation set:  38.43
+---------------------------------
+Learning rate: 0.02899354379782664, amount of regularization term: 0.001
+Accuracy performance on the validation set:  43.89
+---------------------------------
+Learning rate: 0.029894680133662425, amount of regularization term: 0.001
+Accuracy performance on the validation set:  42.48
+---------------------------------
+Learning rate: 0.030542572662875224, amount of regularization term: 0.001
+Accuracy performance on the validation set:  41.44
+---------------------------------
+Learning rate: 0.028178856969316702, amount of regularization term: 0.001
+Accuracy performance on the validation set:  41.38
+---------------------------------
+Learning rate: 0.031811813587325564, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.56
+---------------------------------
+Learning rate: 0.02832450608842571, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.64
+---------------------------------
+Learning rate: 0.02994829441224851, amount of regularization term: 0.001
+Accuracy performance on the validation set:  41.01
+---------------------------------
+Learning rate: 0.031428034046821915, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.92
+---------------------------------
+Learning rate: 0.03016526667860561, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.63
+---------------------------------
+Learning rate: 0.02975534714797813, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.13
+---------------------------------
+Learning rate: 0.030222389189687105, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.03
+---------------------------------
+Learning rate: 0.029584548896112912, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.42
+---------------------------------
+Learning rate: 0.029892750607658072, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.49
+---------------------------------
+Learning rate: 0.030664184519163303, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.88
+---------------------------------
+Learning rate: 0.030144105897441688, amount of regularization term: 0.001
+Accuracy performance on the validation set:  40.23
+---------------------------------
+Learning rate: 0.03041364832212037, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.95
+---------------------------------
+Learning rate: 0.030121784531941816, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.47
+---------------------------------
+Learning rate: 0.028291959918310614, amount of regularization term: 0.001
+Accuracy performance on the validation set:  38.0
+---------------------------------
+Learning rate: 0.03145057371016616, amount of regularization term: 0.001
+Accuracy performance on the validation set:  39.21
+---------------------------------
+Learning rate: 0.029114666820364458, amount of regularization term: 0.001
+Accuracy performance on the validation set:  38.4
+---------------------------------
+BEST PERFORMANCE:  44.16
+Best eta:  0.018920249916784752
+Best lambda:  0.0001
+---------------------------------
+SECOND BEST PERFORMANCE:  43.89
+Second best eta:  0.02899354379782664
+Second best lambda:  0.001
+---------------------------------
+THIRD BEST PERFORMANCE:  43.73
+Third best eta:  0.026925585997753746
+Third best lambda:  1e-05

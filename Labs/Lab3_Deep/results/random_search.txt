@@ -1,0 +1,273 @@
+-----------------------
+eta:  1e-05
+
+Cross-entropy loss at epoch no.0: 2.3009406466056403
+Cross-entropy loss at epoch no.1: 2.2996693062459266
+Cross-entropy loss at epoch no.2: 2.2983365484636953
+Cross-entropy loss at epoch no.3: 2.2968256031815084
+Cross-entropy loss at epoch no.4: 2.295148313819668
+
+Validation set accuracy: 25.46
+-----------------------
+eta:  5e-05
+
+Cross-entropy loss at epoch no.0: 2.2940423798632192
+Cross-entropy loss at epoch no.1: 2.277846289832123
+Cross-entropy loss at epoch no.2: 2.26026191322839
+Cross-entropy loss at epoch no.3: 2.245096096398004
+Cross-entropy loss at epoch no.4: 2.2323231354188766
+
+Validation set accuracy: 28.87
+-----------------------
+eta:  0.0001
+
+Cross-entropy loss at epoch no.0: 2.2767158545364263
+Cross-entropy loss at epoch no.1: 2.232760820544824
+Cross-entropy loss at epoch no.2: 2.2055035238187766
+Cross-entropy loss at epoch no.3: 2.1840408443732735
+Cross-entropy loss at epoch no.4: 2.1537439597989456
+
+Validation set accuracy: 30.53
+-----------------------
+eta:  0.0005
+
+Cross-entropy loss at epoch no.0: 2.0424945298356922
+Cross-entropy loss at epoch no.1: 1.9636430568035481
+Cross-entropy loss at epoch no.2: 1.8990823143099236
+Cross-entropy loss at epoch no.3: 1.8393554537117478
+Cross-entropy loss at epoch no.4: 1.786567357553797
+
+Validation set accuracy: 32.05
+-----------------------
+eta:  0.001
+
+Cross-entropy loss at epoch no.0: 1.9328190185967236
+Cross-entropy loss at epoch no.1: 1.868346620280237
+Cross-entropy loss at epoch no.2: 1.7834302265250694
+Cross-entropy loss at epoch no.3: 1.707936827519277
+Cross-entropy loss at epoch no.4: 1.6501736649906644
+
+Validation set accuracy: 37.31
+-----------------------
+eta:  0.005
+
+Cross-entropy loss at epoch no.0: 1.9786484327671054
+Cross-entropy loss at epoch no.1: 1.677643938426639
+Cross-entropy loss at epoch no.2: 1.6013417284238567
+Cross-entropy loss at epoch no.3: 1.4807512222491723
+Cross-entropy loss at epoch no.4: 1.3939876318707536
+
+Validation set accuracy: 41.36
+-----------------------
+eta:  0.01
+
+Cross-entropy loss at epoch no.0: 2.0152451105054814
+Cross-entropy loss at epoch no.1: 1.6702082574179324
+Cross-entropy loss at epoch no.2: 1.543121449220391
+Cross-entropy loss at epoch no.3: 1.4284677280540714
+Cross-entropy loss at epoch no.4: 1.3467196650728563
+
+Validation set accuracy: 41.33
+-----------------------
+eta:  0.05
+
+Cross-entropy loss at epoch no.0: 1.9438873700563142
+Cross-entropy loss at epoch no.1: 1.5881886193667425
+Cross-entropy loss at epoch no.2: 1.4544560072543304
+Cross-entropy loss at epoch no.3: 1.3648352067166343
+Cross-entropy loss at epoch no.4: 1.306988613885826
+
+Validation set accuracy: 42.17
+-----------------------
+eta:  0.1
+
+Cross-entropy loss at epoch no.0: 1.946846566947594
+Cross-entropy loss at epoch no.1: 1.657453956357706
+Cross-entropy loss at epoch no.2: 1.4796576903867136
+Cross-entropy loss at epoch no.3: 1.3562006097825519
+Cross-entropy loss at epoch no.4: 1.2692743223039153
+
+Validation set accuracy: 41.68
+-----------------------
+eta:  0.15
+
+Cross-entropy loss at epoch no.0: 1.8497984876398028
+Cross-entropy loss at epoch no.1: 1.5974326011079867
+Cross-entropy loss at epoch no.2: 1.5122871475913746
+Cross-entropy loss at epoch no.3: 1.4415210181038092
+Cross-entropy loss at epoch no.4: 1.3466892513074116
+
+Test set accuracy: 39.67
+-----------------------
+eta:  0.2
+
+Cross-entropy loss at epoch no.0: 1.8914899050299727
+Cross-entropy loss at epoch no.1: 1.5892854766751032
+Cross-entropy loss at epoch no.2: 1.5033304099194171
+Cross-entropy loss at epoch no.3: 1.382592454801024
+Cross-entropy loss at epoch no.4: 1.3062381768298403
+
+Test set accuracy: 40.11
+-----------------------
+eta:  0.25
+
+Cross-entropy loss at epoch no.0: 1.9307459818301802
+Cross-entropy loss at epoch no.1: 1.5859332579284446
+Cross-entropy loss at epoch no.2: 1.4683937965897291
+Cross-entropy loss at epoch no.3: 1.4032672428326964
+Cross-entropy loss at epoch no.4: 1.3719615964958667
+
+Test set accuracy: 40.4
+-----------------------
+eta:  0.30000000000000004
+
+Cross-entropy loss at epoch no.0: 1.7866875377107085
+Cross-entropy loss at epoch no.1: 1.5539972265181161
+Cross-entropy loss at epoch no.2: 1.4713544418374205
+Cross-entropy loss at epoch no.3: 1.3925697296830928
+Cross-entropy loss at epoch no.4: 1.3373635624997255
+
+Test set accuracy: 35.54
+-----------------------
+eta:  0.3500000000000001
+
+Cross-entropy loss at epoch no.0: 1.8416781132429583
+Cross-entropy loss at epoch no.1: 1.573421529128162
+Cross-entropy loss at epoch no.2: 1.4429292084904106
+Cross-entropy loss at epoch no.3: 1.3728491426458074
+Cross-entropy loss at epoch no.4: 1.308682931694683
+
+Test set accuracy: 40.68
+-----------------------
+eta:  0.40000000000000013
+
+Cross-entropy loss at epoch no.0: 1.8547137185836327
+Cross-entropy loss at epoch no.1: 1.5722745057332792
+Cross-entropy loss at epoch no.2: 1.4646672421822178
+Cross-entropy loss at epoch no.3: 1.4010096971468238
+Cross-entropy loss at epoch no.4: 1.3567467339759878
+
+Test set accuracy: 39.35
+-----------------------
+eta:  0.45000000000000007
+
+Cross-entropy loss at epoch no.0: 1.966426125096725
+Cross-entropy loss at epoch no.1: 1.6329955452725613
+Cross-entropy loss at epoch no.2: 1.524711269872614
+Cross-entropy loss at epoch no.3: 1.4587884743052695
+Cross-entropy loss at epoch no.4: 1.4051290549286535
+
+Test set accuracy: 39.81
+-----------------------
+eta:  0.5000000000000001
+
+Cross-entropy loss at epoch no.0: 2.005925141433923
+Cross-entropy loss at epoch no.1: 1.6609317100499532
+Cross-entropy loss at epoch no.2: 1.523885948717363
+Cross-entropy loss at epoch no.3: 1.4174977447717725
+Cross-entropy loss at epoch no.4: 1.3259133074472822
+
+Test set accuracy: 40.04
+-----------------------
+eta:  0.5500000000000002
+
+Cross-entropy loss at epoch no.0: 2.0101273820656385
+Cross-entropy loss at epoch no.1: 1.6168683949361162
+Cross-entropy loss at epoch no.2: 1.5085645162491566
+Cross-entropy loss at epoch no.3: 1.4288530120803795
+Cross-entropy loss at epoch no.4: 1.3866178293122533
+
+Test set accuracy: 38.33
+-----------------------
+eta:  0.6000000000000002
+
+Cross-entropy loss at epoch no.0: 1.98045047212823
+Cross-entropy loss at epoch no.1: 1.6776828712419378
+Cross-entropy loss at epoch no.2: 1.486751025076042
+Cross-entropy loss at epoch no.3: 1.390061125579293
+Cross-entropy loss at epoch no.4: 1.3440690015576713
+
+Test set accuracy: 41.93
+-----------------------
+eta:  0.6500000000000002
+
+Cross-entropy loss at epoch no.0: 2.1340804854746156
+Cross-entropy loss at epoch no.1: 1.6748028039154088
+Cross-entropy loss at epoch no.2: 1.5489587450079938
+Cross-entropy loss at epoch no.3: 1.470504039533303
+Cross-entropy loss at epoch no.4: 1.3742694333320307
+
+Test set accuracy: 39.31
+-----------------------
+eta:  0.7000000000000002
+
+Cross-entropy loss at epoch no.0: 2.180626836341286
+Cross-entropy loss at epoch no.1: 1.6413689209487878
+Cross-entropy loss at epoch no.2: 1.5041938039134077
+Cross-entropy loss at epoch no.3: 1.4540166784026491
+Cross-entropy loss at epoch no.4: 1.4080546450367368
+
+Test set accuracy: 39.59
+-----------------------
+eta:  0.7500000000000002
+
+Cross-entropy loss at epoch no.0: 2.1061526420178005
+Cross-entropy loss at epoch no.1: 1.6271400738311252
+Cross-entropy loss at epoch no.2: 1.4600783258928471
+Cross-entropy loss at epoch no.3: 1.3784150235813868
+Cross-entropy loss at epoch no.4: 1.353318416903511
+
+Test set accuracy: 41.28
+-----------------------
+eta:  0.8000000000000003
+
+Cross-entropy loss at epoch no.0: 2.12886636505105
+Cross-entropy loss at epoch no.1: 1.7487196033865218
+Cross-entropy loss at epoch no.2: 1.5324666756092522
+Cross-entropy loss at epoch no.3: 1.4303071130117788
+Cross-entropy loss at epoch no.4: 1.3895364548341531
+
+Test set accuracy: 40.5
+-----------------------
+eta:  0.8500000000000002
+
+Cross-entropy loss at epoch no.0: 2.1281444681846775
+Cross-entropy loss at epoch no.1: 1.8096264653279615
+Cross-entropy loss at epoch no.2: 1.5484446285745435
+Cross-entropy loss at epoch no.3: 1.380830941234695
+Cross-entropy loss at epoch no.4: 1.3224861401665433
+
+Test set accuracy: 40.94
+-----------------------
+eta:  0.9000000000000002
+
+Cross-entropy loss at epoch no.0: 2.195399680226086
+Cross-entropy loss at epoch no.1: 1.8705139874984118
+Cross-entropy loss at epoch no.2: 1.7403393378913734
+Cross-entropy loss at epoch no.3: 1.5097673964490161
+Cross-entropy loss at epoch no.4: 1.3773518208202828
+
+Test set accuracy: 39.7
+-----------------------
+eta:  0.9500000000000003
+
+Cross-entropy loss at epoch no.0: 2.0903001371568037
+Cross-entropy loss at epoch no.1: 1.8143879171802357
+Cross-entropy loss at epoch no.2: 1.639955429445945
+Cross-entropy loss at epoch no.3: 1.4762060031494975
+Cross-entropy loss at epoch no.4: 1.3389693145822272
+
+Test set accuracy: 40.48
+-----------------------
+eta:  1.0000000000000002
+
+Cross-entropy loss at epoch no.0: 2.3273665536084303
+Cross-entropy loss at epoch no.1: 1.8054872305241247
+Cross-entropy loss at epoch no.2: 1.6464650626063828
+Cross-entropy loss at epoch no.3: 1.560550503859874
+Cross-entropy loss at epoch no.4: 1.4167199966998143
+
+Test set accuracy: 39.67
+Finished!
+
+Process finished with exit code 0

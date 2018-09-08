@@ -1,0 +1,94 @@
+-----------------------
+eta:  1e-05
+Training set loss after epoch number 0 is: 2.3025848506920643
+Training set loss after epoch number 1 is: 2.302583841443368
+Training set loss after epoch number 2 is: 2.3025828840707727
+Training set loss after epoch number 3 is: 2.3025819761862096
+Training set loss after epoch number 4 is: 2.3025811148946467
+-----------------------
+eta:  5e-05
+Training set loss after epoch number 0 is: 2.302581166802597
+Training set loss after epoch number 1 is: 2.3025761599923698
+Training set loss after epoch number 2 is: 2.3025714319240826
+Training set loss after epoch number 3 is: 2.302566964345669
+Training set loss after epoch number 4 is: 2.3025627410959992
+-----------------------
+eta:  0.0001
+Training set loss after epoch number 0 is: 2.30257658291642
+Training set loss after epoch number 1 is: 2.302566649200436
+Training set loss after epoch number 2 is: 2.3025573099186
+Training set loss after epoch number 3 is: 2.302548512635035
+Training set loss after epoch number 4 is: 2.3025401957678024
+-----------------------
+eta:  0.0005
+Training set loss after epoch number 0 is: 2.302540587592968
+Training set loss after epoch number 1 is: 2.302491988907828
+Training set loss after epoch number 2 is: 2.3024428255480847
+Training set loss after epoch number 3 is: 2.3023886927860806
+Training set loss after epoch number 4 is: 2.3023246072972063
+-----------------------
+eta:  0.001
+Training set loss after epoch number 0 is: 2.3024961118640817
+Training set loss after epoch number 1 is: 2.302385974069006
+Training set loss after epoch number 2 is: 2.3022182701771743
+Training set loss after epoch number 3 is: 2.301887819606671
+Training set loss after epoch number 4 is: 2.3011638049174845
+-----------------------
+eta:  0.005
+Training set loss after epoch number 0 is: 2.3016173556298125
+Training set loss after epoch number 1 is: 2.2550413596396766
+Training set loss after epoch number 2 is: 2.1146773986603358
+Training set loss after epoch number 3 is: 2.017094492085483
+Training set loss after epoch number 4 is: 1.9535316378904555
+-----------------------
+eta:  0.01
+Training set loss after epoch number 0 is: 2.2827034244596045
+Training set loss after epoch number 1 is: 2.0367023475847756
+Training set loss after epoch number 2 is: 1.9087574123414015
+Training set loss after epoch number 3 is: 1.8115696768818903
+Training set loss after epoch number 4 is: 1.746466464568492
+-----------------------
+eta:  0.05
+Training set loss after epoch number 0 is: 1.8631283357230615
+Training set loss after epoch number 1 is: 1.6802545089198524
+Training set loss after epoch number 2 is: 1.5561225480297545
+Training set loss after epoch number 3 is: 1.48447438398465
+Training set loss after epoch number 4 is: 1.3948883159995926
+-----------------------
+eta:  0.1
+Training set loss after epoch number 0 is: 1.7809084849468708
+Training set loss after epoch number 1 is: 1.647158691489011
+Training set loss after epoch number 2 is: 1.576782693391572
+Training set loss after epoch number 3 is: 1.5048117377048429
+Training set loss after epoch number 4 is: 1.4282937238930191
+-----------------------
+eta:  0.2
+Training set loss after epoch number 0 is: 1.896857875221071
+Training set loss after epoch number 1 is: 1.8297946613480636
+Training set loss after epoch number 2 is: 1.8206863209161308
+Training set loss after epoch number 3 is: 1.7364877149056364
+Training set loss after epoch number 4 is: 1.6740169282547976
+-----------------------
+eta:  0.25
+Training set loss after epoch number 0 is: 2.1669436732078977
+Training set loss after epoch number 1 is: 2.1036145243458817
+Training set loss after epoch number 2 is: 1.8602258627275428
+Training set loss after epoch number 3 is: 1.8931909598326608
+Training set loss after epoch number 4 is: 1.7214404964776455
+-----------------------
+eta:  0.3
+Training set loss after epoch number 0 is: 3.8002923593685707
+Training set loss after epoch number 1 is: 2.373464657161541
+Training set loss after epoch number 2 is: 2.0204059748019203
+Training set loss after epoch number 3 is: 1.9318048338288314
+Training set loss after epoch number 4 is: 1.9017615995219335
+-----------------------
+eta:  0.35
+Training set loss after epoch number 0 is: 7.4996254964050575
+-----------------------
+eta:  0.39999999999999997
+/usr/local/lib/python3.6/site-packages/ipykernel_launcher.py:17: RuntimeWarning: divide by zero encountered in log
+Training set loss after epoch number 0 is: inf
+-----------------------
+eta:  0.44999999999999996
+Training set loss after epoch number 0 is: inf
