@@ -1351,5 +1351,3 @@ if __name__ =='__main__':
     # exercise_1()
     # exercise_2()
     exercise_3()
-
-    print('Finished!')
