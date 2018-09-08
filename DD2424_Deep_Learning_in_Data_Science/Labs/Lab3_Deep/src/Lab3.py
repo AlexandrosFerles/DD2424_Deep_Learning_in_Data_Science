@@ -1246,13 +1246,12 @@ def exercise_3():
         etas = []
         lambdas = []
 
-        # for regularization_term in [1e-5, 1e-4, 1e-3, 1e-3, 1e-1, 1]:
-        for regularization_term in [1e-5, 1e-4]:
+        for regularization_term in [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]:
 
-            e_min = 0.01
-            e_max = 0.1
+            e_min = np.log(0.005)
+            e_max = np.log(0.1)
 
-            for _ in range(1):
+            for _ in range(10):
 
                 eta_term = np.random.rand(1, 1).flatten()[0]
                 e = e_min + (e_max - e_min) * eta_term
@@ -1282,44 +1281,6 @@ def exercise_3():
                 accuracies.append(accuracy_on_validation_set)
                 print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
 
-            e_min = 0.6
-            e_max = 1
-
-            for _ in range(1):
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-                etas.append(eta)
-
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(
-                    X_training_1,
-                    Y_training_1,
-                    X_training_2,
-                    Y_training_2,
-                    y_training_2,
-                    GD_params,
-                    weights,
-                    biases,
-                    regularization_term)
-
-                print('---------------------------------')
-                print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(
-                    regularization_term))
-                accuracy_on_validation_set = ComputeAccuracyBatchNormalization(X_training_2, y_training_2, best_weights,
-                                                                               best_biases, [exponential_means,
-                                                                                             exponential_variances])
-                accuracies.append(accuracy_on_validation_set)
-                print('Accuracy performance on the validation set: ', accuracy_on_validation_set)
-
-
-
-
         sort_them_all = sorted(zip(accuracies, etas, lambdas))
 
         best_accuracies = [x for x, _, _ in sort_them_all]
@@ -1342,8 +1303,8 @@ def exercise_3():
         print('Third best lambda: ', best_lambdas[-3])
 
     # part_1()
-    random_search()
-    # coarse_search()
+    # random_search()
+    coarse_search()
 
 if __name__ =='__main__':
 
