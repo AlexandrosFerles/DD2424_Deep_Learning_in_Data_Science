@@ -499,7 +499,6 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
     momentum_biases = initialize_momentum(biases)
 
     original_training_cost= ComputeCost(X, Y, weights, biases, regularization_term)
-    # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
 
     best_weights = weights
     best_biases = biases
@@ -543,7 +542,7 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
 
 # ---------------------- BATCH NORMALIZATION FUNCTIONS ---------------------- #
 
-def BatchNormalize(s, mean_s, var_s, epsilon=1e-10):
+def BatchNormalize(s, mean_s, var_s, epsilon=1e-20):
     """
     Normalizes the scores of a batch based on their mean and variance.
 
@@ -676,7 +675,7 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
 
     return cross_entropy_loss + regularization_term * weight_sum
 
-def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-10):
+def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-20):
 
     # First part of the gradient:
     V_b = (var_s+ epsilon) ** (-0.5)
