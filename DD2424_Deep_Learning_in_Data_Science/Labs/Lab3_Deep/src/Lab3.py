@@ -1293,10 +1293,10 @@ def exercise_3():
         # Regularization 10^{-6}
         regularization_term = 1e-6
 
-        e_min = np.log(0.005)
-        e_max = np.log(0.1)
+        e_min = np.log(0.0057)
+        e_max = np.log(0.019)
 
-        for _ in range(10):
+        for _ in range(20):
             np.random.seed()
             eta_term = np.random.rand(1, 1).flatten()[0]
             e = e_min + (e_max - e_min) * eta_term
@@ -1320,10 +1320,10 @@ def exercise_3():
         # Regularization 10^{-5}
         regularization_term = 1e-5
 
-        e_min = np.log(0.005)
-        e_max = np.log(0.1)
+        e_min = np.log(0.007)
+        e_max = np.log(0.015)
 
-        for _ in range(10):
+        for _ in range(20):
             np.random.seed()
             eta_term = np.random.rand(1, 1).flatten()[0]
             e = e_min + (e_max - e_min) * eta_term
@@ -1347,8 +1347,32 @@ def exercise_3():
         # Regularization 10^{-4}
         regularization_term = 1e-4
 
-        e_min = np.log(0.005)
-        e_max = np.log(0.1)
+        e_min = np.log(0.03)
+        e_max = np.log(0.06)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+
+        e_min = np.log(0.01)
+        e_max = np.log(0.015)
 
         for _ in range(10):
             np.random.seed()
@@ -1374,8 +1398,8 @@ def exercise_3():
         # Regularization 10^{-3}
         regularization_term = 1e-3
 
-        e_min = np.log(0.005)
-        e_max = np.log(0.1)
+        e_min = np.log(0.008)
+        e_max = np.log(0.012)
 
         for _ in range(10):
             np.random.seed()
@@ -1402,7 +1426,7 @@ def exercise_3():
         regularization_term = 1e-2
 
         e_min = np.log(0.005)
-        e_max = np.log(0.1)
+        e_max = np.log(0.007)
 
         for _ in range(10):
             np.random.seed()
@@ -1447,9 +1471,10 @@ def exercise_3():
         print('Third best lambda: ', best_lambdas[-3])
 
     # part_1()
-    sanity()
+    # sanity()
     # random_search()
     # coarse_search()
+    fine_search()
 
 if __name__ =='__main__':
 
