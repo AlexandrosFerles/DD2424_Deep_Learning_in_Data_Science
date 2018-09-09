@@ -1277,6 +1277,174 @@ def exercise_3():
         print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
         print('Third best eta: ', best_etas[-3])
         print('Third best lambda: ', best_lambdas[-3])
+        
+    def fine_search():
+        """
+        Testing some combinations of lambda and eta's derived from short spaces that performed well
+                during the coarse search.
+
+        :return: None
+        """
+
+        best_accuracies = []
+        etas = []
+        lambdas = []
+
+        # Regularization 10^{-6}
+        regularization_term = 1e-6
+
+        e_min = np.log(0.005)
+        e_max = np.log(0.1)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+            
+        # Regularization 10^{-5}
+        regularization_term = 1e-5
+
+        e_min = np.log(0.005)
+        e_max = np.log(0.1)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+            
+        # Regularization 10^{-4}
+        regularization_term = 1e-4
+
+        e_min = np.log(0.005)
+        e_max = np.log(0.1)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+            
+        # Regularization 10^{-3}
+        regularization_term = 1e-3
+
+        e_min = np.log(0.005)
+        e_max = np.log(0.1)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+            
+        # Regularization 10^{-2}
+        regularization_term = 1e-2
+
+        e_min = np.log(0.005)
+        e_max = np.log(0.1)
+
+        for _ in range(10):
+            np.random.seed()
+            eta_term = np.random.rand(1, 1).flatten()[0]
+            e = e_min + (e_max - e_min) * eta_term
+            eta = np.exp(e)
+            etas.append(eta)
+
+            lambdas.append(regularization_term)
+
+            GD_params = [100, eta, 10, regularization_term]
+
+            weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+            best_weights, best_biases, losses, accuracies, exponentials = \
+                MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+            print('---------------------------------')
+            print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+            best_accuracies.append(max(accuracies[1]))
+            print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+
+        sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
+
+        best_accuracies = [x for x, _, _ in sort_them_all]
+        best_etas = [y for _, y, _ in sort_them_all]
+        best_lambdas = [z for _, _, z in sort_them_all]
+
+        print('---------------------------------')
+        print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+        print('Best eta: ', best_etas[-1])
+        print('Best lambda: ', best_lambdas[-1])
+
+        print('---------------------------------')
+        print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+        print('Second best eta: ', best_etas[-2])
+        print('Second best lambda: ', best_lambdas[-2])
+
+        print('---------------------------------')
+        print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+        print('Third best eta: ', best_etas[-3])
+        print('Third best lambda: ', best_lambdas[-3])
 
     # part_1()
     sanity()
