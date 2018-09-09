@@ -1543,7 +1543,7 @@ def exercise_3():
 
         weights, biases = initialize_weights([[50, 3072], [10, 50]])
 
-        best_weights, best_biases, losses, accuracies, exponentials = \
+        best_weights, best_biases, losses, accuracies = \
             MiniBatchGDwithMomentum(training_set, validation_set, GD_params, weights, biases)
 
         visualize_plots(losses[0], losses[1], display=True, save_name=f'00_loss_no_bn.png')
@@ -1560,11 +1560,10 @@ def exercise_3():
 
         weights, biases = initialize_weights([[50, 3072], [10, 50]])
 
-        best_weights, best_biases, losses, accuracies, exponentials = \
+        best_weights, best_biases, losses, accuracies = \
             MiniBatchGDwithMomentum(training_set, validation_set, GD_params, weights, biases)
 
         visualize_plots(losses[0], losses[1], display=True, save_name=f'01_loss_no_bn.png')
-
         visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'01_acc_no_bn.png')
 
         test_set_accuracy_performance = ComputeAccuracy(X_test, y_test, best_weights, best_biases)
@@ -1577,7 +1576,7 @@ def exercise_3():
 
         weights, biases = initialize_weights([[50, 3072], [10, 50]])
 
-        best_weights, best_biases, losses, accuracies, exponentials = \
+        best_weights, best_biases, losses, accuracies = \
             MiniBatchGDwithMomentum(training_set, validation_set, GD_params, weights, biases)
 
         visualize_plots(losses[0], losses[1], display=True, save_name=f'02_loss_no_bn.png')
@@ -1593,7 +1592,7 @@ def exercise_3():
 
         weights, biases = initialize_weights([[50, 3072], [10, 50]])
 
-        best_weights, best_biases, losses, accuracies, exponentials = \
+        best_weights, best_biases, losses, accuracies  = \
             MiniBatchGDwithMomentum(training_set, validation_set, GD_params, weights, biases)
 
         visualize_plots(losses[0], losses[1], display=True, save_name=f'03_loss_no_bn.png')
