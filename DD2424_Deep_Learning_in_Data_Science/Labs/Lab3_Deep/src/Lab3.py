@@ -471,39 +471,29 @@ def add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, m
 
     return updated_weights, updated_biases, momentum_weights, momentum_biases
 
-def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDparams, weights, biases,
-                            regularization_term=0, momentum_term=0.9):
+def MiniBatchGDwithMomentum(training_set, validation_set, GDparams, weights, biases ,momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations.
 
-    :param X: Input batch of data
-    :param Y: One-hot representation of the true labels of the data.
-    :param X_validation: Input batch of validation data.
-    :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param y_validation: True labels of the validation data.
-    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
+    :param training_set: Training data.
+    :param validation_set: Validation data.
+    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs, amount of regularization to be applied)
     :param weights: Weight matrices of the k layers
     :param biases: Bias vectors of the k layers
-    :param regularization_term: Amount of regularization applied.
 
-    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
+    :return: The weight and bias matrices learnt (trained) from the training process,
+             loss in training and validation set, accuracy evolution in training and validation set.
     """
-    number_of_mini_batches = GDparams[0]
-    eta = GDparams[1]
-    epoches = GDparams[2]
+    [number_of_mini_batches, eta, epoches, regularization_term] = GDparams
 
-    cost = []
-    val_cost = []
+    [X, Y, y], [X_validation, Y_validation, y_validation] = training_set, validation_set
 
-    momentum_weights = initialize_momentum(weights)
-    momentum_biases = initialize_momentum(biases)
+    train_loss_evolution, validation_loss_evolution = [], []
+    train_accuracy_evolution, validation_accuracy_evolution = [], []
 
-    original_training_cost= ComputeCost(X, Y, weights, biases, regularization_term)
+    momentum_weights, momentum_biases = initialize_momentum(weights), initialize_momentum(biases)
 
-    best_weights = weights
-    best_biases = biases
-
-    best_validation_set_accuracy = 0
+    original_training_cost = ComputeCost(X, Y, weights, biases, regularization_term)
 
     for _ in tqdm(range(epoches)):
         # for epoch in range(epoches):
@@ -527,18 +517,19 @@ def MiniBatchGDwithMomentum(X, Y, X_validation, Y_validation, y_validation, GDpa
             best_validation_set_accuracy = validation_set_accuracy
 
         epoch_cost = ComputeCost(X, Y, weights, biases, regularization_term)
-        # print('Training set loss after epoch number '+str(epoch)+' is: '+str(epoch_cost))
         if epoch_cost > 3 * original_training_cost:
             break
         val_epoch_cost = ComputeCost(X_validation, Y_validation, weights, biases, regularization_term)
 
-        cost.append(epoch_cost)
-        val_cost.append(val_epoch_cost)
+        train_loss_evolution.append(epoch_cost)
+        validation_loss_evolution.append(val_epoch_cost)
+        train_accuracy_evolution.append(ComputeAccuracy(X, y, weights, biases))
+        validation_accuracy_evolution.append(ComputeAccuracy(X_validation, y_validation, weights, biases))
 
         # Decay the learning rate
         eta *= 0.95
 
-    return best_weights, best_biases, cost, val_cost
+    return best_weights, best_biases, [train_loss_evolution, validation_loss_evolution], [train_accuracy_evolution, validation_accuracy_evolution]
 
 # ---------------------- BATCH NORMALIZATION FUNCTIONS ---------------------- #
 
@@ -808,42 +799,34 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
         exponential_means[index] = a * elem + (1-a) * means[index]
         exponential_variances[index] = a * exponential_variances[index] + (1-a) * variances[index]
 
-    return exponential_means, exponential_variances
+    return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation, GDparams, weights, biases,
-                                    regularization_term, momentum_term=0.9):
+def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations with batch normalization.
 
-    :param X: Input batch of data
-    :param Y: One-hot representation of the true labels of the data.
-    :param X_validation: Input batch of validation data.
-    :param Y_validation: One-hot representation of the true labels of the validation data.
-    :param y_validation: True labels of the validation data.
-    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs)
+    :param training_set: Training data.
+    :param validation_set: Validation data.
+    :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs, amount of regularization to be applied)
     :param weights: Weight matrices of the k layers
     :param biases: Bias vectors of the k layers
-    :param regularization_term: Amount of regularization applied.
 
-    :return: The weight and bias matrices learnt (trained) from the training process, loss in training and validation set.
+    :return: The weight and bias matrices learnt (trained) from the training process,
+             loss in training and validation set, accuracy evolution in training and validation set.
     """
-    number_of_mini_batches = GDparams[0]
-    eta = GDparams[1]
-    epoches = GDparams[2]
+    [number_of_mini_batches, eta, epoches, regularization_term] = GDparams
 
-    cost = []
-    val_cost = []
+    [X, Y, y], [X_validation, Y_validation, y_validation] = training_set, validation_set
 
-    momentum_weights = initialize_momentum(weights)
-    momentum_biases = initialize_momentum(biases)
+    train_loss_evolution, validation_loss_evolution = [], []
+    train_accuracy_evolution, validation_accuracy_evolution = [], []
 
-    original_training_cost= ComputeCost(X, Y, weights, biases, regularization_term)
-    # print('Training set loss before start of training process: '+str(ComputeCost(X, Y, W1, W2, b1, b2, regularization_term)))
+    momentum_weights, momentum_biases = initialize_momentum(weights), initialize_momentum(biases)
 
-    best_weights = weights
-    best_biases = biases
+    original_training_cost = ComputeCost(X, Y, weights, biases, regularization_term)
 
-    best_validation_set_accuracy = 0
+    best_weights, best_biases, best_validation_set_accuracy = weights, biases, 0
+    exponentials, best_exponentials = [], []
 
     # for epoch in tqdm(range(epoches)):
     for epoch in range(epoches):
@@ -861,37 +844,37 @@ def MiniBatchGDBatchNormalization(X, Y, X_validation, Y_validation, y_validation
             if epoch == 0 and start == 0:
                 exponential_means = means.copy()
                 exponential_variances = variances.copy()
+                exponentials, best_exponentials = [exponential_means, exponential_variances], [exponential_means, exponential_variances]
             else:
-                exponential_means, exponential_variances = ExponentialMovingAverage(means, exponential_means, variances, exponential_variances)
+                exponentials = ExponentialMovingAverage(means, exponentials[0], variances, exponentials[1])
 
-        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=[exponential_means, exponential_variances])
+        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials)
         if epoch_cost > 3 * original_training_cost:
             break
-        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=[exponential_means, exponential_variances])
+        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials)
 
-        cost.append(epoch_cost)
-        val_cost.append(val_epoch_cost)
+        train_loss_evolution.append(epoch_cost)
+        validation_loss_evolution.append(val_epoch_cost)
 
-        validation_set_accuracy = ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials=[exponential_means, exponential_variances])
+        train_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials))
+        validation_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials))
 
-        if validation_set_accuracy > best_validation_set_accuracy:
+        if validation_accuracy_evolution[-1] > best_validation_set_accuracy:
 
-            best_weights = weights
-            best_biases = biases
-            best_validation_set_accuracy = validation_set_accuracy
+            best_weights, best_biases, best_validation_set_accuracy = weights, biases, validation_accuracy_evolution[-1]
+            best_exponentials = exponentials
 
         # Decay the learning rate
         eta *= 0.95
 
-    # print(f'Best validation set accuracy: {best_validation_set_accuracy}')
-    return best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances
+    return best_weights, best_biases, [train_loss_evolution, validation_loss_evolution], [train_accuracy_evolution, validation_accuracy_evolution], best_exponentials
 
-def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, save_path='../figures/'):
+def visualize_plots(train, validation, display=False, title=None, save_name=None, save_path='../figures/'):
     """
-    Visualization and saving the losses of the network.
+    Visualization and saving plots (losses and accuracies) of the network.
 
-    :param loss: Loss of the network.
-    :param val_loss: Loss of the network in the validation set.
+    :param train: Loss of accuracy of the training data.
+    :param validation: Loss of accuracy of the validation data.
     :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
     :param title: (Optional) Title of the plot.
     :param save_name: (Optional) name of the file to save the plot.
@@ -904,8 +887,8 @@ def visualize_costs(loss, val_loss, display=False, title=None, save_name=None, s
     if title is not None:
         plt.title(title)
 
-    plt.plot(loss, 'g', label='Training set ')
-    plt.plot(val_loss, 'r', label='Validation set')
+    plt.plot(train, 'g', label='Training set ')
+    plt.plot(validation, 'r', label='Validation set')
     plt.legend(loc='upper right')
 
     if save_name is not None:
@@ -1129,6 +1112,8 @@ def exercise_3():
     X_training_2 -= mean
     X_test -= mean
 
+    training_set, validation_set = [X_training_1, Y_training_1, y_training_1], [X_training_2, Y_training_2, y_training_2]
+
     def part_1():
 
         """
@@ -1178,6 +1163,24 @@ def exercise_3():
         four_layers = np.load('4_layers.npz')
 
         check_similarity(weights_4, biases_4, [four_layers['w0'], four_layers['w1'], four_layers['w2'], four_layers['w3']], [four_layers['b0'], four_layers['b1'], four_layers['b2'], four_layers['b3']])
+
+    def sanity():
+
+        GD_params = [100, 0.005770450018576595, 200]
+        regularization_term = 1e-5
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        sanity_training_set = [training_set[0][:, :1000], training_set[1][:, :1000], training_set[2][:1000]]
+        sanity_validation_set = [validation_set[0][:, :1000], validation_set[1][:, :1000], validation_set[2][:1000]]
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(sanity_training_set, sanity_validation_set, GD_params, weights, biases)
+
+        visualize_plots(losses[0], losses[1], display=True, save_name='overfit')
+
+        print(f'Accuracy on the training set: {accuracies[0][-1]}')
+        print(f'Accuracy on the validation set: {accuracies[1][-1]}')
 
     def random_search():
 
@@ -1253,6 +1256,7 @@ def exercise_3():
 
             for _ in range(10):
 
+                np.random.seed()
                 eta_term = np.random.rand(1, 1).flatten()[0]
                 e = e_min + (e_max - e_min) * eta_term
                 eta = np.exp(e)
@@ -1264,15 +1268,8 @@ def exercise_3():
 
                 weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-                best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances = MiniBatchGDBatchNormalization(    X_training_1,
-                                                                                                                                        Y_training_1,
-                                                                                                                                        X_training_2,
-                                                                                                                                        Y_training_2,
-                                                                                                                                        y_training_2,
-                                                                                                                                        GD_params,
-                                                                                                                                        weights,
-                                                                                                                                        biases,
-                                                                                                                                        regularization_term)
+                best_weights, best_biases, cost, val_cost, exponential_means, exponential_variances \
+                    = MiniBatchGDBatchNormalization(    X_training_1, Y_training_1, X_training_2, Y_training_2, y_training_2, GD_params, weights, biases, regularization_term)
 
                 print('---------------------------------')
                 print('Learning rate: ' + str(eta) + ', amount of regularization term: ' + str(
@@ -1303,8 +1300,9 @@ def exercise_3():
         print('Third best lambda: ', best_lambdas[-3])
 
     # part_1()
+    sanity()
     # random_search()
-    coarse_search()
+    # coarse_search()
 
 if __name__ =='__main__':
 
