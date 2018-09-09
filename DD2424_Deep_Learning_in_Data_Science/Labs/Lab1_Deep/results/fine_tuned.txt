@@ -1,3 +1,0 @@
-0.40159999999999996
-
-Process finished with exit code 0
