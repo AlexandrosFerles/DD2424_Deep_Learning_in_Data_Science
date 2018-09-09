@@ -1,6 +1,5 @@
 -----------------------
 eta:  1e-05
-
 Cross-entropy loss at epoch no.0: 2.300940637827643
 Cross-entropy loss at epoch no.1: 2.299669290818701
 Cross-entropy loss at epoch no.2: 2.2983365258719144
@@ -10,7 +9,6 @@ Cross-entropy loss at epoch no.4: 2.29514799551169
 Validation set accuracy: 25.47
 -----------------------
 eta:  5e-05
-
 Cross-entropy loss at epoch no.0: 2.2940423358444164
 Cross-entropy loss at epoch no.1: 2.2778462053711976
 Cross-entropy loss at epoch no.2: 2.2602618359967477
@@ -20,7 +18,6 @@ Cross-entropy loss at epoch no.4: 2.2323214647328973
 Validation set accuracy: 28.86
 -----------------------
 eta:  0.0001
-
 Cross-entropy loss at epoch no.0: 2.2767157568904524
 Cross-entropy loss at epoch no.1: 2.232760813084972
 Cross-entropy loss at epoch no.2: 2.205511844552056
@@ -30,7 +27,6 @@ Cross-entropy loss at epoch no.4: 2.154475799919331
 Validation set accuracy: 30.64
 -----------------------
 eta:  0.0005
-
 Cross-entropy loss at epoch no.0: 2.042494568211379
 Cross-entropy loss at epoch no.1: 1.9629265644070875
 Cross-entropy loss at epoch no.2: 1.9009424281531961
@@ -40,7 +36,6 @@ Cross-entropy loss at epoch no.4: 1.7868787841002982
 Validation set accuracy: 32.39
 -----------------------
 eta:  0.001
-
 Cross-entropy loss at epoch no.0: 1.932899851960768
 Cross-entropy loss at epoch no.1: 1.8687687971635962
 Cross-entropy loss at epoch no.2: 1.7802339384069434
@@ -50,7 +45,6 @@ Cross-entropy loss at epoch no.4: 1.6487006713872803
 Validation set accuracy: 36.97
 -----------------------
 eta:  0.005
-
 Cross-entropy loss at epoch no.0: 1.9483153152751147
 Cross-entropy loss at epoch no.1: 1.6710447574047944
 Cross-entropy loss at epoch no.2: 1.5620395463740833
@@ -60,7 +54,6 @@ Cross-entropy loss at epoch no.4: 1.4219918480623808
 Validation set accuracy: 41.2
 -----------------------
 eta:  0.01
-
 Cross-entropy loss at epoch no.0: 1.994737750147196
 Cross-entropy loss at epoch no.1: 1.6793257683605352
 Cross-entropy loss at epoch no.2: 1.5444665106056084
@@ -70,7 +63,6 @@ Cross-entropy loss at epoch no.4: 1.365752836953463
 Validation set accuracy: 40.69
 -----------------------
 eta:  0.05
-
 Cross-entropy loss at epoch no.0: 1.9682986753246798
 Cross-entropy loss at epoch no.1: 1.6058833391218457
 Cross-entropy loss at epoch no.2: 1.4699930382479256
@@ -80,7 +72,6 @@ Cross-entropy loss at epoch no.4: 1.2662952851246054
 Validation set accuracy: 42.95
 -----------------------
 eta:  0.1
-
 Cross-entropy loss at epoch no.0: 1.9299902393340918
 Cross-entropy loss at epoch no.1: 1.6405928879246336
 Cross-entropy loss at epoch no.2: 1.4607238321797935
@@ -90,182 +81,163 @@ Cross-entropy loss at epoch no.4: 1.293284327027495
 Validation set accuracy: 41.77
 -----------------------
 eta:  0.15
-
 Cross-entropy loss at epoch no.0: 1.843743677113901
 Cross-entropy loss at epoch no.1: 1.6152777722210843
 Cross-entropy loss at epoch no.2: 1.4799598263003277
 Cross-entropy loss at epoch no.3: 1.3863887321370874
 Cross-entropy loss at epoch no.4: 1.316463110978535
 
-Test set accuracy: 40.26
+Validation set accuracy: 40.26
 -----------------------
 eta:  0.2
-
 Cross-entropy loss at epoch no.0: 1.9036433985880226
 Cross-entropy loss at epoch no.1: 1.5775528005577721
 Cross-entropy loss at epoch no.2: 1.4794509305751178
 Cross-entropy loss at epoch no.3: 1.3984196367275337
 Cross-entropy loss at epoch no.4: 1.3414082193024073
 
-Test set accuracy: 39.81
+Validation set accuracy: 39.81
 -----------------------
 eta:  0.25
-
 Cross-entropy loss at epoch no.0: 1.9159216474982974
 Cross-entropy loss at epoch no.1: 1.579991488348946
 Cross-entropy loss at epoch no.2: 1.4924650412597396
 Cross-entropy loss at epoch no.3: 1.4307909741310976
 Cross-entropy loss at epoch no.4: 1.3750541742594256
 
-Test set accuracy: 38.91
+Validation set accuracy: 38.91
 -----------------------
 eta:  0.30000000000000004
-
 Cross-entropy loss at epoch no.0: 1.8226791613279172
 Cross-entropy loss at epoch no.1: 1.5643558509218771
 Cross-entropy loss at epoch no.2: 1.4549180572404248
 Cross-entropy loss at epoch no.3: 1.398675078606743
 Cross-entropy loss at epoch no.4: 1.3400458132368962
 
-Test set accuracy: 39.44
+Validation set accuracy: 40.19
 -----------------------
 eta:  0.3500000000000001
-
 Cross-entropy loss at epoch no.0: 1.811609616435694
 Cross-entropy loss at epoch no.1: 1.5571273981880762
 Cross-entropy loss at epoch no.2: 1.4547043025333206
 Cross-entropy loss at epoch no.3: 1.3552651444543584
 Cross-entropy loss at epoch no.4: 1.28827541549588
 
-Test set accuracy: 40.52
+Validation set accuracy: 40.52
 -----------------------
 eta:  0.40000000000000013
-
 Cross-entropy loss at epoch no.0: 1.872837034821454
 Cross-entropy loss at epoch no.1: 1.5692940813574874
 Cross-entropy loss at epoch no.2: 1.452920248516156
 Cross-entropy loss at epoch no.3: 1.3994985453523332
 Cross-entropy loss at epoch no.4: 1.3535484606885966
 
-Test set accuracy: 39.6
+Validation set accuracy: 39.75
 -----------------------
 eta:  0.45000000000000007
-
 Cross-entropy loss at epoch no.0: 1.961192328935511
 Cross-entropy loss at epoch no.1: 1.6143405257435697
 Cross-entropy loss at epoch no.2: 1.5099909522652724
 Cross-entropy loss at epoch no.3: 1.46587777418446
 Cross-entropy loss at epoch no.4: 1.37791597921444
 
-Test set accuracy: 39.59
+Validation set accuracy: 39.59
 -----------------------
 eta:  0.5000000000000001
-
 Cross-entropy loss at epoch no.0: 2.008141856637977
 Cross-entropy loss at epoch no.1: 1.6288973087268797
 Cross-entropy loss at epoch no.2: 1.5467142777608862
 Cross-entropy loss at epoch no.3: 1.4247857246895381
 Cross-entropy loss at epoch no.4: 1.355778019918179
 
-Test set accuracy: 39.58
+Validation set accuracy: 39.58
 -----------------------
 eta:  0.5500000000000002
-
 Cross-entropy loss at epoch no.0: 1.9702510891096467
 Cross-entropy loss at epoch no.1: 1.6436333327265777
 Cross-entropy loss at epoch no.2: 1.4832629300868327
 Cross-entropy loss at epoch no.3: 1.4336702834803314
 Cross-entropy loss at epoch no.4: 1.4053472692296674
 
-Test set accuracy: 38.97
+Validation set accuracy: 38.74
 -----------------------
 eta:  0.6000000000000002
-
 Cross-entropy loss at epoch no.0: 2.009223813781141
 Cross-entropy loss at epoch no.1: 1.6459645180766886
 Cross-entropy loss at epoch no.2: 1.4705362356947926
 Cross-entropy loss at epoch no.3: 1.3703912694721088
 Cross-entropy loss at epoch no.4: 1.3315907160687839
 
-Test set accuracy: 41.59
+Validation set accuracy: 40.52
 -----------------------
 eta:  0.6500000000000002
-
 Cross-entropy loss at epoch no.0: 2.16563610589264
 Cross-entropy loss at epoch no.1: 1.6783457307703
 Cross-entropy loss at epoch no.2: 1.5182506353106433
 Cross-entropy loss at epoch no.3: 1.421302627174497
 Cross-entropy loss at epoch no.4: 1.36956902698227
 
-Test set accuracy: 40.27
+Validation set accuracy: 39.41
 -----------------------
 eta:  0.7000000000000002
-
 Cross-entropy loss at epoch no.0: 2.163270279726048
 Cross-entropy loss at epoch no.1: 1.6385114252156745
 Cross-entropy loss at epoch no.2: 1.5059083631797916
 Cross-entropy loss at epoch no.3: 1.4126446302395776
 Cross-entropy loss at epoch no.4: 1.3566047887443353
 
-Test set accuracy: 41.18
+Validation set accuracy: 40.07
 -----------------------
 eta:  0.7500000000000002
-
 Cross-entropy loss at epoch no.0: 2.1120337240936418
 Cross-entropy loss at epoch no.1: 1.6422545035832716
 Cross-entropy loss at epoch no.2: 1.5011983952140777
 Cross-entropy loss at epoch no.3: 1.3949069318032634
 Cross-entropy loss at epoch no.4: 1.3717283309924477
 
-Test set accuracy: 40.72
+Validation set accuracy: 39.51
 -----------------------
 eta:  0.8000000000000003
-
 Cross-entropy loss at epoch no.0: 2.131553177109477
 Cross-entropy loss at epoch no.1: 1.7595138129347132
 Cross-entropy loss at epoch no.2: 1.5239872407050965
 Cross-entropy loss at epoch no.3: 1.4437056839630897
 Cross-entropy loss at epoch no.4: 1.3871794325636528
 
-Test set accuracy: 39.71
+Validation set accuracy: 39.28
 -----------------------
 eta:  0.8500000000000002
-
 Cross-entropy loss at epoch no.0: 2.158708893790539
 Cross-entropy loss at epoch no.1: 1.7578683139310105
 Cross-entropy loss at epoch no.2: 1.5658770779047593
 Cross-entropy loss at epoch no.3: 1.399026818980427
 Cross-entropy loss at epoch no.4: 1.32958269477337
 
-Test set accuracy: 40.32
+Validation set accuracy: 40.2
 -----------------------
 eta:  0.9000000000000002
-
 Cross-entropy loss at epoch no.0: 2.1842933566761293
 Cross-entropy loss at epoch no.1: 1.96129338985866
 Cross-entropy loss at epoch no.2: 1.695237724078359
 Cross-entropy loss at epoch no.3: 1.5150423200256287
 Cross-entropy loss at epoch no.4: 1.3670398786230258
 
-Test set accuracy: 38.7
+Validation set accuracy: 38.7
 -----------------------
 eta:  0.9500000000000003
-
 Cross-entropy loss at epoch no.0: 2.0915352774502596
 Cross-entropy loss at epoch no.1: 1.8160476790673439
 Cross-entropy loss at epoch no.2: 1.649882100570904
 Cross-entropy loss at epoch no.3: 1.4660425503973518
 Cross-entropy loss at epoch no.4: 1.3493353767229237
 
-Test set accuracy: 40.52
+Validation set accuracy: 40.52
 -----------------------
 eta:  1.0000000000000002
-
 Cross-entropy loss at epoch no.0: 2.2478320224232
 Cross-entropy loss at epoch no.1: 1.8811198975399477
 Cross-entropy loss at epoch no.2: 1.6018171940624504
 Cross-entropy loss at epoch no.3: 1.5429902913137759
 Cross-entropy loss at epoch no.4: 1.3975270542415659
 
-Test set accuracy: 40.14
-Finished!
+Validation set accuracy: 40.14
