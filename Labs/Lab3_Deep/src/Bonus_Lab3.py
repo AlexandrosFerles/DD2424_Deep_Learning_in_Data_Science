@@ -306,11 +306,11 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
                 mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
                 var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
-                means = [mean_s]
-                variances = [var_s]
+                means.append(mean_s)
+                variances.append(var_s)
 
-                normalized_score = BatchNormalize(batch_normalization_outputs[-1], mean_s, var_s)
-                batch_normalization_activations.append(normalized_score)
+            normalized_score = BatchNormalize(batch_normalization_outputs[-1], mean_s, var_s)
+            batch_normalization_activations.append(normalized_score)
 
     s = np.dot(weights[-1], batch_normalization_activations[-1]) + biases[-1]
 
@@ -469,8 +469,8 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
     best_weights, best_biases, best_validation_set_accuracy = weights, biases, 0
     exponentials, best_exponentials = [], []
 
-    # for epoch in tqdm(range(epoches)):
-    for epoch in range(epoches):
+    for epoch in tqdm(range(epoches)):
+    # for epoch in range(epoches):
 
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
@@ -489,8 +489,8 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
             else:
                 exponentials = ExponentialMovingAverage(means, exponentials[0], variances, exponentials[1])
 
-        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials, mode)
-        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials, mode)
+        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=exponentials, mode=mode)
+        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=exponentials, mode=mode)
 
         train_loss_evolution.append(epoch_cost)
         validation_loss_evolution.append(val_epoch_cost)
@@ -647,7 +647,56 @@ def bonus_1():
         test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
         print(f'Test set accuracy performance: {test_set_Accuracy}')
 
+    def improvement_2():
+        """
+        Search for a good architecture setting
+        """
+
+        eta, regularization_term = 0.012913581489067944, 1e-04
+        GD_params = [100, eta, 10, regularization_term]
+
+        # Test for 3 layer settings
+
+        for layer_1 in range(55, 100, 5):
+
+            for layer_2 in range(35, 50, 5):
+
+                weights, biases = initialize_weights([[layer_1, 3072], [layer_2, layer_1], [10, layer_2]])
+
+                best_weights, best_biases, losses, accuracies, exponentials = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
+
+                visualize_plots(losses[0], losses[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}', save_name=f'layers:_{layer_1}_{layer_2}_osses.png')
+                visualize_plots(accuracies[0], accuracies[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}', save_name=f'layers:_{layer_1}_{layer_2}_accuracies.png')
+
+                test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights,
+                                                                      best_biases, exponentials=exponentials,
+                                                                      mode=2)
+                print(f'Test set accuracy performance for ({layer_1}, {layer_2}): {test_set_Accuracy}')
+
+        # Test for 4 layers architectures
+
+        for layer_1 in range(50, 100, 5):
+
+            for layer_2 in range(30, 50, 5):
+
+                    for layer_3 in range(15, layer_2, 5):
+
+                        weights, biases = initialize_weights([[layer_1, 3072], [layer_2, layer_1], [layer_3, layer_2], [10, layer_3]])
+
+                        best_weights, best_biases, losses, accuracies, exponentials = \
+                            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
+
+                        visualize_plots(losses[0], losses[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}, third layer:{layer_3 }', save_name=f'layers:_{layer_1}_{layer_2}_{layer_3}_losses.png')
+                        visualize_plots(accuracies[0], accuracies[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}, third layer:{layer_3 }', save_name=f'layers:_{layer_1}_{layer_2}_{layer_3}_accuracies.png')
+
+                        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights,
+                                                                              best_biases, exponentials=exponentials,
+                                                                              mode=2)
+                        print(f'Test set accuracy performance for ({layer_1}, {layer_2}, {layer_3}): {test_set_Accuracy}')
+
     improvement_1()
+    improvement_2()
 
 if __name__ =='__main__':
 
