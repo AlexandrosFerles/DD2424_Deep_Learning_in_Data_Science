@@ -1498,36 +1498,102 @@ def exercise_3():
 
         cnt=1
 
-		eta, regularization_term = 0.007986719995840757, 1e-06
+        eta, regularization_term = 0.007986719995840757, 1e-06
 
-		GD_params = [100, eta, 10, regularization_term]
+        GD_params = [100, eta, 10, regularization_term]
 
-		weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-		best_weights, best_biases, losses, accuracies, exponentials = \
-		    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	    visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
-	    visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
 
-	    test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
+        test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
         print(f'Test set accuracy performance: {test_set_accuracy}')
+
+        # Setting 3
 
         cnt=2
 
-		eta, regularization_term = 0.012913581489067944, 1e-04
+        eta, regularization_term = 0.012913581489067944, 1e-04
 
-		GD_params = [100, eta, 10, regularization_term]
+        GD_params = [100, eta, 10, regularization_term]
 
-		weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-		best_weights, best_biases, losses, accuracies, exponentials = \
+        best_weights, best_biases, losses, accuracies, exponentials = \
 		    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	    visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
-	    visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
 
-	    test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
+        test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
+        print(f'Test set accuracy performance: {test_set_accuracy}')
+
+    def two_layers_with_batch_normalization():
+
+        # Medium learning rate
+        eta, regularization_term = 0.1, 1e-04
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [10, 50]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'00_loss.png')
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'00_acc.png')
+
+        print(f'Test set accuracy performance: {test_set_accuracy}')
+
+        # Small learning rate, exactly the same with a good 2-layer network without batch normalization
+
+        eta, regularization = 0.0018920249916784752, 1e-4
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [10, 50]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'01_loss.png')
+
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'01_acc.png')
+
+        print(f'Test set accuracy performance: {test_set_accuracy}')
+
+        # High learning rate
+        eta, regularization = 0.6, 1e-6
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [10, 50]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'02_loss.png')
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
+
+        print(f'Test set accuracy performance: {test_set_accuracy}')
+
+        # Choosing a best fitted medium learning rate
+        eta, regularization = 0.057, 1e-5
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [10, 50]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+        visualize_plots(losses[0], losses[1], display=True, save_name=f'03_loss.png')
+        visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'03_acc.png')
+
         print(f'Test set accuracy performance: {test_set_accuracy}')
 
     # part_1()
@@ -1535,8 +1601,8 @@ def exercise_3():
     # random_search()
     # coarse_search()
     # fine_search()
-    regular_experiments()
-
+    # regular_experiments()
+    two_layers_with_batch_normalization()
 
 if __name__ =='__main__':
 
