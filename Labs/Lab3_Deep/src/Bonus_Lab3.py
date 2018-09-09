@@ -444,7 +444,7 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
 
     return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, momentum_term=0.9):
+def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting= False, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations with batch normalization.
 
@@ -475,6 +475,11 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
         for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
             end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
+
+            if with_augmenting:
+                # Apply noise to the data
+                random_noise = np.random.normal(0, 0.0001 * np.std(X), size= X.shape)
+                X += random_noise
 
             p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode)
 
@@ -648,6 +653,64 @@ def bonus_1():
         print(f'Test set accuracy performance: {test_set_Accuracy}')
 
     def improvement_2():
+        """
+        Apply random noise to the data
+        """
+        cnt = 0
+        # Setting 1
+
+        eta, regularization_term = 0.034875895633392565, 1e-05
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
+
+        visualize_plots(losses[0], losses[1], save_name='aug_{cnt}_losses.png')
+        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
+
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+        cnt += 1
+        # Setting 2
+
+        eta, regularization_term = 0.007986719995840757, 1e-06
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
+
+        visualize_plots(losses[0], losses[1], save_name='aug_1_{cnt}_losses.png')
+        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
+
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+        cnt += 1
+        # Setting 3
+
+        eta, regularization_term = 0.012913581489067944, 1e-04
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
+
+        visualize_plots(losses[0], losses[1], save_name='aug_1_{cnt}_losses.png')
+        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
+
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+    def improvement_3():
         """
         Search for a good architecture setting
         """
