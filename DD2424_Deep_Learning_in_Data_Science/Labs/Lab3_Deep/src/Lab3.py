@@ -1492,7 +1492,7 @@ def exercise_3():
         visualize_plots(losses[0], losses[1], display=True,  save_name=f'{cnt}_losses.png')
         visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_accuracies.png')
 
-        test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases, exponentials)
+        test_set_accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials)
         print(f'Test set accuracy performance: {test_set_accuracy}')
         cnt +=1
 
@@ -1512,7 +1512,7 @@ def exercise_3():
         visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
         visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
 
-        test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
+        test_set_accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials)
         print(f'Test set accuracy performance: {test_set_accuracy}')
 
         # Setting 3
@@ -1531,10 +1531,12 @@ def exercise_3():
         visualize_plots(losses[0], losses[1], display=True, save_name=f'{cnt}_loss.png')
         visualize_plots(accuracies[0], accuracies[1], display=True, save_name=f'{cnt}_loss.png')
 
-        test_set_accuracy = ComputeAccuracyBatchNormalization(X_test, y_test, best_weights, best_biases)
+        test_set_accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials)
         print(f'Test set accuracy performance: {test_set_accuracy}')
 
     def two_layers_without_batch_normalization():
+
+        training_set, validation_set, test_set = create_sets()
 
         # Medium learning rate
         eta, regularization_term = 0.1, 1e-04
@@ -1602,6 +1604,8 @@ def exercise_3():
         print(f'Test set accuracy performance: {test_set_accuracy}')
 
     def two_layers_with_batch_normalization():
+
+        training_set, validation_set, test_set = create_sets()
 
         # Medium learning rate
         eta, regularization_term = 0.1, 1e-04
