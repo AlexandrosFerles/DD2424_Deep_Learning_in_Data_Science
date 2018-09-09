@@ -245,7 +245,7 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
         batch_normalization_outputs = [normalized_score]
         batch_normalization_activations = [ReLU(normalized_score)]
     else:
-        # Aplying batch normalisation after the activation function, variable names are not changed for practical reasons.
+        # Applying batch normalisation after the activation function, variable names are not changed for practical reasons.
         batch_normalization_outputs = [ReLU(s)]
 
         if exponentials is not None:
@@ -579,6 +579,8 @@ def create_sets():
     X_validation -= mean
     X_test -= mean
 
+    return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
+
 def bonus_1():
     """
     Improvements that can be made to accelerate performance.
@@ -591,9 +593,8 @@ def bonus_1():
         Applying batch normalization after the activation function.
         """
 
-        # Setting 1
-
         cnt = 0
+        # Setting 1
 
         eta, regularization_term = 0.034875895633392565, 1e-05
 
@@ -607,13 +608,49 @@ def bonus_1():
         visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
         visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
 
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1])
-        print(f'Test set accuracy performance: ')
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
 
+        cnt += 1
         # Setting 2
 
+        eta, regularization_term = 0.007986719995840757, 1e-06
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
+
+        visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
+        visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
+
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+        cnt += 1
         # Setting 3
 
+        eta, regularization_term = 0.012913581489067944, 1e-04
+
+        GD_params = [100, eta, 10, regularization_term]
+
+        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+        best_weights, best_biases, losses, accuracies, exponentials = \
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
+
+        visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
+        visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
+
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
+        print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+    improvement_1()
+
 if __name__ =='__main__':
+
+    bonus_1()
 
     print('Finished!')
