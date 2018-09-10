@@ -91,6 +91,23 @@ def ReLU(x):
 
     return np.maximum(x, 0)
 
+def leaky_ReLU(x, alpha=0.01):
+    """
+    leaky Rectified Linear Unit activation funtion
+
+    :param x: Input data.
+
+    :return: Output of  leaky_ReLU(x)
+    """
+
+    for x_index in range(x.shape[0]):
+        for y_index in range(x.shape[1]):
+            if x[x_index, y_index] < 0:
+                x[x_index, y_index] = alpha*x
+
+    return x
+
+
 def exponential_LU(x, alpha=0.01):
     """
     Exponential linear unit activation function
@@ -524,7 +541,7 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
 
             if with_augmenting:
                 # Apply noise to the data
-                random_noise = np.random.normal(0, 0.0001 * np.std(train_batch), size= train_batch.shape)
+                random_noise = np.random.normal(0, 0.00005 * np.std(train_batch), size= train_batch.shape)
                 train_batch += random_noise
 
             p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode, with_elu=with_elu)
@@ -811,10 +828,77 @@ def bonus_2():
     """
     Try with a different activation function than ReLU.
     """
+    training_set , validation_set, test_set = create_sets()
+
+    cnt = 0
+    # Setting 1
+
+    eta, regularization_term = 0.034875895633392565, 1e-05
+
+    GD_params = [100, eta, 10, regularization_term]
+
+    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+    best_weights, best_biases, losses, accuracies, exponentials = \
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+
+    visualize_plots(losses[0], losses[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_losses.png')
+    visualize_plots(accuracies[0], accuracies[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_accuracies.png')
+
+    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+                                                          exponentials=exponentials, with_elu=True)
+    print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+    cnt += 1
+    # Setting 2
+
+    eta, regularization_term = 0.007986719995840757, 1e-06
+
+    GD_params = [100, eta, 10, regularization_term]
+
+    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+    best_weights, best_biases, losses, accuracies, exponentials = \
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+
+    visualize_plots(losses[0], losses[1], display=True,
+                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'elu{cnt}_losses.png')
+    visualize_plots(accuracies[0], accuracies[1], display=True,
+                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'elu{cnt}_accuracies.png')
+
+    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+                                                          exponentials=exponentials, with_elu=True)
+    print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+    cnt += 1
+    # Setting 3
+
+    eta, regularization_term = 0.012913581489067944, 1e-04
+
+    GD_params = [100, eta, 10, regularization_term]
+
+    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+    best_weights, best_biases, losses, accuracies, exponentials = \
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+
+    visualize_plots(losses[0], losses[1], display=True,
+                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'elu{cnt}_losses.png')
+    visualize_plots(accuracies[0], accuracies[1], display=True,
+                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'elu{cnt}_accuracies.png')
+
+    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+                                                          exponentials=exponentials, with_elu=True)
+    print(f'Test set accuracy performance: {test_set_Accuracy}')
 
 
 if __name__ =='__main__':
 
-    bonus_1()
+    # bonus_1()
+    bonus_2()
 
     print('Finished!')
