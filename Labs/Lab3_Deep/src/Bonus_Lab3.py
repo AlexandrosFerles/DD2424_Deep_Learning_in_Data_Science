@@ -234,8 +234,8 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
 
         else:
 
-            mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
-            var_s = s.var(axis=1).reshape(s.shape[0], 1)
+            mean_s = np.expand_dims(s.mean(axis=1), axis=1)
+            var_s = np.expand_dims(s.var(axis=1), axis=1)
 
             means = [mean_s]
             variances = [var_s]
@@ -258,8 +258,8 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
 
         else:
 
-            mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
-            var_s = s.var(axis=1).reshape(s.shape[0], 1)
+            mean_s = np.expand_dims(s.mean(axis=1), axis=1)
+            var_s = np.expand_dims(s.var(axis=1), axis=1)
 
             means = [mean_s]
             variances = [var_s]
@@ -285,13 +285,13 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
                 mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
                 var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
-                means.append(means)
+                means.append(mean_s)
                 variances.append(var_s)
 
             normalized_score = BatchNormalize(s, mean_s, var_s)
 
-            batch_normalization_outputs = [normalized_score]
-            batch_normalization_activations = [ReLU(normalized_score)]
+            batch_normalization_outputs.append(normalized_score)
+            batch_normalization_activations.append(ReLU(normalized_score))
         else:
             # Aplying batch normalisation after the activation function, variable names are not changed for practical reasons.
             batch_normalization_outputs.append(ReLU(s))
@@ -444,7 +444,7 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
 
     return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting= False, momentum_term=0.9):
+def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting=False, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations with batch normalization.
 
@@ -453,6 +453,11 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
     :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs, amount of regularization to be applied)
     :param weights: Weight matrices of the k layers
     :param biases: Bias vectors of the k layers
+    :param mode: (Optional) Preset to 1 apply batch normalisation before the activation function, change to any value so
+                 that batch normalisation will be applied after the activation function.
+    :param with_augmenting: (Optional) Change to True to apply a small amount of random noise on the fly to the batch
+                            based on its standard deviation.
+    :param momentum_term: Amount of previous update to be taken into account in SGD.
 
     :return: The weight and bias matrices learnt (trained) from the training process,
              loss in training and validation set, accuracy evolution in training and validation set.
@@ -472,18 +477,20 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
     for epoch in tqdm(range(epoches)):
     # for epoch in range(epoches):
 
-        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
+        for batch in range(1, int((X.shape[1] + number_of_mini_batches) / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
-            end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
+            end = batch * number_of_mini_batches
+
+            train_batch = X[:, start:end]
 
             if with_augmenting:
                 # Apply noise to the data
-                random_noise = np.random.normal(0, 0.0001 * np.std(X), size= X.shape)
-                X += random_noise
+                random_noise = np.random.normal(0, 0.0001 * np.std(train_batch), size= train_batch.shape)
+                train_batch += random_noise
 
             p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode)
 
-            grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
+            grad_weights, grad_biases = BackwardPassBatchNormalization(train_batch, Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
 
             weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
 
@@ -666,7 +673,7 @@ def bonus_1():
         weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
         best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_augmenting=True)
 
         visualize_plots(losses[0], losses[1], save_name='aug_{cnt}_losses.png')
         visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
@@ -684,7 +691,7 @@ def bonus_1():
         weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
         best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
+            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_augmenting=True)
 
         visualize_plots(losses[0], losses[1], save_name='aug_1_{cnt}_losses.png')
         visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
@@ -758,8 +765,9 @@ def bonus_1():
                                                                               mode=2)
                         print(f'Test set accuracy performance for ({layer_1}, {layer_2}, {layer_3}): {test_set_Accuracy}')
 
-    improvement_1()
+    # improvement_1()
     improvement_2()
+    improvement_3()
 
 if __name__ =='__main__':
 
