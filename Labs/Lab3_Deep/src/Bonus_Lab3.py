@@ -103,10 +103,9 @@ def leaky_ReLU(x, alpha=0.01):
     for x_index in range(x.shape[0]):
         for y_index in range(x.shape[1]):
             if x[x_index, y_index] < 0:
-                x[x_index, y_index] = alpha*x
+                x[x_index, y_index] = alpha*x[x_index, y_index]
 
     return x
-
 
 def exponential_LU(x, alpha=0.01):
     """
@@ -238,7 +237,7 @@ def BatchNormalize(s, mean_s, var_s, epsilon=1e-20):
 
     return diff / (np.sqrt(var_s + epsilon))
 
-def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1, with_elu=False):
+def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1, activation_function='ReLU'):
     """
     Evaluates the forward pass result of the classifier network using batch normalization.
 
@@ -247,8 +246,8 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
     :param biases: Bias vectors of the k-layer network.
     :param mode: Pre-set to 1 to perform batch normalisation before the activation function,
                  change to any other value to apply BN after the activation function.
-    :param exponential: The exponential moving means and averages.
-    :param with_elu: (Optional) Set to True to use exponential linear unit activation function.
+    :param exponentials: (Optional) The exponential moving means and averages.
+    :param activation_function: (Optional) Selection of the activation function, pre-set to ReLU.
 
     :return: Softmax probabilities (predictions) of the true labels of the data.
     """
@@ -278,17 +277,21 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
         normalized_score = BatchNormalize(s, mean_s, var_s)
 
         batch_normalization_outputs = [normalized_score]
-        if with_elu:
-            batch_normalization_activations = [exponential_LU(normalized_score)]
-        else:
+        if activation_function == 'ReLU':
             batch_normalization_activations = [ReLU(normalized_score)]
+        elif activation_function == 'leakyReLU':
+            batch_normalization_activations = [leaky_ReLU(normalized_score)]
+        else:
+            batch_normalization_activations = [exponential_LU(normalized_score)]
 
     else:
         # Applying batch normalisation after the activation function, variable names are not changed for practical reasons.
-        if with_elu:
-            batch_normalization_outputs = [exponential_LU(s)]
-        else:
+        if activation_function == 'ReLU':
             batch_normalization_outputs = [ReLU(s)]
+        elif activation_function == 'leakyReLU':
+            batch_normalization_outputs = [leaky_ReLU(s)]
+        else:
+            batch_normalization_outputs = [exponential_LU(s)]
 
 
         if exponentials is not None:
@@ -335,16 +338,20 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
 
             batch_normalization_outputs.append(normalized_score)
 
-            if with_elu:
-                batch_normalization_activations.append(exponential_LU(normalized_score))
-            else:
+            if activation_function == 'ReLU':
                 batch_normalization_activations.append(ReLU(normalized_score))
+            elif activation_function == 'leakyReLU':
+                batch_normalization_activations.append(leaky_ReLU(normalized_score))
+            else:
+                batch_normalization_activations.append(exponential_LU(normalized_score))
         else:
             # Aplying batch normalisation after the activation function, variable names are not changed for practical reasons.
-            if with_elu:
-                batch_normalization_outputs.append(exponential_LU(s))
-            else:
+            if activation_function == 'ReLU':
                 batch_normalization_outputs.append(ReLU(s))
+            elif activation_function == 'leakyReLU':
+                batch_normalization_outputs.append(leaky_ReLU(s))
+            else:
+                batch_normalization_outputs.append(exponential_LU(s))
 
             if exponentials is not None:
 
@@ -371,7 +378,7 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
     else:
         return p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances
 
-def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None, mode =1, with_elu= False):
+def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None, mode =1, activation_function='ReLU'):
     """
     Computes the accuracy of the feed-forward k-layer network
 
@@ -383,16 +390,16 @@ def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None
     :return: Accuracy performance of the neural network.
     """
     if exponentials is not None:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, with_elu=with_elu)
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)
     else:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, with_elu=with_elu)[0]
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)[0]
     predictions = predictClasses(p)
 
     accuracy = round(np.sum(np.where(predictions - y == 0, 1, 0)) * 100 / len(y), 2)
 
     return accuracy
 
-def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=None, mode=1, with_elu= False):
+def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=None, mode=1, activation_function='ReLU'):
     """
     Computes the cross-entropy loss on a batch of data.
 
@@ -407,9 +414,9 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
     """
 
     if exponentials is not None:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, with_elu=with_elu)
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)
     else:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, with_elu=with_elu)[0]
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)[0]
 
     cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(X.shape[1])
 
@@ -439,7 +446,7 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-20):
 
     return part_1 + part_2 + part_3
 
-def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term, with_elu = False):
+def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term, activation_function = 'ReLU'):
 
     # Back-propagate output layer at first
 
@@ -449,10 +456,12 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
     weight_updates = [np.dot(g, bn_activations[-1].T)]
 
     g = np.dot(g.T, weights[-1])
-    if with_elu:
-        ind = 1 * exponential_LU(bn_outputs[-1])
-    else:
+    if activation_function == 'ReLU':
         ind = 1 * (bn_outputs[-1] > 0)
+    elif activation_function == 'leakyReLU':
+        ind = 1 * leaky_ReLU(bn_outputs[-1])
+    else:
+        ind = 1 * exponential_LU(bn_outputs[-1])
     g = g.T * ind
 
     for i in reversed(range(len(weights) -1)):
@@ -469,10 +478,12 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
             bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
         g = np.dot(g.T, weights[i])
-        if with_elu:
-            ind = 1 * exponential_LU(bn_outputs[i-1])
-        else:
+        if activation_function == 'ReLU':
             ind = 1 * (bn_outputs[i-1] > 0)
+        elif activation_function == 'leakyReLU':
+            ind = 1 * leaky_ReLU(bn_outputs[i-1])
+        else:
+            ind = 1 * exponential_LU(bn_outputs[i-1])
         g = g.T * ind
 
 
@@ -500,7 +511,7 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
 
     return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting=False, momentum_term=0.9, with_elu=False):
+def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting=False, momentum_term=0.9, activation_function = 'ReLU'):
     """
     Performs mini batch-gradient descent computations with batch normalization.
 
@@ -544,9 +555,9 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
                 random_noise = np.random.normal(0, 0.00005 * np.std(train_batch), size= train_batch.shape)
                 train_batch += random_noise
 
-            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode, with_elu=with_elu)
+            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode, activation_function=activation_function)
 
-            grad_weights, grad_biases = BackwardPassBatchNormalization(train_batch, Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term, with_elu=with_elu)
+            grad_weights, grad_biases = BackwardPassBatchNormalization(train_batch, Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term, activation_function=activation_function)
 
             weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
 
@@ -557,14 +568,14 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
             else:
                 exponentials = ExponentialMovingAverage(means, exponentials[0], variances, exponentials[1])
 
-        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=exponentials, mode=mode, with_elu=with_elu)
-        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=exponentials, mode=mode, with_elu=with_elu)
+        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=exponentials, mode=mode, activation_function=activation_function)
+        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=exponentials, mode=mode, activation_function=activation_function)
 
         train_loss_evolution.append(epoch_cost)
         validation_loss_evolution.append(val_epoch_cost)
 
-        train_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials, mode, with_elu=with_elu))
-        validation_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials, mode, with_elu=with_elu))
+        train_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials, mode, activation_function=activation_function))
+        validation_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials, mode, activation_function=activation_function))
 
         if validation_accuracy_evolution[-1] > best_validation_set_accuracy:
 
@@ -830,6 +841,74 @@ def bonus_2():
     """
     training_set , validation_set, test_set = create_sets()
 
+    # Experiments with eLU
+    cnt = 0
+    # Setting 1
+
+    # eta, regularization_term = 0.034875895633392565, 1e-05
+    #
+    # GD_params = [100, eta, 10, regularization_term]
+    #
+    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+    #
+    # best_weights, best_biases, losses, accuracies, exponentials = \
+    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='eLU')
+    #
+    # visualize_plots(losses[0], losses[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_losses.png')
+    # visualize_plots(accuracies[0], accuracies[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_accuracies.png')
+    #
+    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+    #                                                       exponentials=exponentials, activation_function='eLU')
+    # print(f'Test set accuracy performance: {test_set_Accuracy}')
+    #
+    # cnt += 1
+    # # Setting 2
+    #
+    # eta, regularization_term = 0.007986719995840757, 1e-06
+    #
+    # GD_params = [100, eta, 10, regularization_term]
+    #
+    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+    #
+    # best_weights, best_biases, losses, accuracies, exponentials = \
+    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases,activation_function='eLU')
+    #
+    # visualize_plots(losses[0], losses[1], display=True,
+    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+    #                 save_name=f'elu{cnt}_losses.png')
+    # visualize_plots(accuracies[0], accuracies[1], display=True,
+    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+    #                 save_name=f'elu{cnt}_accuracies.png')
+    #
+    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+    #                                                       exponentials=exponentials, activation_function='eLU')
+    # print(f'Test set accuracy performance: {test_set_Accuracy}')
+    #
+    # cnt += 1
+    # # Setting 3
+    #
+    # eta, regularization_term = 0.012913581489067944, 1e-04
+    #
+    # GD_params = [100, eta, 10, regularization_term]
+    #
+    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+    #
+    # best_weights, best_biases, losses, accuracies, exponentials = \
+    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='eLU')
+    #
+    # visualize_plots(losses[0], losses[1], display=True,
+    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+    #                 save_name=f'elu{cnt}_losses.png')
+    # visualize_plots(accuracies[0], accuracies[1], display=True,
+    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+    #                 save_name=f'elu{cnt}_accuracies.png')
+    #
+    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
+    #                                                       exponentials=exponentials, activation_function='eLU')
+    # print(f'Test set accuracy performance: {test_set_Accuracy}')
+
+    # Experiments with leaky ReLU
+
     cnt = 0
     # Setting 1
 
@@ -840,13 +919,13 @@ def bonus_2():
     weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
     best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='leakyReLU')
 
-    visualize_plots(losses[0], losses[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_losses.png')
-    visualize_plots(accuracies[0], accuracies[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_accuracies.png')
+    visualize_plots(losses[0], losses[1], display=True, title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'leakyReLU{cnt}_losses.png')
+    visualize_plots(accuracies[0], accuracies[1], display=True, title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'leakyReLU{cnt}_accuracies.png')
 
     test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, with_elu=True)
+                                                          exponentials=exponentials, activation_function='leakyReLU')
     print(f'Test set accuracy performance: {test_set_Accuracy}')
 
     cnt += 1
@@ -859,17 +938,17 @@ def bonus_2():
     weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
     best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases,activation_function='leakyReLU')
 
     visualize_plots(losses[0], losses[1], display=True,
-                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'elu{cnt}_losses.png')
+                    title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'leakyReLU{cnt}_losses.png')
     visualize_plots(accuracies[0], accuracies[1], display=True,
-                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'elu{cnt}_accuracies.png')
+                    title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'leakyReLU{cnt}_accuracies.png')
 
     test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, with_elu=True)
+                                                          exponentials=exponentials, activation_function='leakyReLU')
     print(f'Test set accuracy performance: {test_set_Accuracy}')
 
     cnt += 1
@@ -882,17 +961,17 @@ def bonus_2():
     weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
     best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_elu=True)
+        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='leakyReLU')
 
     visualize_plots(losses[0], losses[1], display=True,
-                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'elu{cnt}_losses.png')
+                    title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'leakyReLU{cnt}_losses.png')
     visualize_plots(accuracies[0], accuracies[1], display=True,
-                    title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'elu{cnt}_accuracies.png')
+                    title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}',
+                    save_name=f'leakyReLU{cnt}_accuracies.png')
 
     test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, with_elu=True)
+                                                          exponentials=exponentials, activation_function='leakyReLU')
     print(f'Test set accuracy performance: {test_set_Accuracy}')
 
 
