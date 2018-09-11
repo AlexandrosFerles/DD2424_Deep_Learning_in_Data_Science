@@ -1147,7 +1147,6 @@ def bonus_1():
         extended_search()
         extended_search_high_eta()
 
-
     # improvement_1()
     # improvement_2()
     # improvement_3()
