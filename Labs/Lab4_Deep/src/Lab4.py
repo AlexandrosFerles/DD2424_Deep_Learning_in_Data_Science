@@ -81,6 +81,21 @@ def softmax(X, theta=1.0, axis=None):
 
     return p
 
+def create_one_hot_endoding(num, K):
+    """
+    Creates the one hot encoding representation of a number.
+
+
+    :param num: The number that we wish to mapp in an one-hot representation.
+    :param K: The number of distinct classes.
+
+    :return: One hot representation of this number.
+    """
+
+    Y = np.zeros(shape=(1, K))
+    Y[0, num] = 1
+
+
 class RNN:
     """
     Recurrent Neural Network object
@@ -130,13 +145,13 @@ class RNN:
         :param c: Bias vector of the output layer.
 
 
-        :return: Synthesized text through feed-forward process of the RNN.
+        :return: Synthesized text through.
         """
 
         alpha = np.dot(self., h0) + np.dot(U, x0) + b
         h = np.tanh(alpha)
         o = np.dot(V, h) + c
-        p = softmax(p)
+        p = softmax(o)
 
         return p
 
