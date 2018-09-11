@@ -70,10 +70,35 @@ class RNN:
 
         U = np.random.randn(self.m, self.K) * self.std
         W = np.random.randn(self.m, self.m) * self.std
-        U = np.random.randn(self.K, self.m) * self.std
+        V = np.random.randn(self.K, self.m) * self.std
 
         b = np.zeros(self.m, 1)
         c = np.zeros(self.m, 1)
+
+    def synthesize_sequence(self, h0, x0, seq_length, W, U, b, V, c):
+        """
+        Synthesizes a sequence of characters under the RNN values.
+
+        :param self: The RNN.
+        :param h0: Hidden state at time 0.
+        :param x0: First (dummy) input vector of the RNN.
+        :param seq_length: Length of the sequence that we wish to generate.
+        :param W: Hidden-to-Hidden weight matrix.
+        :param U: Input-to-Hidden weight matrix.
+        :param b: Bias vector of the hidden layer.
+        :param V: Hidden-to-Output weight matrix.
+        :param c: Bias vector of the output layer.
+
+
+        :return: Synthesized text through feed-forward process of the RNN.
+        """
+
+        alpha = np.dot(self., h0) + np.dot(U, x0) + b
+        h = np.tanh(alpha)
+        o = np.dot(V, h) + c
+        p = softmax(p)
+
+        return p
 
 
 
