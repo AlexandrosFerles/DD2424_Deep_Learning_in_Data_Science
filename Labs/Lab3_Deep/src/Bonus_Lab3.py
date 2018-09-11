@@ -832,256 +832,321 @@ def bonus_1():
                         print(f'Test set accuracy performance for ({layer_1}, {layer_2}, {layer_3}): {test_set_Accuracy}')
 
     def improvement_4():
-    	"""
-    	Conduct a more thorough search to define appropriate values for eta and lambda.
-    	"""
 
-	    best_accuracies = []
-	    etas = []
-	    lambdas = []
+        def extended_search():
+            """
+            Thorough search for appropriate values of and lambda in the log space
+            """
+            best_accuracies = []
+            etas = []
+            lambdas = []
 
-	    for _ in range(40):
+            for _ in range(40):
+                np.random.seed()
 
-	        np.random.seed()
+                e_min = np.log(0.005)
+                e_max = np.log(0.009)
 
-	        e_min = np.log(0.005)
-	        e_max = np.log(0.009)
+                reg_small = np.log(1e-6)
+                reg_big = np.log(1e-5)
 
-	        reg_small = np.log(1e-6)
-	        reg_big = np.log(1e-5)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                GD_params = [100, eta, 10, regularization_term]
 
-	        GD_params = [100, eta, 10, regularization_term]
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                e_min = np.log(0.015)
+                e_max = np.log(0.025)
 
-	        e_min = np.log(0.015)
-	        e_max = np.log(0.025)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
-	        
-	        GD_params = [100, eta, 10, regularization_term]
+                GD_params = [100, eta, 10, regularization_term]
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        e_min = np.log(0.05)
-	        e_max = np.log(0.12)
+                e_min = np.log(0.05)
+                e_max = np.log(0.12)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        GD_params = [100, eta, 10, regularization_term]
+                GD_params = [100, eta, 10, regularization_term]
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-	        
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        reg_small = np.log(1e-6)
-	        reg_big = np.log(1e-4)
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        e_min = np.log(0.01)
-	        e_max = np.log(0.04)
+                reg_small = np.log(1e-6)
+                reg_big = np.log(1e-4)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                e_min = np.log(0.01)
+                e_max = np.log(0.04)
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
-	 
-	        GD_params = [100, eta, 10, regularization_term]
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                GD_params = [100, eta, 10, regularization_term]
 
-	        e_min = np.log(0.004)
-	        e_max = np.log(0.008)
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                e_min = np.log(0.004)
+                e_max = np.log(0.008)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        GD_params = [100, eta, 10, regularization_term]
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-	        
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                GD_params = [100, eta, 10, regularization_term]
 
-	        reg_small = np.log(1e-5)
-	        reg_big = np.log(1e-3)
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	        e_min = np.log(0.004)
-	        e_max = np.log(0.008)
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                reg_small = np.log(1e-5)
+                reg_big = np.log(1e-3)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                e_min = np.log(0.004)
+                e_max = np.log(0.008)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        GD_params = [100, eta, 10, regularization_term]
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-	        
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	        reg_small = np.log(1e-4)
-	        reg_big = np.log(1e-2)
+                GD_params = [100, eta, 10, regularization_term]
 
-	        e_min = np.log(0.02)
-	        e_max = np.log(0.04)
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	        eta_term = np.random.rand(1, 1).flatten()[0]
-	        e = e_min + (e_max - e_min) * eta_term
-	        eta = np.exp(e)
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	        reg_term = np.random.rand(1, 1).flatten()[0]
-	        reg = reg_small + (reg_big - reg_small) * reg_term
-	        regularization_term = np.exp(reg)
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                reg_small = np.log(1e-4)
+                reg_big = np.log(1e-2)
 
-	        etas.append(eta)
-	        lambdas.append(regularization_term)
+                e_min = np.log(0.02)
+                e_max = np.log(0.04)
 
-	        GD_params = [100, eta, 10, regularization_term]
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
 
-	        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-	        
-	        _, _, _, accuracies, _ = \
-	            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
 
-	        print('---------------------------------')
-	        print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-	        best_accuracies.append(max(accuracies[1]))
-	        print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	    sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
+                etas.append(eta)
+                lambdas.append(regularization_term)
 
-	    best_accuracies = [x for x, _, _ in sort_them_all]
-	    best_etas = [y for _, y, _ in sort_them_all]
-	    best_lambdas = [z for _, _, z in sort_them_all]
+                GD_params = [100, eta, 10, regularization_term]
 
-	    print('---------------------------------')
-	    print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
-	    print('Best eta: ', best_etas[-1])
-	    print('Best lambda: ', best_lambdas[-1])
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
 
-	    print('---------------------------------')
-	    print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
-	    print('Second best eta: ', best_etas[-2])
-	    print('Second best lambda: ', best_lambdas[-2])
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
 
-	    print('---------------------------------')
-	    print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
-	    print('Third best eta: ', best_etas[-3])
-	    print('Third best lambda: ', best_lambdas[-3])
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+
+            sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
+
+            best_accuracies = [x for x, _, _ in sort_them_all]
+            best_etas = [y for _, y, _ in sort_them_all]
+            best_lambdas = [z for _, _, z in sort_them_all]
+
+            print('---------------------------------')
+            print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+            print('Best eta: ', best_etas[-1])
+            print('Best lambda: ', best_lambdas[-1])
+
+            print('---------------------------------')
+            print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+            print('Second best eta: ', best_etas[-2])
+            print('Second best lambda: ', best_lambdas[-2])
+
+            print('---------------------------------')
+            print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+            print('Third best eta: ', best_etas[-3])
+            print('Third best lambda: ', best_lambdas[-3])
+
+        def extended_search_high_eta():
+            """
+            Looking up if there are good high values of eta in combination with a high amount of regularization.
+            """
+
+            best_accuracies = []
+            etas = []
+            lambdas = []
+
+            for _ in range(40):
+                np.random.seed()
+
+                e_min = np.log(0.06)
+                e_max = np.log(0.08)
+
+                reg_small = np.log(1e-4)
+                reg_big = np.log(1e-2)
+
+                eta_term = np.random.rand(1, 1).flatten()[0]
+                e = e_min + (e_max - e_min) * eta_term
+                eta = np.exp(e)
+
+                reg_term = np.random.rand(1, 1).flatten()[0]
+                reg = reg_small + (reg_big - reg_small) * reg_term
+                regularization_term = np.exp(reg)
+
+                etas.append(eta)
+                lambdas.append(regularization_term)
+
+                etas.append(eta)
+                lambdas.append(regularization_term)
+
+                GD_params = [100, eta, 10, regularization_term]
+
+                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
+
+                _, _, _, accuracies, _ = \
+                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
+
+                print('---------------------------------')
+                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
+                best_accuracies.append(max(accuracies[1]))
+                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
+
+            sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
+
+            best_accuracies = [x for x, _, _ in sort_them_all]
+            best_etas = [y for _, y, _ in sort_them_all]
+            best_lambdas = [z for _, _, z in sort_them_all]
+
+            print('---------------------------------')
+            print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
+            print('Best eta: ', best_etas[-1])
+            print('Best lambda: ', best_lambdas[-1])
+
+            print('---------------------------------')
+            print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
+            print('Second best eta: ', best_etas[-2])
+            print('Second best lambda: ', best_lambdas[-2])
+
+            print('---------------------------------')
+            print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
+            print('Third best eta: ', best_etas[-3])
+            print('Third best lambda: ', best_lambdas[-3])
 
     # improvement_1()
     # improvement_2()
-    improvement_3()
+    # improvement_3()
     improvement_4()
     
 def bonus_2():
