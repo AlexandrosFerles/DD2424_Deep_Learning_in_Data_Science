@@ -1144,6 +1144,10 @@ def bonus_1():
             print('Third best eta: ', best_etas[-3])
             print('Third best lambda: ', best_lambdas[-3])
 
+        extended_search()
+        extended_search_high_eta()
+
+
     # improvement_1()
     # improvement_2()
     # improvement_3()
