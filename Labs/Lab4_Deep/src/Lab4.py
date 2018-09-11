@@ -72,6 +72,9 @@ class RNN:
         W = np.random.randn(self.m, self.m) * self.std
         U = np.random.randn(self.K, self.m) * self.std
 
+        b = np.zeros(self.m, 1)
+        c = np.zeros(self.m, 1)
+
 
 
 
