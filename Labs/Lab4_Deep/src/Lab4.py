@@ -86,7 +86,7 @@ def create_one_hot_endoding(num, K):
     Creates the one hot encoding representation of a number.
 
 
-    :param num: The number that we wish to mapp in an one-hot representation.
+    :param num: The number that we wish to map in an one-hot representation.
     :param K: The number of distinct classes.
 
     :return: One hot representation of this number.
@@ -147,13 +147,49 @@ class RNN:
 
         :return: Synthesized text through.
         """
+        Y = np.zeros(shape=(x0.shape[0], seq_length))
 
         alpha = np.dot(self., h0) + np.dot(U, x0) + b
         h = np.tanh(alpha)
         o = np.dot(V, h) + c
         p = softmax(o)
 
-        return p
+        # Compute the cumulative sum of p and draw a random sample from [0,1)
+        cumulative_sum = np.cumsum(p)
+        draw_number = np.random.sample()
+
+        # Find the element that corresponds to this random sample
+        pos = np.where(cumulative_sum > draw_number)[0][0]
+
+        # Create one-hot representation of the found position
+        one_hot_representation = create_one_hot_endoding(pos, x0.shape[0])
+        Y[0,:] = one_hot_representation
+
+        h0 = h
+
+        for index in range(1, seq_length):
+
+            alpha = np.dot(self., h0) + np.dot(U, one_hot_representation) + b
+            h = np.tanh(alpha)
+            o = np.dot(V, h) + c
+            p = softmax(o)
+
+            # Compute the cumulative sum of p and draw a random sample from [0,1)
+            cumulative_sum = np.cumsum(p)
+            draw_number = np.random.sample()
+
+            # Find the element that corresponds to this random sample
+            pos = np.where(cumulative_sum > draw_number)[0][0]
+
+            # Create one-hot representation of the found position
+            one_hot_representation = create_one_hot_endoding(pos, x0.shape[0])
+            Y[index, :] = one_hot_representation
+
+            h0 = h
+
+        return Y
+
+
 
 
 
