@@ -18,28 +18,47 @@ def Load_Text_Data(file_path='../goblet_book.txt'):
 
     return book_data, unique_characters
 
-def Char_to_Ind(unique_chars):
+def Char_to_Ind(chars_list, unique_chars):
     """
     Maps the original characters to integers.
 
+    :param chars_list: The list of characters to be encoded into integers.
     :param unique_chars: The set of unique characters available.
 
-    :return: A list of integers taht correspond to the characters.
+    :return: A list of integers that correspond to the characters.
     """
 
-    return [index for index, _ in enumerate(unique_chars)]
+    encoded_characters = []
 
-def Ind_to_Char(integer_list, unique_chars_list):
+    for char in chars_list:
+        for index, letter in enumerate(unique_chars):
+
+            if char == letter:
+
+                encoded_characters.append(index)
+
+    return encoded_characters
+
+def Ind_to_Char(one_hot_representation, unique_chars_list):
     """
-    Maps a list of integers to thei corresponding characters,
+    Maps a list of integers to their corresponding characters,
 
-    :param integer_list: A list of integer representation of a character sequence.
+    :param one_hot_representation: A list of one_hot representations to be transformed to their correspoding characters.
     :param unique_chars_list: The list of unique characters.
 
     :return: The actual character sequence.
     """
 
-    return [unique_chars_list[int(elem)] for elem in integer_list]
+    actual_character_sequence = []
+
+    for i in range(one_hot_representation.shape[1]):
+
+        letter_pos = np.where(one_hot_representation[:,i] == 1.0)[0][0]
+        actual_character_sequence.append(unique_chars_list[letter_pos])
+
+    return actual_character_sequence
+
+
 
 def softmax(X, theta=1.0, axis=None):
     """
@@ -81,27 +100,30 @@ def softmax(X, theta=1.0, axis=None):
 
     return p
 
-def create_one_hot_endoding(num, K):
+def create_one_hot_endoding(x, K):
     """
     Creates the one hot encoding representation of a number.
 
 
-    :param num: The number that we wish to map in an one-hot representation.
+    :param x: The array that we wish to map in an one-hot representation.
     :param K: The number of distinct classes.
 
     :return: One hot representation of this number.
     """
 
-    Y = np.zeros(shape=(1, K))
-    Y[0, num] = 1
+    x_encoded = np.zeros((K, len(x)))
+    for index, elem in enumerate(x):
 
+        x_encoded[elem, index] = 1.0
+
+    return x_encoded
 
 class RNN:
     """
     Recurrent Neural Network object
     """
 
-    def __init__(self, m=100, K=10, eta=0.1, seq_length=25, std=0.01):
+    def __init__(self, m, K, eta, seq_length, std):
         """
         Initial setting of the RNN.
 
@@ -127,29 +149,31 @@ class RNN:
         W = np.random.randn(self.m, self.m) * self.std
         V = np.random.randn(self.K, self.m) * self.std
 
-        b = np.zeros(self.m, 1)
-        c = np.zeros(self.m, 1)
+        b = np.zeros((self.m, 1))
+        c = np.zeros((self.K, 1))
 
-    def synthesize_sequence(self, h0, x0, seq_length, W, U, b, V, c):
+        return W, U, b, V, c
+
+    def synthesize_sequence(self, h0, x0, W, U, b, V, c, seq_length):
         """
         Synthesizes a sequence of characters under the RNN values.
 
         :param self: The RNN.
         :param h0: Hidden state at time 0.
         :param x0: First (dummy) input vector of the RNN.
-        :param seq_length: Length of the sequence that we wish to generate.
         :param W: Hidden-to-Hidden weight matrix.
         :param U: Input-to-Hidden weight matrix.
         :param b: Bias vector of the hidden layer.
         :param V: Hidden-to-Output weight matrix.
         :param c: Bias vector of the output layer.
+        :param seq_length: Length of the sequence that we wish to generate.
 
 
         :return: Synthesized text through.
         """
-        Y = np.zeros(shape=(x0.shape[0], seq_length))
+        Y = np.zeros(x0.shape)
 
-        alpha = np.dot(self., h0) + np.dot(U, x0) + b
+        alpha = np.dot(W, h0) + np.dot(U, np.expand_dims(x0[:,0], axis=1)) + b
         h = np.tanh(alpha)
         o = np.dot(V, h) + c
         p = softmax(o)
@@ -162,14 +186,14 @@ class RNN:
         pos = np.where(cumulative_sum > draw_number)[0][0]
 
         # Create one-hot representation of the found position
-        one_hot_representation = create_one_hot_endoding(pos, x0.shape[0])
-        Y[0,:] = one_hot_representation
+        Y[pos, 0] = 1.0
 
-        h0 = h
+        h0 = np.copy(h)
+        x0 = np.expand_dims(np.copy(Y[:,0]), axis=1)
 
         for index in range(1, seq_length):
 
-            alpha = np.dot(self., h0) + np.dot(U, one_hot_representation) + b
+            alpha = np.dot(W, h0) + np.dot(U, x0) + b
             h = np.tanh(alpha)
             o = np.dot(V, h) + c
             p = softmax(o)
@@ -182,25 +206,34 @@ class RNN:
             pos = np.where(cumulative_sum > draw_number)[0][0]
 
             # Create one-hot representation of the found position
-            one_hot_representation = create_one_hot_endoding(pos, x0.shape[0])
-            Y[index, :] = one_hot_representation
+            Y[pos, index] = 1.0
 
-            h0 = h
+            h0 = np.copy(h)
+            x0 = np.expand_dims(np.copy(Y[:, index]), axis=1)
 
         return Y
 
+def main():
 
-
-
-
-
-
-
-if __name__=='__main__':
     book_data, unique_characters = Load_Text_Data()
 
-    integers = Char_to_Ind(unique_characters)
-    lst = [2, 3, 5]
-    chars = Ind_to_Char(lst, unique_characters)
+    test_input = ['a', 'b', 'c']
+    integer_encoding = Char_to_Ind(test_input, unique_characters)
+    x0 = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
+    rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=1, std=0.1)
+    h0 = np.random.normal(0, 0.1, size=(rnn.m, 1))
+
+    W, U, b, V, c = rnn.init_weights()
+
+    Y = rnn.synthesize_sequence(h0, x0, W, U, b, V, c, seq_length=x0.shape[1])
+    test = Ind_to_Char(Y, unique_characters)
+
+    print('Finished!')
+
+if __name__=='__main__':
     main()
+
+
+
+
