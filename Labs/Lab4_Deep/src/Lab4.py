@@ -79,7 +79,6 @@ def softmax(X, theta=1.0, axis=None):
     # find axis
     if axis is None:
         axis = next(j[0] for j in enumerate(y.shape) if j[1] > 1)
-
     # multiply y against the theta parameter,
     y = y * float(theta)
 
@@ -102,7 +101,7 @@ def softmax(X, theta=1.0, axis=None):
 
 def create_one_hot_endoding(x, K):
     """
-    Creates the one hot encoding representation of a number.
+    Creates the one hot encoding representation of an array.
 
 
     :param x: The array that we wish to map in an one-hot representation.
@@ -213,22 +212,61 @@ class RNN:
 
         return Y
 
+    def ForwardPass(self, input_sequence, W, U, b, V, c):
+        """
+        Evaluates the predictions that the RNN does in an input character sequence.
+
+        :param input_sequence: The one-hot representation of the input sequence.
+        :param W: Hidden-to-Hidden weight matrix.
+        :param U: Input-to-Hidden weight matrix.
+        :param b: Bias vector of the hidden layer.
+        :param V: Hidden-to-Output weight matrix.
+        :param c: Bias vector of the output layer.
+        :param seq_length: Length of the sequence that we wish to generate.
+
+        :return: The predicted character sequence based on the input one.
+        """
+
+        Y = np.zeros(input_sequence.shape)
+        h0 = np.zeros((self.m, 1))
+
+        for index in range(0, input_sequence.shape[1]):
+
+            alpha = np.dot(W, h0) + np.dot(U, np.expand_dims(input_sequence[:,index], axis=1)) + b
+            h = np.tanh(alpha)
+            o = np.dot(V, h) + c
+            p = softmax(o)
+
+            # Compute the cumulative sum of p and draw a random sample from [0,1)
+            cumulative_sum = np.cumsum(p)
+            draw_number = np.random.sample()
+
+            # Find the element that corresponds to this random sample
+            pos = np.where(cumulative_sum > draw_number)[0][0]
+
+            # Create one-hot representation of the found position
+            Y[pos, index] = 1.0
+
+            h0 = np.copy(h)
+
+        return Y
+
 def main():
 
     book_data, unique_characters = Load_Text_Data()
 
-    test_input = ['a', 'b', 'c']
-    integer_encoding = Char_to_Ind(test_input, unique_characters)
-    x0 = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
-    rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=1, std=0.1)
-    h0 = np.random.normal(0, 0.1, size=(rnn.m, 1))
+    rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
 
     W, U, b, V, c = rnn.init_weights()
 
-    Y = rnn.synthesize_sequence(h0, x0, W, U, b, V, c, seq_length=x0.shape[1])
-    test = Ind_to_Char(Y, unique_characters)
+    input_sequence = book_data[:rnn.seq_length]
 
+    integer_encoding = Char_to_Ind(input_sequence, unique_characters)
+    input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+
+    test = rnn.ForwardPass(input_sequence_one_hot, W, U, b, V, c)
+    test2 = Ind_to_Char(test, unique_characters)
     print('Finished!')
 
 if __name__=='__main__':
