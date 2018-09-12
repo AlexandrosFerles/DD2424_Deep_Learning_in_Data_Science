@@ -1,0 +1,1298 @@
+-------------------------------------
+Test set accuracy performance for (50, 30, 20): 40.76
+-------------------------------------
+Test set accuracy performance for (50, 30, 25): 40.41
+-------------------------------------
+Test set accuracy performance for (50, 35, 20): 42.57
+-------------------------------------
+Test set accuracy performance for (50, 35, 25): 40.13
+-------------------------------------
+Test set accuracy performance for (50, 35, 30): 41.09
+-------------------------------------
+Test set accuracy performance for (50, 40, 20): 40.16
+-------------------------------------
+Test set accuracy performance for (50, 40, 25): 41.26
+-------------------------------------
+Test set accuracy performance for (50, 40, 30): 40.7
+-------------------------------------
+Test set accuracy performance for (50, 40, 35): 40.06
+-------------------------------------
+Test set accuracy performance for (50, 45, 20): 40.95
+-------------------------------------
+Test set accuracy performance for (50, 45, 25): 41.31
+-------------------------------------
+Test set accuracy performance for (50, 45, 30): 41.8
+-------------------------------------
+Test set accuracy performance for (50, 45, 35): 41.73
+-------------------------------------
+Test set accuracy performance for (50, 45, 40): 42.29
+-------------------------------------
+Test set accuracy performance for (55, 30, 20): 41.91
+-------------------------------------
+Test set accuracy performance for (55, 30, 25): 40.94
+-------------------------------------
+Test set accuracy performance for (55, 35, 20): 41.03
+-------------------------------------
+Test set accuracy performance for (55, 35, 25): 41.37
+-------------------------------------
+Test set accuracy performance for (55, 35, 30): 41.13
+-------------------------------------
+Test set accuracy performance for (55, 40, 20): 40.69
+-------------------------------------
+Test set accuracy performance for (55, 40, 25): 42.24
+-------------------------------------
+Test set accuracy performance for (55, 40, 30): 40.98
+-------------------------------------
+Test set accuracy performance for (55, 40, 35): 41.59
+-------------------------------------
+Test set accuracy performance for (55, 45, 20): 41.63
+-------------------------------------
+Test set accuracy performance for (55, 45, 25): 42.13
+-------------------------------------
+Test set accuracy performance for (55, 45, 30): 41.01
+-------------------------------------
+Test set accuracy performance for (55, 45, 35): 41.28
+-------------------------------------
+Test set accuracy performance for (55, 45, 40): 40.85
+-------------------------------------
+Test set accuracy performance for (55, 50, 20): 41.18
+-------------------------------------
+Test set accuracy performance for (55, 50, 25): 41.58
+-------------------------------------
+Test set accuracy performance for (55, 50, 30): 41.43
+-------------------------------------
+Test set accuracy performance for (55, 50, 35): 41.41
+-------------------------------------
+Test set accuracy performance for (55, 50, 40): 41.29
+-------------------------------------
+Test set accuracy performance for (55, 50, 45): 41.98
+-------------------------------------
+Test set accuracy performance for (60, 30, 20): 41.14
+-------------------------------------
+Test set accuracy performance for (60, 30, 25): 41.92
+-------------------------------------
+Test set accuracy performance for (60, 35, 20): 40.68
+-------------------------------------
+Test set accuracy performance for (60, 35, 25): 40.75
+-------------------------------------
+Test set accuracy performance for (60, 35, 30): 41.76
+-------------------------------------
+Test set accuracy performance for (60, 40, 20): 41.95
+-------------------------------------
+Test set accuracy performance for (60, 40, 25): 39.65
+-------------------------------------
+Test set accuracy performance for (60, 40, 30): 41.55
+-------------------------------------
+Test set accuracy performance for (60, 40, 35): 41.56
+-------------------------------------
+Test set accuracy performance for (60, 45, 20): 41.49
+-------------------------------------
+Test set accuracy performance for (60, 45, 25): 41.33
+-------------------------------------
+Test set accuracy performance for (60, 45, 30): 41.3
+-------------------------------------
+Test set accuracy performance for (60, 45, 35): 41.48
+-------------------------------------
+Test set accuracy performance for (60, 45, 40): 40.84
+-------------------------------------
+Test set accuracy performance for (60, 50, 20): 41.28
+-------------------------------------
+Test set accuracy performance for (60, 50, 25): 40.93
+-------------------------------------
+Test set accuracy performance for (60, 50, 30): 41.31
+-------------------------------------
+Test set accuracy performance for (60, 50, 35): 41.8
+-------------------------------------
+Test set accuracy performance for (60, 50, 40): 41.61
+-------------------------------------
+Test set accuracy performance for (60, 50, 45): 38.68
+-------------------------------------
+Test set accuracy performance for (60, 55, 20): 40.65
+-------------------------------------
+Test set accuracy performance for (60, 55, 25): 40.82
+-------------------------------------
+Test set accuracy performance for (60, 55, 30): 42.55
+-------------------------------------
+Test set accuracy performance for (60, 55, 35): 42.14
+-------------------------------------
+Test set accuracy performance for (60, 55, 40): 41.03
+-------------------------------------
+Test set accuracy performance for (60, 55, 45): 41.26
+-------------------------------------
+Test set accuracy performance for (60, 55, 50): 42.47
+-------------------------------------
+Test set accuracy performance for (65, 30, 20): 40.3
+-------------------------------------
+Test set accuracy performance for (65, 30, 25): 41.25
+-------------------------------------
+Test set accuracy performance for (65, 35, 20): 41.89
+-------------------------------------
+Test set accuracy performance for (65, 35, 25): 40.63
+-------------------------------------
+Test set accuracy performance for (65, 35, 30): 42.59
+-------------------------------------
+Test set accuracy performance for (65, 40, 20): 42.13
+-------------------------------------
+Test set accuracy performance for (65, 40, 25): 41.44
+-------------------------------------
+Test set accuracy performance for (65, 40, 30): 40.07
+-------------------------------------
+Test set accuracy performance for (65, 40, 35): 40.98
+-------------------------------------
+Test set accuracy performance for (65, 45, 20): 41.7
+-------------------------------------
+Test set accuracy performance for (65, 45, 25): 41.85
+-------------------------------------
+Test set accuracy performance for (65, 45, 30): 42.83
+-------------------------------------
+Test set accuracy performance for (65, 45, 35): 41.0
+-------------------------------------
+Test set accuracy performance for (65, 45, 40): 41.9
+-------------------------------------
+Test set accuracy performance for (65, 50, 20): 41.83
+-------------------------------------
+Test set accuracy performance for (65, 50, 25): 41.54
+-------------------------------------
+Test set accuracy performance for (65, 50, 30): 42.07
+-------------------------------------
+Test set accuracy performance for (65, 50, 35): 41.21
+-------------------------------------
+Test set accuracy performance for (65, 50, 40): 42.01
+-------------------------------------
+Test set accuracy performance for (65, 50, 45): 42.2
+-------------------------------------
+Test set accuracy performance for (65, 55, 20): 42.04
+-------------------------------------
+Test set accuracy performance for (65, 55, 25): 41.36
+-------------------------------------
+Test set accuracy performance for (65, 55, 30): 40.98
+-------------------------------------
+Test set accuracy performance for (65, 55, 35): 41.49
+-------------------------------------
+Test set accuracy performance for (65, 55, 40): 37.39
+-------------------------------------
+Test set accuracy performance for (65, 55, 45): 41.46
+-------------------------------------
+Test set accuracy performance for (65, 55, 50): 40.68
+-------------------------------------
+Test set accuracy performance for (65, 60, 20): 42.18
+-------------------------------------
+Test set accuracy performance for (65, 60, 25): 40.04
+-------------------------------------
+Test set accuracy performance for (65, 60, 30): 41.56
+-------------------------------------
+Test set accuracy performance for (65, 60, 35): 41.36
+-------------------------------------
+Test set accuracy performance for (65, 60, 40): 41.66
+-------------------------------------
+Test set accuracy performance for (65, 60, 45): 41.17
+-------------------------------------
+Test set accuracy performance for (65, 60, 50): 42.5
+-------------------------------------
+Test set accuracy performance for (65, 60, 55): 42.3
+-------------------------------------
+Test set accuracy performance for (70, 30, 20): 41.91
+-------------------------------------
+Test set accuracy performance for (70, 30, 25): 40.9
+-------------------------------------
+Test set accuracy performance for (70, 35, 20): 41.79
+-------------------------------------
+Test set accuracy performance for (70, 35, 25): 42.2
+-------------------------------------
+Test set accuracy performance for (70, 35, 30): 41.6
+-------------------------------------
+Test set accuracy performance for (70, 40, 20): 42.35
+-------------------------------------
+Test set accuracy performance for (70, 40, 25): 42.05
+-------------------------------------
+Test set accuracy performance for (70, 40, 30): 41.57
+-------------------------------------
+Test set accuracy performance for (70, 40, 35): 42.7
+-------------------------------------
+Test set accuracy performance for (70, 45, 20): 41.4
+-------------------------------------
+Test set accuracy performance for (70, 45, 25): 41.3
+-------------------------------------
+Test set accuracy performance for (70, 45, 30): 41.48
+-------------------------------------
+Test set accuracy performance for (70, 45, 35): 37.66
+-------------------------------------
+Test set accuracy performance for (70, 45, 40): 41.29
+-------------------------------------
+Test set accuracy performance for (70, 50, 20): 41.6
+-------------------------------------
+Test set accuracy performance for (70, 50, 25): 41.43
+-------------------------------------
+Test set accuracy performance for (70, 50, 30): 41.2
+-------------------------------------
+Test set accuracy performance for (70, 50, 35): 41.3
+-------------------------------------
+Test set accuracy performance for (70, 50, 40): 41.7
+-------------------------------------
+Test set accuracy performance for (70, 50, 45): 41.21
+-------------------------------------
+Test set accuracy performance for (70, 55, 20): 42.06
+-------------------------------------
+Test set accuracy performance for (70, 55, 25): 42.46
+-------------------------------------
+Test set accuracy performance for (70, 55, 30): 42.91
+-------------------------------------
+Test set accuracy performance for (70, 55, 35): 41.56
+-------------------------------------
+Test set accuracy performance for (70, 55, 40): 41.98
+-------------------------------------
+Test set accuracy performance for (70, 55, 45): 42.56
+-------------------------------------
+Test set accuracy performance for (70, 55, 50): 42.28
+-------------------------------------
+Test set accuracy performance for (70, 60, 20): 41.05
+-------------------------------------
+Test set accuracy performance for (70, 60, 25): 40.38
+-------------------------------------
+Test set accuracy performance for (70, 60, 30): 41.59
+-------------------------------------
+Test set accuracy performance for (70, 60, 35): 41.69
+-------------------------------------
+Test set accuracy performance for (70, 60, 40): 40.66
+-------------------------------------
+Test set accuracy performance for (70, 60, 45): 42.57
+-------------------------------------
+Test set accuracy performance for (70, 60, 50): 41.03
+-------------------------------------
+Test set accuracy performance for (70, 60, 55): 42.78
+-------------------------------------
+Test set accuracy performance for (70, 65, 20): 42.29
+-------------------------------------
+Test set accuracy performance for (70, 65, 25): 40.89
+-------------------------------------
+Test set accuracy performance for (70, 65, 30): 41.69
+-------------------------------------
+Test set accuracy performance for (70, 65, 35): 41.46
+-------------------------------------
+Test set accuracy performance for (70, 65, 40): 41.34
+-------------------------------------
+Test set accuracy performance for (70, 65, 45): 41.96
+-------------------------------------
+Test set accuracy performance for (70, 65, 50): 41.44
+-------------------------------------
+Test set accuracy performance for (70, 65, 55): 43.61
+-------------------------------------
+Test set accuracy performance for (70, 65, 60): 40.56
+-------------------------------------
+Test set accuracy performance for (75, 30, 20): 40.81
+-------------------------------------
+Test set accuracy performance for (75, 30, 25): 43.03
+-------------------------------------
+Test set accuracy performance for (75, 35, 20): 41.3
+-------------------------------------
+Test set accuracy performance for (75, 35, 25): 42.08
+-------------------------------------
+Test set accuracy performance for (75, 35, 30): 41.48
+-------------------------------------
+Test set accuracy performance for (75, 40, 20): 41.09
+-------------------------------------
+Test set accuracy performance for (75, 40, 25): 41.86
+-------------------------------------
+Test set accuracy performance for (75, 40, 30): 42.19
+-------------------------------------
+Test set accuracy performance for (75, 40, 35): 40.74
+-------------------------------------
+Test set accuracy performance for (75, 45, 20): 40.99
+-------------------------------------
+Test set accuracy performance for (75, 45, 25): 41.95
+-------------------------------------
+Test set accuracy performance for (75, 45, 30): 41.87
+-------------------------------------
+Test set accuracy performance for (75, 45, 35): 42.85
+-------------------------------------
+Test set accuracy performance for (75, 45, 40): 40.13
+-------------------------------------
+Test set accuracy performance for (75, 50, 20): 42.33
+-------------------------------------
+Test set accuracy performance for (75, 50, 25): 41.55
+-------------------------------------
+Test set accuracy performance for (75, 50, 30): 39.1
+-------------------------------------
+Test set accuracy performance for (75, 50, 35): 41.51
+-------------------------------------
+Test set accuracy performance for (75, 50, 40): 41.61
+-------------------------------------
+Test set accuracy performance for (75, 50, 45): 41.53
+-------------------------------------
+Test set accuracy performance for (75, 55, 20): 41.93
+-------------------------------------
+Test set accuracy performance for (75, 55, 25): 42.65
+-------------------------------------
+Test set accuracy performance for (75, 55, 30): 41.0
+-------------------------------------
+Test set accuracy performance for (75, 55, 35): 39.76
+-------------------------------------
+Test set accuracy performance for (75, 55, 40): 41.84
+-------------------------------------
+Test set accuracy performance for (75, 55, 45): 41.4
+-------------------------------------
+Test set accuracy performance for (75, 55, 50): 42.7
+-------------------------------------
+Test set accuracy performance for (75, 60, 20): 41.05
+-------------------------------------
+Test set accuracy performance for (75, 60, 25): 40.59
+-------------------------------------
+Test set accuracy performance for (75, 60, 30): 41.56
+-------------------------------------
+Test set accuracy performance for (75, 60, 35): 42.93
+-------------------------------------
+Test set accuracy performance for (75, 60, 40): 41.13
+-------------------------------------
+Test set accuracy performance for (75, 60, 45): 37.6
+-------------------------------------
+Test set accuracy performance for (75, 60, 50): 42.19
+-------------------------------------
+Test set accuracy performance for (75, 60, 55): 41.03
+-------------------------------------
+Test set accuracy performance for (75, 65, 20): 41.74
+-------------------------------------
+Test set accuracy performance for (75, 65, 25): 40.53
+-------------------------------------
+Test set accuracy performance for (75, 65, 30): 42.96
+-------------------------------------
+Test set accuracy performance for (75, 65, 35): 42.43
+-------------------------------------
+Test set accuracy performance for (75, 65, 40): 42.8
+-------------------------------------
+Test set accuracy performance for (75, 65, 45): 42.39
+-------------------------------------
+Test set accuracy performance for (75, 65, 50): 39.91
+-------------------------------------
+Test set accuracy performance for (75, 65, 55): 41.39
+-------------------------------------
+Test set accuracy performance for (75, 65, 60): 41.88
+-------------------------------------
+Test set accuracy performance for (75, 70, 20): 39.97
+-------------------------------------
+Test set accuracy performance for (75, 70, 25): 39.95
+-------------------------------------
+Test set accuracy performance for (75, 70, 30): 41.32
+-------------------------------------
+Test set accuracy performance for (75, 70, 35): 42.31
+-------------------------------------
+Test set accuracy performance for (75, 70, 40): 41.72
+-------------------------------------
+Test set accuracy performance for (75, 70, 45): 42.28
+-------------------------------------
+Test set accuracy performance for (75, 70, 50): 42.67
+-------------------------------------
+Test set accuracy performance for (75, 70, 55): 41.68
+-------------------------------------
+Test set accuracy performance for (75, 70, 60): 42.11
+-------------------------------------
+Test set accuracy performance for (75, 70, 65): 43.5
+-------------------------------------
+Test set accuracy performance for (80, 30, 20): 41.17
+-------------------------------------
+Test set accuracy performance for (80, 30, 25): 41.22
+-------------------------------------
+Test set accuracy performance for (80, 35, 20): 41.98
+-------------------------------------
+Test set accuracy performance for (80, 35, 25): 41.12
+-------------------------------------
+Test set accuracy performance for (80, 35, 30): 41.21
+-------------------------------------
+Test set accuracy performance for (80, 40, 20): 41.55
+-------------------------------------
+Test set accuracy performance for (80, 40, 25): 41.73
+-------------------------------------
+Test set accuracy performance for (80, 40, 30): 40.84
+-------------------------------------
+Test set accuracy performance for (80, 40, 35): 43.21
+-------------------------------------
+Test set accuracy performance for (80, 45, 20): 41.13
+-------------------------------------
+Test set accuracy performance for (80, 45, 25): 41.84
+-------------------------------------
+Test set accuracy performance for (80, 45, 30): 41.62
+-------------------------------------
+Test set accuracy performance for (80, 45, 35): 41.35
+-------------------------------------
+Test set accuracy performance for (80, 45, 40): 42.13
+-------------------------------------
+Test set accuracy performance for (80, 50, 20): 40.97
+-------------------------------------
+Test set accuracy performance for (80, 50, 25): 40.96
+-------------------------------------
+Test set accuracy performance for (80, 50, 30): 41.05
+-------------------------------------
+Test set accuracy performance for (80, 50, 35): 42.4
+-------------------------------------
+Test set accuracy performance for (80, 50, 40): 42.3
+-------------------------------------
+Test set accuracy performance for (80, 50, 45): 42.53
+-------------------------------------
+Test set accuracy performance for (80, 55, 20): 40.48
+-------------------------------------
+Test set accuracy performance for (80, 55, 25): 41.62
+-------------------------------------
+Test set accuracy performance for (80, 55, 30): 42.28
+-------------------------------------
+Test set accuracy performance for (80, 55, 35): 39.72
+-------------------------------------
+Test set accuracy performance for (80, 55, 40): 41.64
+-------------------------------------
+Test set accuracy performance for (80, 55, 45): 43.38
+-------------------------------------
+Test set accuracy performance for (80, 55, 50): 39.98
+-------------------------------------
+Test set accuracy performance for (80, 60, 20): 41.79
+-------------------------------------
+Test set accuracy performance for (80, 60, 25): 42.64
+-------------------------------------
+Test set accuracy performance for (80, 60, 30): 42.4
+-------------------------------------
+Test set accuracy performance for (80, 60, 35): 41.84
+-------------------------------------
+Test set accuracy performance for (80, 60, 40): 43.16
+-------------------------------------
+Test set accuracy performance for (80, 60, 45): 41.44
+-------------------------------------
+Test set accuracy performance for (80, 60, 50): 42.67
+-------------------------------------
+Test set accuracy performance for (80, 60, 55): 40.05
+-------------------------------------
+Test set accuracy performance for (80, 65, 20): 41.31
+-------------------------------------
+Test set accuracy performance for (80, 65, 25): 40.71
+-------------------------------------
+Test set accuracy performance for (80, 65, 30): 41.35
+-------------------------------------
+Test set accuracy performance for (80, 65, 35): 42.36
+-------------------------------------
+Test set accuracy performance for (80, 65, 40): 42.76
+-------------------------------------
+Test set accuracy performance for (80, 65, 45): 41.21
+-------------------------------------
+Test set accuracy performance for (80, 65, 50): 42.09
+-------------------------------------
+Test set accuracy performance for (80, 65, 55): 42.12
+-------------------------------------
+Test set accuracy performance for (80, 65, 60): 42.19
+-------------------------------------
+Test set accuracy performance for (80, 70, 20): 40.9
+-------------------------------------
+Test set accuracy performance for (80, 70, 25): 41.7
+-------------------------------------
+Test set accuracy performance for (80, 70, 30): 40.91
+-------------------------------------
+Test set accuracy performance for (80, 70, 35): 41.29
+-------------------------------------
+Test set accuracy performance for (80, 70, 40): 42.27
+-------------------------------------
+Test set accuracy performance for (80, 70, 45): 43.21
+-------------------------------------
+Test set accuracy performance for (80, 70, 50): 41.69
+-------------------------------------
+Test set accuracy performance for (80, 70, 55): 42.17
+-------------------------------------
+Test set accuracy performance for (80, 70, 60): 42.13
+-------------------------------------
+Test set accuracy performance for (80, 70, 65): 41.77
+-------------------------------------
+Test set accuracy performance for (80, 75, 20): 41.08
+-------------------------------------
+Test set accuracy performance for (80, 75, 25): 42.99
+-------------------------------------
+Test set accuracy performance for (80, 75, 30): 40.84
+-------------------------------------
+Test set accuracy performance for (80, 75, 35): 40.44
+-------------------------------------
+Test set accuracy performance for (80, 75, 40): 39.99
+-------------------------------------
+Test set accuracy performance for (80, 75, 45): 41.87
+-------------------------------------
+Test set accuracy performance for (80, 75, 50): 41.02
+-------------------------------------
+Test set accuracy performance for (80, 75, 55): 43.38
+-------------------------------------
+Test set accuracy performance for (80, 75, 60): 41.66
+-------------------------------------
+Test set accuracy performance for (80, 75, 65): 41.69
+-------------------------------------
+Test set accuracy performance for (80, 75, 70): 41.92
+-------------------------------------
+Test set accuracy performance for (85, 30, 20): 40.49
+-------------------------------------
+Test set accuracy performance for (85, 30, 25): 42.01
+-------------------------------------
+Test set accuracy performance for (85, 35, 20): 42.68
+-------------------------------------
+Test set accuracy performance for (85, 35, 25): 41.26
+-------------------------------------
+Test set accuracy performance for (85, 35, 30): 42.49
+-------------------------------------
+Test set accuracy performance for (85, 40, 20): 40.37
+-------------------------------------
+Test set accuracy performance for (85, 40, 25): 40.81
+-------------------------------------
+Test set accuracy performance for (85, 40, 30): 42.96
+-------------------------------------
+Test set accuracy performance for (85, 40, 35): 41.81
+-------------------------------------
+Test set accuracy performance for (85, 45, 20): 41.59
+-------------------------------------
+Test set accuracy performance for (85, 45, 25): 41.47
+-------------------------------------
+Test set accuracy performance for (85, 45, 30): 41.43
+-------------------------------------
+Test set accuracy performance for (85, 45, 35): 42.24
+-------------------------------------
+Test set accuracy performance for (85, 45, 40): 40.8
+-------------------------------------
+Test set accuracy performance for (85, 50, 20): 41.1
+-------------------------------------
+Test set accuracy performance for (85, 50, 25): 41.21
+-------------------------------------
+Test set accuracy performance for (85, 50, 30): 43.71
+-------------------------------------
+Test set accuracy performance for (85, 50, 35): 42.06
+-------------------------------------
+Test set accuracy performance for (85, 50, 40): 42.13
+-------------------------------------
+Test set accuracy performance for (85, 50, 45): 39.85
+-------------------------------------
+Test set accuracy performance for (85, 55, 20): 41.89
+-------------------------------------
+Test set accuracy performance for (85, 55, 25): 41.91
+-------------------------------------
+Test set accuracy performance for (85, 55, 30): 41.53
+-------------------------------------
+Test set accuracy performance for (85, 55, 35): 40.97
+-------------------------------------
+Test set accuracy performance for (85, 55, 40): 43.2
+-------------------------------------
+Test set accuracy performance for (85, 55, 45): 42.19
+-------------------------------------
+Test set accuracy performance for (85, 55, 50): 42.57
+-------------------------------------
+Test set accuracy performance for (85, 60, 20): 41.89
+-------------------------------------
+Test set accuracy performance for (85, 60, 25): 41.53
+-------------------------------------
+Test set accuracy performance for (85, 60, 30): 41.3
+-------------------------------------
+Test set accuracy performance for (85, 60, 35): 41.87
+-------------------------------------
+Test set accuracy performance for (85, 60, 40): 41.87
+-------------------------------------
+Test set accuracy performance for (85, 60, 45): 42.93
+-------------------------------------
+Test set accuracy performance for (85, 60, 50): 41.48
+-------------------------------------
+Test set accuracy performance for (85, 60, 55): 41.42
+-------------------------------------
+Test set accuracy performance for (85, 65, 20): 41.54
+-------------------------------------
+Test set accuracy performance for (85, 65, 25): 39.9
+-------------------------------------
+Test set accuracy performance for (85, 65, 30): 42.58
+-------------------------------------
+Test set accuracy performance for (85, 65, 35): 41.9
+-------------------------------------
+Test set accuracy performance for (85, 65, 40): 41.15
+-------------------------------------
+Test set accuracy performance for (85, 65, 45): 42.2
+-------------------------------------
+Test set accuracy performance for (85, 65, 50): 41.63
+-------------------------------------
+Test set accuracy performance for (85, 65, 55): 41.6
+-------------------------------------
+Test set accuracy performance for (85, 65, 60): 42.0
+-------------------------------------
+Test set accuracy performance for (85, 70, 20): 42.24
+-------------------------------------
+Test set accuracy performance for (85, 70, 25): 42.84
+-------------------------------------
+Test set accuracy performance for (85, 70, 30): 41.01
+-------------------------------------
+Test set accuracy performance for (85, 70, 35): 42.81
+-------------------------------------
+Test set accuracy performance for (85, 70, 40): 42.45
+-------------------------------------
+Test set accuracy performance for (85, 70, 45): 42.16
+-------------------------------------
+Test set accuracy performance for (85, 70, 50): 42.9
+-------------------------------------
+Test set accuracy performance for (85, 70, 55): 41.47
+-------------------------------------
+Test set accuracy performance for (85, 70, 60): 41.7
+-------------------------------------
+Test set accuracy performance for (85, 70, 65): 41.96
+-------------------------------------
+Test set accuracy performance for (85, 75, 20): 42.12
+-------------------------------------
+Test set accuracy performance for (85, 75, 25): 43.74
+-------------------------------------
+Test set accuracy performance for (85, 75, 30): 43.02
+-------------------------------------
+Test set accuracy performance for (85, 75, 35): 41.37
+-------------------------------------
+Test set accuracy performance for (85, 75, 40): 41.73
+-------------------------------------
+Test set accuracy performance for (85, 75, 45): 42.06
+-------------------------------------
+Test set accuracy performance for (85, 75, 50): 41.4
+-------------------------------------
+Test set accuracy performance for (85, 75, 55): 41.73
+-------------------------------------
+Test set accuracy performance for (85, 75, 60): 40.08
+-------------------------------------
+Test set accuracy performance for (85, 75, 65): 41.89
+-------------------------------------
+Test set accuracy performance for (85, 75, 70): 38.34
+-------------------------------------
+Test set accuracy performance for (85, 80, 20): 41.5
+-------------------------------------
+Test set accuracy performance for (85, 80, 25): 41.38
+-------------------------------------
+Test set accuracy performance for (85, 80, 30): 42.59
+-------------------------------------
+Test set accuracy performance for (85, 80, 35): 41.94
+-------------------------------------
+Test set accuracy performance for (85, 80, 40): 42.09
+-------------------------------------
+Test set accuracy performance for (85, 80, 45): 41.36
+-------------------------------------
+Test set accuracy performance for (85, 80, 50): 41.85
+-------------------------------------
+Test set accuracy performance for (85, 80, 55): 41.11
+-------------------------------------
+Test set accuracy performance for (85, 80, 60): 42.47
+-------------------------------------
+Test set accuracy performance for (85, 80, 65): 42.71
+-------------------------------------
+Test set accuracy performance for (85, 80, 70): 41.13
+-------------------------------------
+Test set accuracy performance for (85, 80, 75): 42.05
+-------------------------------------
+Test set accuracy performance for (90, 30, 20): 40.63
+-------------------------------------
+Test set accuracy performance for (90, 30, 25): 42.34
+-------------------------------------
+Test set accuracy performance for (90, 35, 20): 42.18
+-------------------------------------
+Test set accuracy performance for (90, 35, 25): 41.02
+-------------------------------------
+Test set accuracy performance for (90, 35, 30): 41.85
+-------------------------------------
+Test set accuracy performance for (90, 40, 20): 42.68
+-------------------------------------
+Test set accuracy performance for (90, 40, 25): 42.24
+-------------------------------------
+Test set accuracy performance for (90, 40, 30): 41.81
+-------------------------------------
+Test set accuracy performance for (90, 40, 35): 42.23
+-------------------------------------
+Test set accuracy performance for (90, 45, 20): 41.35
+-------------------------------------
+Test set accuracy performance for (90, 45, 25): 40.16
+-------------------------------------
+Test set accuracy performance for (90, 45, 30): 41.63
+-------------------------------------
+Test set accuracy performance for (90, 45, 35): 42.47
+-------------------------------------
+Test set accuracy performance for (90, 45, 40): 40.96
+-------------------------------------
+Test set accuracy performance for (90, 50, 20): 42.37
+-------------------------------------
+Test set accuracy performance for (90, 50, 25): 41.6
+-------------------------------------
+Test set accuracy performance for (90, 50, 30): 43.2
+-------------------------------------
+Test set accuracy performance for (90, 50, 35): 42.5
+-------------------------------------
+Test set accuracy performance for (90, 50, 40): 42.93
+-------------------------------------
+Test set accuracy performance for (90, 50, 45): 43.21
+-------------------------------------
+Test set accuracy performance for (90, 55, 20): 42.31
+-------------------------------------
+Test set accuracy performance for (90, 55, 25): 43.03
+-------------------------------------
+Test set accuracy performance for (90, 55, 30): 42.91
+-------------------------------------
+Test set accuracy performance for (90, 55, 35): 42.71
+-------------------------------------
+Test set accuracy performance for (90, 55, 40): 41.23
+-------------------------------------
+Test set accuracy performance for (90, 55, 45): 41.93
+-------------------------------------
+Test set accuracy performance for (90, 55, 50): 42.81
+-------------------------------------
+Test set accuracy performance for (90, 60, 20): 42.65
+-------------------------------------
+Test set accuracy performance for (90, 60, 25): 44.19
+-------------------------------------
+Test set accuracy performance for (90, 60, 30): 42.09
+-------------------------------------
+Test set accuracy performance for (90, 60, 35): 42.88
+-------------------------------------
+Test set accuracy performance for (90, 60, 40): 40.43
+-------------------------------------
+Test set accuracy performance for (90, 60, 45): 43.06
+-------------------------------------
+Test set accuracy performance for (90, 60, 50): 38.96
+-------------------------------------
+Test set accuracy performance for (90, 60, 55): 42.08
+-------------------------------------
+Test set accuracy performance for (90, 65, 20): 42.71
+-------------------------------------
+Test set accuracy performance for (90, 65, 25): 38.63
+-------------------------------------
+Test set accuracy performance for (90, 65, 30): 41.57
+-------------------------------------
+Test set accuracy performance for (90, 65, 35): 42.65
+-------------------------------------
+Test set accuracy performance for (90, 65, 40): 43.24
+-------------------------------------
+Test set accuracy performance for (90, 65, 45): 41.27
+-------------------------------------
+Test set accuracy performance for (90, 65, 50): 42.18
+-------------------------------------
+Test set accuracy performance for (90, 65, 55): 42.55
+-------------------------------------
+Test set accuracy performance for (90, 65, 60): 41.29
+-------------------------------------
+Test set accuracy performance for (90, 70, 20): 41.71
+-------------------------------------
+Test set accuracy performance for (90, 70, 25): 41.5
+-------------------------------------
+Test set accuracy performance for (90, 70, 30): 42.19
+-------------------------------------
+Test set accuracy performance for (90, 70, 35): 41.45
+-------------------------------------
+Test set accuracy performance for (90, 70, 40): 40.82
+-------------------------------------
+Test set accuracy performance for (90, 70, 45): 42.26
+-------------------------------------
+Test set accuracy performance for (90, 70, 50): 40.72
+-------------------------------------
+Test set accuracy performance for (90, 70, 55): 42.1
+-------------------------------------
+Test set accuracy performance for (90, 70, 60): 39.77
+-------------------------------------
+Test set accuracy performance for (90, 70, 65): 42.64
+-------------------------------------
+Test set accuracy performance for (90, 75, 20): 42.46
+-------------------------------------
+Test set accuracy performance for (90, 75, 25): 42.77
+-------------------------------------
+Test set accuracy performance for (90, 75, 30): 41.85
+-------------------------------------
+Test set accuracy performance for (90, 75, 35): 40.94
+-------------------------------------
+Test set accuracy performance for (90, 75, 40): 41.81
+-------------------------------------
+Test set accuracy performance for (90, 75, 45): 42.22
+-------------------------------------
+Test set accuracy performance for (90, 75, 50): 42.46
+-------------------------------------
+Test set accuracy performance for (90, 75, 55): 41.52
+-------------------------------------
+Test set accuracy performance for (90, 75, 60): 42.23
+-------------------------------------
+Test set accuracy performance for (90, 75, 65): 40.75
+-------------------------------------
+Test set accuracy performance for (90, 75, 70): 42.26
+-------------------------------------
+Test set accuracy performance for (90, 80, 20): 42.8
+-------------------------------------
+Test set accuracy performance for (90, 80, 25): 41.28
+-------------------------------------
+Test set accuracy performance for (90, 80, 30): 42.44
+-------------------------------------
+Test set accuracy performance for (90, 80, 35): 41.68
+-------------------------------------
+Test set accuracy performance for (90, 80, 40): 41.32
+-------------------------------------
+Test set accuracy performance for (90, 80, 45): 39.6
+-------------------------------------
+Test set accuracy performance for (90, 80, 50): 42.23
+-------------------------------------
+Test set accuracy performance for (90, 80, 55): 43.5
+-------------------------------------
+Test set accuracy performance for (90, 80, 60): 42.12
+-------------------------------------
+Test set accuracy performance for (90, 80, 65): 43.19
+-------------------------------------
+Test set accuracy performance for (90, 80, 70): 41.58
+-------------------------------------
+Test set accuracy performance for (90, 80, 75): 42.78
+-------------------------------------
+Test set accuracy performance for (90, 85, 20): 41.6
+-------------------------------------
+Test set accuracy performance for (90, 85, 25): 40.91
+-------------------------------------
+Test set accuracy performance for (90, 85, 30): 42.05
+-------------------------------------
+Test set accuracy performance for (90, 85, 35): 41.86
+-------------------------------------
+Test set accuracy performance for (90, 85, 40): 41.76
+-------------------------------------
+Test set accuracy performance for (90, 85, 45): 41.77
+-------------------------------------
+Test set accuracy performance for (90, 85, 50): 42.15
+-------------------------------------
+Test set accuracy performance for (90, 85, 55): 41.0
+-------------------------------------
+Test set accuracy performance for (90, 85, 60): 41.19
+-------------------------------------
+Test set accuracy performance for (90, 85, 65): 41.78
+-------------------------------------
+Test set accuracy performance for (90, 85, 70): 41.39
+-------------------------------------
+Test set accuracy performance for (90, 85, 75): 43.33
+-------------------------------------
+Test set accuracy performance for (90, 85, 80): 42.54
+-------------------------------------
+Test set accuracy performance for (95, 30, 20): 42.08
+-------------------------------------
+Test set accuracy performance for (95, 30, 25): 41.98
+-------------------------------------
+Test set accuracy performance for (95, 35, 20): 39.65
+-------------------------------------
+Test set accuracy performance for (95, 35, 25): 42.08
+-------------------------------------
+Test set accuracy performance for (95, 35, 30): 41.84
+-------------------------------------
+Test set accuracy performance for (95, 40, 20): 41.22
+-------------------------------------
+Test set accuracy performance for (95, 40, 25): 41.25
+-------------------------------------
+Test set accuracy performance for (95, 40, 30): 39.99
+-------------------------------------
+Test set accuracy performance for (95, 40, 35): 42.99
+-------------------------------------
+Test set accuracy performance for (95, 45, 20): 41.78
+-------------------------------------
+Test set accuracy performance for (95, 45, 25): 42.1
+-------------------------------------
+Test set accuracy performance for (95, 45, 30): 41.81
+-------------------------------------
+Test set accuracy performance for (95, 45, 35): 40.76
+-------------------------------------
+Test set accuracy performance for (95, 45, 40): 42.53
+-------------------------------------
+Test set accuracy performance for (95, 50, 20): 42.03
+-------------------------------------
+Test set accuracy performance for (95, 50, 25): 42.67
+-------------------------------------
+Test set accuracy performance for (95, 50, 30): 43.03
+-------------------------------------
+Test set accuracy performance for (95, 50, 35): 43.17
+-------------------------------------
+Test set accuracy performance for (95, 50, 40): 43.14
+-------------------------------------
+Test set accuracy performance for (95, 50, 45): 42.93
+-------------------------------------
+Test set accuracy performance for (95, 55, 20): 42.14
+-------------------------------------
+Test set accuracy performance for (95, 55, 25): 42.93
+-------------------------------------
+Test set accuracy performance for (95, 55, 30): 42.54
+-------------------------------------
+Test set accuracy performance for (95, 55, 35): 41.96
+-------------------------------------
+Test set accuracy performance for (95, 55, 40): 42.46
+-------------------------------------
+Test set accuracy performance for (95, 55, 45): 41.49
+-------------------------------------
+Test set accuracy performance for (95, 55, 50): 41.82
+-------------------------------------
+Test set accuracy performance for (95, 60, 20): 41.71
+-------------------------------------
+Test set accuracy performance for (95, 60, 25): 41.67
+-------------------------------------
+Test set accuracy performance for (95, 60, 30): 41.79
+-------------------------------------
+Test set accuracy performance for (95, 60, 35): 41.99
+-------------------------------------
+Test set accuracy performance for (95, 60, 40): 41.88
+-------------------------------------
+Test set accuracy performance for (95, 60, 45): 42.5
+-------------------------------------
+Test set accuracy performance for (95, 60, 50): 42.71
+-------------------------------------
+Test set accuracy performance for (95, 60, 55): 42.39
+-------------------------------------
+Test set accuracy performance for (95, 65, 20): 41.79
+-------------------------------------
+Test set accuracy performance for (95, 65, 25): 41.89
+-------------------------------------
+Test set accuracy performance for (95, 65, 30): 41.93
+-------------------------------------
+Test set accuracy performance for (95, 65, 35): 41.6
+-------------------------------------
+Test set accuracy performance for (95, 65, 40): 42.34
+-------------------------------------
+Test set accuracy performance for (95, 65, 45): 42.37
+-------------------------------------
+Test set accuracy performance for (95, 65, 50): 42.21
+-------------------------------------
+Test set accuracy performance for (95, 65, 55): 42.6
+-------------------------------------
+Test set accuracy performance for (95, 65, 60): 42.88
+-------------------------------------
+Test set accuracy performance for (95, 70, 20): 41.96
+-------------------------------------
+Test set accuracy performance for (95, 70, 25): 41.85
+-------------------------------------
+Test set accuracy performance for (95, 70, 30): 42.77
+-------------------------------------
+Test set accuracy performance for (95, 70, 35): 42.42
+-------------------------------------
+Test set accuracy performance for (95, 70, 40): 41.54
+-------------------------------------
+Test set accuracy performance for (95, 70, 45): 40.37
+-------------------------------------
+Test set accuracy performance for (95, 70, 50): 40.89
+-------------------------------------
+Test set accuracy performance for (95, 70, 55): 42.88
+-------------------------------------
+Test set accuracy performance for (95, 70, 60): 42.39
+-------------------------------------
+Test set accuracy performance for (95, 70, 65): 43.09
+-------------------------------------
+Test set accuracy performance for (95, 75, 20): 43.47
+-------------------------------------
+Test set accuracy performance for (95, 75, 25): 41.2
+-------------------------------------
+Test set accuracy performance for (95, 75, 30): 40.83
+-------------------------------------
+Test set accuracy performance for (95, 75, 35): 41.5
+-------------------------------------
+Test set accuracy performance for (95, 75, 40): 42.39
+-------------------------------------
+Test set accuracy performance for (95, 75, 45): 42.84
+-------------------------------------
+Test set accuracy performance for (95, 75, 50): 42.82
+-------------------------------------
+Test set accuracy performance for (95, 75, 55): 43.26
+-------------------------------------
+Test set accuracy performance for (95, 75, 60): 42.3
+-------------------------------------
+Test set accuracy performance for (95, 75, 65): 42.16
+-------------------------------------
+Test set accuracy performance for (95, 75, 70): 42.8
+-------------------------------------
+Test set accuracy performance for (95, 80, 20): 40.84
+-------------------------------------
+Test set accuracy performance for (95, 80, 25): 40.19
+-------------------------------------
+Test set accuracy performance for (95, 80, 30): 42.29
+-------------------------------------
+Test set accuracy performance for (95, 80, 35): 42.82
+-------------------------------------
+Test set accuracy performance for (95, 80, 40): 42.19
+-------------------------------------
+Test set accuracy performance for (95, 80, 45): 42.0
+-------------------------------------
+Test set accuracy performance for (95, 80, 50): 41.95
+-------------------------------------
+Test set accuracy performance for (95, 80, 55): 42.57
+-------------------------------------
+Test set accuracy performance for (95, 80, 60): 41.87
+-------------------------------------
+Test set accuracy performance for (95, 80, 65): 41.4
+-------------------------------------
+Test set accuracy performance for (95, 80, 70): 37.84
+-------------------------------------
+Test set accuracy performance for (95, 80, 75): 43.12
+-------------------------------------
+Test set accuracy performance for (95, 85, 20): 42.04
+-------------------------------------
+Test set accuracy performance for (95, 85, 25): 42.82
+-------------------------------------
+Test set accuracy performance for (95, 85, 30): 42.58
+-------------------------------------
+Test set accuracy performance for (95, 85, 35): 41.14
+-------------------------------------
+Test set accuracy performance for (95, 85, 40): 43.83
+-------------------------------------
+Test set accuracy performance for (95, 85, 45): 42.68
+-------------------------------------
+Test set accuracy performance for (95, 85, 50): 42.55
+-------------------------------------
+Test set accuracy performance for (95, 85, 55): 43.51
+-------------------------------------
+Test set accuracy performance for (95, 85, 60): 42.85
+-------------------------------------
+Test set accuracy performance for (95, 85, 65): 42.4
+-------------------------------------
+Test set accuracy performance for (95, 85, 70): 41.06
+-------------------------------------
+Test set accuracy performance for (95, 85, 75): 42.7
+-------------------------------------
+Test set accuracy performance for (95, 85, 80): 41.74
+-------------------------------------
+Test set accuracy performance for (95, 90, 20): 42.15
+-------------------------------------
+Test set accuracy performance for (95, 90, 25): 42.53
+-------------------------------------
+Test set accuracy performance for (95, 90, 30): 42.35
+-------------------------------------
+Test set accuracy performance for (95, 90, 35): 43.07
+-------------------------------------
+Test set accuracy performance for (95, 90, 40): 40.11
+-------------------------------------
+Test set accuracy performance for (95, 90, 45): 42.38
+-------------------------------------
+Test set accuracy performance for (95, 90, 50): 42.39
+-------------------------------------
+Test set accuracy performance for (95, 90, 55): 41.12
+-------------------------------------
+Test set accuracy performance for (95, 90, 60): 42.4
+-------------------------------------
+Test set accuracy performance for (95, 90, 65): 41.58
+-------------------------------------
+Test set accuracy performance for (95, 90, 70): 41.43
+-------------------------------------
+Test set accuracy performance for (95, 90, 75): 43.96
+-------------------------------------
+Test set accuracy performance for (95, 90, 80): 43.21
+-------------------------------------
+Test set accuracy performance for (95, 90, 85): 40.97
+-------------------------------------
+Test set accuracy performance for (100, 30, 20): 41.66
+-------------------------------------
+Test set accuracy performance for (100, 30, 25): 43.16
+-------------------------------------
+Test set accuracy performance for (100, 35, 20): 38.98
+-------------------------------------
+Test set accuracy performance for (100, 35, 25): 42.49
+-------------------------------------
+Test set accuracy performance for (100, 35, 30): 42.05
+-------------------------------------
+Test set accuracy performance for (100, 40, 20): 41.52
+-------------------------------------
+Test set accuracy performance for (100, 40, 25): 41.29
+-------------------------------------
+Test set accuracy performance for (100, 40, 30): 40.72
+-------------------------------------
+Test set accuracy performance for (100, 40, 35): 42.83
+-------------------------------------
+Test set accuracy performance for (100, 45, 20): 42.54
+-------------------------------------
+Test set accuracy performance for (100, 45, 25): 40.38
+-------------------------------------
+Test set accuracy performance for (100, 45, 30): 42.39
+-------------------------------------
+Test set accuracy performance for (100, 45, 35): 41.17
+-------------------------------------
+Test set accuracy performance for (100, 45, 40): 42.34
+-------------------------------------
+Test set accuracy performance for (100, 50, 20): 43.13
+-------------------------------------
+Test set accuracy performance for (100, 50, 25): 42.86
+-------------------------------------
+Test set accuracy performance for (100, 50, 30): 42.35
+-------------------------------------
+Test set accuracy performance for (100, 50, 35): 42.1
+-------------------------------------
+Test set accuracy performance for (100, 50, 40): 40.49
+-------------------------------------
+Test set accuracy performance for (100, 50, 45): 42.36
+-------------------------------------
+Test set accuracy performance for (100, 55, 20): 40.66
+-------------------------------------
+Test set accuracy performance for (100, 55, 25): 41.09
+-------------------------------------
+Test set accuracy performance for (100, 55, 30): 42.19
+-------------------------------------
+Test set accuracy performance for (100, 55, 35): 41.95
+-------------------------------------
+Test set accuracy performance for (100, 55, 40): 40.66
+-------------------------------------
+Test set accuracy performance for (100, 55, 45): 42.03
+-------------------------------------
+Test set accuracy performance for (100, 55, 50): 42.18
+-------------------------------------
+Test set accuracy performance for (100, 60, 20): 42.41
+-------------------------------------
+Test set accuracy performance for (100, 60, 25): 42.0
+-------------------------------------
+Test set accuracy performance for (100, 60, 30): 42.12
+-------------------------------------
+Test set accuracy performance for (100, 60, 35): 42.57
+-------------------------------------
+Test set accuracy performance for (100, 60, 40): 42.03
+-------------------------------------
+Test set accuracy performance for (100, 60, 45): 44.01
+-------------------------------------
+Test set accuracy performance for (100, 60, 50): 40.44
+-------------------------------------
+Test set accuracy performance for (100, 60, 55): 41.88
+-------------------------------------
+Test set accuracy performance for (100, 65, 20): 42.75
+-------------------------------------
+Test set accuracy performance for (100, 65, 25): 41.3
+-------------------------------------
+Test set accuracy performance for (100, 65, 30): 42.23
+-------------------------------------
+Test set accuracy performance for (100, 65, 35): 41.84
+-------------------------------------
+Test set accuracy performance for (100, 65, 40): 41.61
+-------------------------------------
+Test set accuracy performance for (100, 65, 45): 41.12
+-------------------------------------
+Test set accuracy performance for (100, 65, 50): 39.83
+-------------------------------------
+Test set accuracy performance for (100, 65, 55): 43.05
+-------------------------------------
+Test set accuracy performance for (100, 65, 60): 42.27
+-------------------------------------
+Test set accuracy performance for (100, 70, 20): 42.13
+-------------------------------------
+Test set accuracy performance for (100, 70, 25): 42.53
+-------------------------------------
+Test set accuracy performance for (100, 70, 30): 41.59
+-------------------------------------
+Test set accuracy performance for (100, 70, 35): 40.75
+-------------------------------------
+Test set accuracy performance for (100, 70, 40): 43.0
+-------------------------------------
+Test set accuracy performance for (100, 70, 45): 42.2
+-------------------------------------
+Test set accuracy performance for (100, 70, 50): 42.36
+-------------------------------------
+Test set accuracy performance for (100, 70, 55): 42.35
+-------------------------------------
+Test set accuracy performance for (100, 70, 60): 42.13
+-------------------------------------
+Test set accuracy performance for (100, 70, 65): 42.73
+-------------------------------------
+Test set accuracy performance for (100, 75, 20): 43.31
+-------------------------------------
+Test set accuracy performance for (100, 75, 25): 43.09
+-------------------------------------
+Test set accuracy performance for (100, 75, 30): 41.62
+-------------------------------------
+Test set accuracy performance for (100, 75, 35): 42.16
+-------------------------------------
+Test set accuracy performance for (100, 75, 40): 41.51
+-------------------------------------
+Test set accuracy performance for (100, 75, 45): 42.83
+-------------------------------------
+Test set accuracy performance for (100, 75, 50): 41.09
+-------------------------------------
+Test set accuracy performance for (100, 75, 55): 40.44
+-------------------------------------
+Test set accuracy performance for (100, 75, 60): 40.31
+-------------------------------------
+Test set accuracy performance for (100, 75, 65): 42.43
+-------------------------------------
+Test set accuracy performance for (100, 75, 70): 41.43
+-------------------------------------
+Test set accuracy performance for (100, 80, 20): 42.17
+-------------------------------------
+Test set accuracy performance for (100, 80, 25): 41.45
+-------------------------------------
+Test set accuracy performance for (100, 80, 30): 42.35
+-------------------------------------
+Test set accuracy performance for (100, 80, 35): 42.55
+-------------------------------------
+Test set accuracy performance for (100, 80, 40): 41.17
+-------------------------------------
+Test set accuracy performance for (100, 80, 45): 42.63
+-------------------------------------
+Test set accuracy performance for (100, 80, 50): 40.69
+-------------------------------------
+Test set accuracy performance for (100, 80, 55): 42.87
+-------------------------------------
+Test set accuracy performance for (100, 80, 60): 41.47
+-------------------------------------
+Test set accuracy performance for (100, 80, 65): 42.82
+-------------------------------------
+Test set accuracy performance for (100, 80, 70): 37.7
+-------------------------------------
+Test set accuracy performance for (100, 80, 75): 42.74
+-------------------------------------
+Test set accuracy performance for (100, 85, 20): 40.4
+-------------------------------------
+Test set accuracy performance for (100, 85, 25): 42.53
+-------------------------------------
+Test set accuracy performance for (100, 85, 30): 42.73
+-------------------------------------
+Test set accuracy performance for (100, 85, 35): 42.05
+-------------------------------------
+Test set accuracy performance for (100, 85, 40): 42.25
+-------------------------------------
+Test set accuracy performance for (100, 85, 45): 42.51
+-------------------------------------
+Test set accuracy performance for (100, 85, 50): 42.48
+-------------------------------------
+Test set accuracy performance for (100, 85, 55): 41.84
+-------------------------------------
+Test set accuracy performance for (100, 85, 60): 40.04
+-------------------------------------
+Test set accuracy performance for (100, 85, 65): 40.38
+-------------------------------------
+Test set accuracy performance for (100, 85, 70): 41.64
+-------------------------------------
+Test set accuracy performance for (100, 85, 75): 41.95
+-------------------------------------
+Test set accuracy performance for (100, 85, 80): 37.58
+-------------------------------------
+Test set accuracy performance for (100, 90, 20): 42.68
+-------------------------------------
+Test set accuracy performance for (100, 90, 25): 40.98
+-------------------------------------
+Test set accuracy performance for (100, 90, 30): 43.16
+-------------------------------------
+Test set accuracy performance for (100, 90, 35): 40.22
+-------------------------------------
+Test set accuracy performance for (100, 90, 40): 42.75
+-------------------------------------
+Test set accuracy performance for (100, 90, 45): 39.22
+-------------------------------------
+Test set accuracy performance for (100, 90, 50): 42.6
+-------------------------------------
+Test set accuracy performance for (100, 90, 55): 43.89
+-------------------------------------
+Test set accuracy performance for (100, 90, 60): 43.83
+-------------------------------------
+Test set accuracy performance for (100, 90, 65): 42.76
+-------------------------------------
+Test set accuracy performance for (100, 90, 70): 41.42
+-------------------------------------
+Test set accuracy performance for (100, 90, 75): 41.49
+-------------------------------------
+Test set accuracy performance for (100, 90, 80): 43.43
+-------------------------------------
+Test set accuracy performance for (100, 90, 85): 42.14
+-------------------------------------
+Test set accuracy performance for (100, 95, 20): 43.08
+-------------------------------------
+Test set accuracy performance for (100, 95, 25): 41.7
+-------------------------------------
+Test set accuracy performance for (100, 95, 30): 41.71
+-------------------------------------
+Test set accuracy performance for (100, 95, 35): 42.91
+-------------------------------------
+Test set accuracy performance for (100, 95, 40): 41.98
+-------------------------------------
+Test set accuracy performance for (100, 95, 45): 42.44
+-------------------------------------
+Test set accuracy performance for (100, 95, 50): 43.45
+-------------------------------------
+Test set accuracy performance for (100, 95, 55): 40.11
+-------------------------------------
+Test set accuracy performance for (100, 95, 60): 43.34
+-------------------------------------
+Test set accuracy performance for (100, 95, 65): 41.79
+-------------------------------------
+Test set accuracy performance for (100, 95, 70): 41.9
+-------------------------------------
+Test set accuracy performance for (100, 95, 75): 43.44
+-------------------------------------
+Test set accuracy performance for (100, 95, 80): 42.19
+-------------------------------------
+Test set accuracy performance for (100, 95, 85): 40.71
+-------------------------------------
+Test set accuracy performance for (100, 95, 90): 41.88
