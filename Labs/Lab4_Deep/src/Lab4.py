@@ -211,44 +211,52 @@ class RNN:
 
         return Y
 
-    def ComputeCost(self, input_sequence, Y, W, U, b, V, c):
+    def ComputeLoss(self, input_sequence, Y, weight_parameters):
         """
         Computes the cross-entropy loss of the RNN.
 
-        :param W: Hidden-to-Hidden weight matrix.
-        :param U: Input-to-Hidden weight matrix.
-        :param b: Bias vector of the hidden layer.
-        :param V: Hidden-to-Output weight matrix.
-        :param c: Bias vector of the output layer.
+        :param input_sequence: The input sequence.
+        :param weight_parameters: Weights and matrices of the RNN, which in particularly are:
+            :param W: Hidden-to-Hidden weight matrix.
+            :param U: Input-to-Hidden weight matrix.
+            :param b: Bias vector of the hidden layer.
+            :param V: Hidden-to-Output weight matrix.
+            :param c: Bias vector of the output layer.
 
         :return: Cross entropy loss (divergence between the predictions and the true output)
         """
+        W, U, b, V, c = weight_parameters
 
-        p = self.ForwardPass(input_sequence, W, U, b, V, c)
+        p = self.ForwardPass(input_sequence, W, U, b, V, c)[2]
         cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(input_sequence.shape[1])
 
         return cross_entropy_loss
 
-    def ForwardPass(self, input_sequence, W, U, b, V, c):
+    def ForwardPass(self, input_sequence, weight_parameters):
         """
         Evaluates the predictions that the RNN does in an input character sequence.
 
         :param input_sequence: The one-hot representation of the input sequence.
-        :param W: Hidden-to-Hidden weight matrix.
-        :param U: Input-to-Hidden weight matrix.
-        :param b: Bias vector of the hidden layer.
-        :param V: Hidden-to-Output weight matrix.
-        :param c: Bias vector of the output layer.
+        :param weight_parameters: The weights and biases of the network, which are:
+            :param W: Hidden-to-Hidden weight matrix.
+            :param U: Input-to-Hidden weight matrix.
+            :param b: Bias vector of the hidden layer.
+            :param V: Hidden-to-Output weight matrix.
+            :param c: Bias vector of the output layer.
 
         :return: The predicted character sequence based on the input one.
         """
 
+        W, U, b, V, c = weight_parameters
+
         p = np.zeros(input_sequence.shape)
         h_list = [np.zeros((self.m, 1))]
+        a_list = []
 
         for index in range(0, input_sequence.shape[1]):
 
             alpha = np.dot(W, h[-1]) + np.dot(U, np.expand_dims(input_sequence[:,index], axis=1)) + b
+            a_list.append(alpha)
             h = np.tanh(alpha)
             h_list.append(h)
             o = np.dot(V, h) + c
@@ -264,9 +272,9 @@ class RNN:
             # Create one-hot representation of the found position
             p[pos, index] = 1.0
 
-        return p
+        return a_list, h, p
 
-    def BackwardPass(self, x, Y, p, W, V,  a, h, ):
+    def BackwardPass(self, x, Y, p, W, V, a, h):
         """
         Computes the gradient updates of the network's weight and bias matrices based on the divergence between the
         prediction and the true output.
@@ -314,13 +322,90 @@ class RNN:
 
             grad_b += grad_a
 
-        return grad_W, grad_U, grad_b, grad_V, grad_c
+        return [grad_W, grad_U, grad_b, grad_V, grad_c]
 
+class Gradients:
+
+    def __init__(self, RNN):
+        self.RNN = RNN
+
+    def ComputeGradients(self, X, Y, weight_parameters):
+        """
+        Computes the analytical gradient updates of the network.
+        :param X: Input sequence.
+        :param Y: True output
+        :param weight_parameters: Weights and bias matrices of the network.
+
+        :return: Gradients updates.
+        """
+
+        a_list, h_list, p = RNN.ForwardPass(X, weight_parameters)
+        gradients = RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list)
+
+        return gradients
+
+    def ComputeGradsNumSlow(self, X, Y, h=1e-4):
+
+        W, U, b, V, c = RNN.init_weights()
+        all_weights = [W, U, b, V, c]
+
+        all_grads_num = []
+
+        for index, elem in all_weights:
+
+            grad_elem = np.zeros(elem.shape)
+            # h_prev = np.zeros((W.shape[1], 1))
+
+            for i in range(elem.shape[0]):
+                for j in range(elem.shape[1]):
+
+                    elem_try = np.copy(elem)
+                    elem_try[i, j] -= h
+                    all_weights_try = np.copy(all_weights)
+                    all_weights_try[index] = elem_try
+                    c1 = RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
+
+                    elem_try = np.copy(elem)
+                    elem_try[i, j] += h
+                    all_weights_try = np.copy(all_weights)
+                    all_weights_try[index] = elem_try
+                    c2 = RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
+
+                    grad_elem[i, j] = (c2-c1) / h
+
+            all_grads_num.append(grad_elem)
+
+    def check_similarity(self, X, Y, weight_parameters):
+        """
+        Computes and compares the analytical and numerical gradients.
+
+        :param X: Input sequence.
+        :param Y: True output
+        :param weight_parameters: Weights and bias matrices of the network.
+
+        :return: None.
+        """
+        analytical_gradiens = self.ComputeGradients(X, Y, weight_parameters)
+        numerical_gradiens = self.ComputeGradsNumSlow(X, Y, weight_parameters)
+
+        for weight_index in range(len(analytical_gradiens)):
+            print('-----------------')
+            print(f'Weight parameter no. {weight_index+1}:')
+
+            weight_abs = np.abs(analytical_gradiens[weight_index] - numerical_gradiens[weight_index])
+
+            weight_nominator = np.average(weight_abs)
+
+            grad_weight_abs = np.absolute(analytical_gradiens[weight_index])
+            grad_weight_num_abs = np.absolute(numerical_gradiens[weight_index])
+
+            sum_weight = grad_weight_abs + grad_weight_num_abs
+
+            print(f'Deviation between analytical and numerical gradients: {weight_nominator / np.amax(sum_weight)}')
 
 def main():
 
     book_data, unique_characters = Load_Text_Data()
-
 
     rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
 
