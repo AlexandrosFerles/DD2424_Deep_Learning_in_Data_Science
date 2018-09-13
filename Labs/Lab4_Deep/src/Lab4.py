@@ -211,6 +211,24 @@ class RNN:
 
         return Y
 
+    def ComputeCost(self, input_sequence, Y, W, U, b, V, c):
+        """
+        Computes the cross-entropy loss of the RNN.
+
+        :param W: Hidden-to-Hidden weight matrix.
+        :param U: Input-to-Hidden weight matrix.
+        :param b: Bias vector of the hidden layer.
+        :param V: Hidden-to-Output weight matrix.
+        :param c: Bias vector of the output layer.
+
+        :return: Cross entropy loss (divergence between the predictions and the true output)
+        """
+
+        p = self.ForwardPass(input_sequence, W, U, b, V, c)
+        cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(input_sequence.shape[1])
+
+        return cross_entropy_loss
+
     def ForwardPass(self, input_sequence, W, U, b, V, c):
         """
         Evaluates the predictions that the RNN does in an input character sequence.
@@ -221,7 +239,6 @@ class RNN:
         :param b: Bias vector of the hidden layer.
         :param V: Hidden-to-Output weight matrix.
         :param c: Bias vector of the output layer.
-        :param seq_length: Length of the sequence that we wish to generate.
 
         :return: The predicted character sequence based on the input one.
         """
@@ -280,13 +297,15 @@ class RNN:
         grad_W = np.dot(grad_b.T, h[x.shape[1] - 2].T)
         grad_U = np.dot(grad_b.T, x[:,x.shape[1]-1].T)
 
+        grad_a = grad_b
+
         for time_step in reversed(range(x.shape[1]- 1)):
 
             grad_o = np.expand_dims((p[:, time_step] - Y[:, time_step]).T, axis=1)
             grad_V += np.dot(grad_o, h[x.shape[1] - 1].Τ)
             grad_c += grad_o
 
-            grad_h = np.dot(grad_c, V)
+            grad_h = np.dot(grad_c, V) + np.dot(grad_a, W)
 
             grad_a = np.dot(grad_h, np.diag(1 - a[time_step] ** 2))
 
@@ -294,6 +313,8 @@ class RNN:
             grad_U += np.dot(grad_a.T, x[:, x.shape[1] - 1].T)
 
             grad_b += grad_a
+
+        return grad_W, grad_U, grad_b, grad_V, grad_c
 
 
 def main():
