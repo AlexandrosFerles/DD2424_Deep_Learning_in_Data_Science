@@ -408,8 +408,12 @@ class RNN:
 
                 if epoch ==0 and e ==0 :
                     smooth_loss_evolution = [self.ComputeLoss(x, y, weight_parameters)]
+                    minimum_loss = smooth_loss_evolution[0]
                 else:
-                    smooth_loss_evolution.append(0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters))
+                    current_loss = 0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters)
+                    smooth_loss_evolution.append(current_loss)
+                    if current_loss < minimum_loss:
+                        best_weights = weight_parameters
 
                 if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
                     print('---------------------------------------------------------')
@@ -423,8 +427,7 @@ class RNN:
                         print(f'Synthesized text of update step no.{current_update_step}')
                         print(''.join(synthesized_text))
 
-        return weight_parameters
-
+        return best_weights, smooth_loss_evolution
 
 class Gradients:
 
