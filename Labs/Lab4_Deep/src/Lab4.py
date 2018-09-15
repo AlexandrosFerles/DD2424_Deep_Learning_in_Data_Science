@@ -171,7 +171,7 @@ class RNN:
         """
 
         W, U, b, V, c = weight_parameters
-        Y = np.zeros(x0.shape)
+        Y = np.zeros(shape=(x0.shape[0], text_length))
 
         alpha = np.dot(W, h0) + np.dot(U, np.expand_dims(x0[:,0], axis=1)) + b
         h = np.tanh(alpha)
@@ -371,13 +371,13 @@ class RNN:
         return weight_parameters, ada_grads
 
 
-    def fit(self, X, Y, GD_params, unique_characters):
+    def fit(self, X, Y, epoches, unique_characters):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
 
         :param X: Input data (one-hot representation).
         :param Y: Treu labels (one-hot representation).
-        :param GD_params: Parameters of the training process.
+        :param epoches: Number of training epochs.
         :param unique_characters: The unique characters that can be generated from the training process.
 
         :return: The trained model.
@@ -391,9 +391,7 @@ class RNN:
 
         ada_grads = self.initialize_ada_grad(weight_parameters)
 
-        smooth_loss_evolution = []
-
-        for epoch in range(GD_params[1]):
+        for epoch in range(epoches):
 
             hprev = np.zeros(shape=(self.m, 1))
 
@@ -406,9 +404,12 @@ class RNN:
 
                 gradient_updates, hprev = gradient_object.ComputeGradients(x, y, weight_parameters, hprev)
 
-                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates, eta=GD_params[1])
+                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates, eta=self.eta)
 
-                smooth_loss_evolution.append(self.ComputeLoss(x, y, weight_parameters))
+                if epoch ==0 and e ==0 :
+                    smooth_loss_evolution = [self.ComputeLoss(x, y, weight_parameters)]
+                else:
+                    smooth_loss_evolution.append(0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters))
 
                 if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
                     print('---------------------------------------------------------')
@@ -417,7 +418,7 @@ class RNN:
                     # Also generate synthesized text if 500 updates steps have been conducted
                     if len(smooth_loss_evolution) % 500 == 0 and len(smooth_loss_evolution) > 0:
 
-                        synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=x, weight_parameters=weight_parameters, text_length=200), unique_characters)
+                        synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200), unique_characters)
                         print('---------------------------------------------------------')
                         print(f'Synthesized text of update step no.{current_update_step}')
                         print(''.join(synthesized_text))
@@ -546,9 +547,22 @@ def main():
 
         gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
 
+    def train_with_ada_grad():
+
+        book_data, unique_characters = Load_Text_Data()
+
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
+
+        # Create one-hot data
+        integer_encoding = Char_to_Ind(book_data, unique_characters)
+        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+        output_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+
+        weight_parameters = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=5, unique_characters=unique_characters)
 
     # syntesize_text()
     # compare__with_numericals()
+    train_with_ada_grad()
 
     print('Finished!')
 
