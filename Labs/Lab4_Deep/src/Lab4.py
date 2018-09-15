@@ -263,7 +263,7 @@ class RNN:
 
         return a_list, h_list[1:], p
 
-    def BackwardPass(self, x, Y, p, W, V, a, h, clipping=True):
+    def BackwardPass(self, x, Y, p, W, V, a, h, with_clipping=True):
         """
         Computes the gradient updates of the network's weight and bias matrices based on the divergence between the
         prediction and the true output.
@@ -275,7 +275,7 @@ class RNN:
         :param V: Hidden-to-Output weight matrix.
         :param a: Hidden states before non-linearity.
         :param h: Hidden states of the network at each time step.
-        :param clipping: (Optional) Set to False for not clipping in he gradients
+        :param with_clipping: (Optional) Set to False for not clipping in he gradients
 
         :return:  Gradient updates.
         """
@@ -312,7 +312,15 @@ class RNN:
 
             grad_b += grad_a
 
-        return [grad_W, grad_U, grad_b, grad_V, grad_c]
+        gradients = [grad_W, grad_U, grad_b, grad_V, grad_c]
+
+        if with_clipping:
+
+            for index, elem in enumerate(gradients):
+
+                gradients[index] = np.maximum(-5, np.minimum(elem, 5))
+
+        return gradients
 
 class Gradients:
 
