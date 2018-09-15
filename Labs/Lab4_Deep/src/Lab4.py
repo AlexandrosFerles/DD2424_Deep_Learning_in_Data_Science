@@ -117,7 +117,7 @@ class RNN:
     Recurrent Neural Network object
     """
 
-    def __init__(self, m, K, eta, seq_length, std):
+    def __init__(self, m, K, eta, seq_length, std, epsilon=1e-10):
         """
         Initial setting of the RNN.
 
@@ -126,6 +126,7 @@ class RNN:
         :param eta: The learning rate of the training process.
         :param seq_length: The length of the input sequence.
         :param std: the variance of the normal distribution that initializes the weight matrices.
+        :param epsilon: epsilon parameter of ada-grad.
         """
 
         self.m = m
@@ -133,6 +134,7 @@ class RNN:
         self.eta = eta
         self.seq_length = seq_length
         self.std = std
+        self.epsilon = epsilon
 
     def init_weights(self):
         """
@@ -322,23 +324,83 @@ class RNN:
 
         return gradients
 
+    def initialize_ada_grad(self, weight_parameters):
+        """
+        Initializes the ada_grads of the weights parameters.
+
+        :param weight_parameters: The weights and biases of the RNN
+
+        :return: Initialized ada-grad parameters.
+        """
+
+        ada_grads = []
+
+        for elem in weight_parameters:
+
+            ada_grads.append(np.zeros(shape=elem.shape))
+
+        return ada_grads
+
+    def ada_grad_update(self, weight_parameters, ada_grads, gradients, eta):
+        """
+        Conducts one update step of the ada-grants and weights parameters based on the currently estimated gradient updates.
+
+        :param weight_parameters: Weights and biases of the RNN network.
+        :param ada_grads: Ada grad parameters.
+        :param gradients: Gradient updates of a training step.
+        :param eta: Learning rate of the training process.
+
+        :return: Updated weight and ada_grad parameters.
+        """
+
+        # Update ada-grads
+        for index, elem in enumerate(ada_grads):
+
+            elem += gradients[index] ** 2
+
+        for index, weight_elem in enumerate(weight_parameters):
+
+            weight_elem -= eta * gradients[index] / np.sqrt(ada_grads[index] + self.epsilon)
+
+        return weight_parameters, ada_grads
+
+
+    def fit(self, X, Y, GD_params):
+        """
+        Comnducts the training pprocess of the RNN nad estimates the model.
+
+        :param X: Input data (one-hot representation).
+        :param Y: Treu labels (one-hot representation).
+        :param GD_params: Parameters of the training process.
+
+        :return: The trained model.
+        """
+
+        hprev = np.zeros(shape=(self.m, 1))
+        weight_parameters = self.init_weights()
+
+        # Number of distinct training sequences per epoch
+        training_sequences_pre_epoch = X.shape[1] - self.seq_length + 1
+
+
 class Gradients:
 
     def __init__(self, RNN):
         self.RNN = RNN
 
-    def ComputeGradients(self, X, Y, weight_parameters):
+    def ComputeGradients(self, X, Y, weight_parameters, with_clipping=True):
         """
         Computes the analytical gradient updates of the network.
         :param X: Input sequence.
         :param Y: True output
         :param weight_parameters: Weights and bias matrices of the network.
+        :param with_clipping: (Optional) Set ot False if you don't wish to apply clipping in the gradients.
 
         :return: Gradients updates.
         """
 
         a_list, h_list, p = self.RNN.ForwardPass(X, weight_parameters)
-        gradients = self.RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list)
+        gradients = self.RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list, with_clipping)
 
         return gradients
 
@@ -373,16 +435,18 @@ class Gradients:
 
         return all_grads_num
 
-    def check_similarity(self, X, Y, weight_parameters):
+    def check_similarity(self, X, Y, weight_parameters, with_cliping = False):
         """
         Computes and compares the analytical and numerical gradients.
 
         :param X: Input sequence.
         :param Y: True output
         :param weight_parameters: Weights and bias matrices of the network.
+        :param with_cliping: (Optional) Set to True to apply clipping in the gradients
 
         :return: None.
         """
+
         analytical_gradients = self.ComputeGradients(X, Y, weight_parameters)
         numerical_gradients = self.ComputeGradsNumSlow(X, Y, weight_parameters)
 
@@ -446,7 +510,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
-
-
-
