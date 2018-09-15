@@ -150,23 +150,24 @@ class RNN:
 
         return [W, U, b, V, c]
 
-    def synthesize_sequence(self, h0, x0, W, U, b, V, c, seq_length):
+    def synthesize_sequence(self, h0, x0, weight_parameters):
         """
         Synthesizes a sequence of characters under the RNN values.
 
         :param self: The RNN.
         :param h0: Hidden state at time 0.
         :param x0: First (dummy) input vector of the RNN.
-        :param W: Hidden-to-Hidden weight matrix.
-        :param U: Input-to-Hidden weight matrix.
-        :param b: Bias vector of the hidden layer.
-        :param V: Hidden-to-Output weight matrix.
-        :param c: Bias vector of the output layer.
-        :param seq_length: Length of the sequence that we wish to generate.
-
+        :param weight_parameters: The weighst and biases of the RNN, which are:
+            :param W: Hidden-to-Hidden weight matrix.
+            :param U: Input-to-Hidden weight matrix.
+            :param b: Bias vector of the hidden layer.
+            :param V: Hidden-to-Output weight matrix.
+            :param c: Bias vector of the output layer.
 
         :return: Synthesized text through.
         """
+
+        W, U, b, V, c = weight_parameters
         Y = np.zeros(x0.shape)
 
         alpha = np.dot(W, h0) + np.dot(U, np.expand_dims(x0[:,0], axis=1)) + b
@@ -187,7 +188,7 @@ class RNN:
         h0 = np.copy(h)
         x0 = np.expand_dims(np.copy(Y[:,0]), axis=1)
 
-        for index in range(1, seq_length):
+        for index in range(1, self.seq_length):
 
             alpha = np.dot(W, h0) + np.dot(U, x0) + b
             h = np.tanh(alpha)
@@ -392,65 +393,46 @@ class Gradients:
 
             print(f'Deviation between analytical and numerical gradients: {weight_nominator / np.amax(sum_weight)}')
 
-    def new_check_similarity(self, analytical_gradients, numerical_gradients):
-        """
-        Computes and compares the analytical and numerical gradients.
-
-        :param X: Input sequence.
-        :param Y: True output
-        :param weight_parameters: Weights and bias matrices of the network.
-
-        :return: None.
-        """
-
-        for weight_index in range(len(analytical_gradients)):
-            print('-----------------')
-            print(f'Weight parameter no. {weight_index+1}:')
-
-            weight_abs = np.abs(analytical_gradients[weight_index] - numerical_gradients[weight_index])
-
-            weight_nominator = np.average(weight_abs)
-
-            grad_weight_abs = np.absolute(analytical_gradients[weight_index])
-            grad_weight_num_abs = np.absolute(numerical_gradients[weight_index])
-
-            sum_weight = grad_weight_abs + grad_weight_num_abs
-
-            print(f'Deviation between analytical and numerical gradients: {weight_nominator / np.amax(sum_weight)}')
-
 def main():
 
-    book_data, unique_characters = Load_Text_Data()
 
-    # rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
-    #
-    # W, U, b, V, c = rnn.init_weights()
-    #
-    # input_sequence = book_data[:rnn.seq_length]
-    #
-    # integer_encoding = Char_to_Ind(input_sequence, unique_characters)
-    # input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
-    #
-    # test = rnn.ForwardPass(input_sequence_one_hot, W, U, b, V, c)
-    # test2 = Ind_to_Char(test, unique_characters)
-    # print(''.join(test2))
+    def syntesize_text():
 
+        book_data, unique_characters = Load_Text_Data()
 
-    rnn_object = RNN(m=5, K=len(unique_characters), eta=0.1, seq_length=25, std=0.01)
-    weight_parameters = rnn_object.init_weights()
-    W, U, b, V, c = weight_parameters
-    gradient_object = Gradients(rnn_object)
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
 
-    input_sequence = book_data[:rnn_object.seq_length]
-    output_sequence = book_data[1:1 + rnn_object.seq_length]
-    integer_encoding = Char_to_Ind(input_sequence, unique_characters)
-    input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
-    output_encoding = Char_to_Ind(output_sequence, unique_characters)
-    output_sequence_one_hot = create_one_hot_endoding(output_encoding, len(unique_characters))
+        weight_parameters = rnn.init_weights()
 
-    gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
+        input_sequence = book_data[:rnn.seq_length]
 
+        integer_encoding = Char_to_Ind(input_sequence, unique_characters)
+        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
+        test = rnn.synthesize_sequence(h0=np.zeros((rnn.m, 1)), x0=input_sequence_one_hot, weight_parameters=weight_parameters)
+        test2 = Ind_to_Char(test, unique_characters)
+        print(''.join(test2))
+
+    def compare__with_numericals():
+        book_data, unique_characters = Load_Text_Data()
+
+        rnn_object = RNN(m=5, K=len(unique_characters), eta=0.1, seq_length=25, std=0.01)
+        gradient_object = Gradients(rnn_object)
+
+        weight_parameters = rnn_object.init_weights()
+
+        input_sequence = book_data[:rnn_object.seq_length]
+        integer_encoding = Char_to_Ind(input_sequence, unique_characters)
+        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+
+        output_sequence = book_data[1:1 + rnn_object.seq_length]
+        output_encoding = Char_to_Ind(output_sequence, unique_characters)
+        output_sequence_one_hot = create_one_hot_endoding(output_encoding, len(unique_characters))
+
+        gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
+
+    # syntesize_text()
+    compare__with_numericals()
 
     print('Finished!')
 
