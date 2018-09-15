@@ -546,9 +546,6 @@ def main():
 
         gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
 
-    def train_with_ada_grad():
-
-
 
     # syntesize_text()
     # compare__with_numericals()
