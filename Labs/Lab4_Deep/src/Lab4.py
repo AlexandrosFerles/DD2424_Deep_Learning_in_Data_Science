@@ -112,6 +112,35 @@ def create_one_hot_endoding(x, K):
 
     return x_encoded
 
+def visualize_smoothed_loss(smoothed_loss, display=False, title=None, save_name=None, save_path='../figures/'):
+    """
+        Visualization and saving the loss of the network.
+
+        :param smoothed_loss: The smooth loss of the RNN network.
+        :param display: (Optional) Boolean, set to True for displaying the loss evolution plot.
+        :param title: (Optional) Title of the plot.
+        :param save_name: (Optional) name of the file to save the plot.
+        :param save_path: (Optional) Path of the folder to save the plot in your local computer.
+
+        :return: None
+
+        """
+
+    if title is not None:
+        plt.title(title)
+
+    plt.plot(smoothed_loss)
+
+    if save_name is not None:
+        if save_path[-1] != '/':
+            save_path += '/'
+        plt.savefig(save_path + save_name + '.png')
+
+    if display:
+        plt.show()
+
+    plt.clf()
+
 class RNN:
     """
     Recurrent Neural Network object
