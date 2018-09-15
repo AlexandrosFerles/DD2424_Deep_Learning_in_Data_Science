@@ -400,7 +400,7 @@ class RNN:
         return weight_parameters, ada_grads
 
 
-    def fit(self, X, Y, epoches, unique_characters):
+    def fit(self, X, Y, epoches, unique_characters, verbose=True):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
 
@@ -444,17 +444,19 @@ class RNN:
                     if current_loss < minimum_loss:
                         best_weights = weight_parameters
 
-                if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
-                    print('---------------------------------------------------------')
-                    print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
+                if verbose:
 
-                    # Also generate synthesized text if 500 updates steps have been conducted
-                    if len(smooth_loss_evolution) % 500 == 0 and len(smooth_loss_evolution) > 0:
-
-                        synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200), unique_characters)
+                    if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
                         print('---------------------------------------------------------')
-                        print(f'Synthesized text of update step no.{current_update_step}')
-                        print(''.join(synthesized_text))
+                        print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
+
+                        # Also generate synthesized text if 500 updates steps have been conducted
+                        if len(smooth_loss_evolution) % 500 == 0 and len(smooth_loss_evolution) > 0:
+
+                            synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200), unique_characters)
+                            print('---------------------------------------------------------')
+                            print(f'Synthesized text of update step no.{current_update_step}')
+                            print(''.join(synthesized_text))
 
         return best_weights, smooth_loss_evolution
 
@@ -523,7 +525,7 @@ class Gradients:
         :return: None.
         """
 
-        analytical_gradients = self.ComputeGradients(X, Y, weight_parameters)
+        analytical_gradients, _ = self.ComputeGradients(X, Y, weight_parameters, hprev=np.zeros(shape=(self.RNN.m, 1)))
         numerical_gradients = self.ComputeGradsNumSlow(X, Y, weight_parameters)
 
         for weight_index in range(len(analytical_gradients)):
@@ -548,7 +550,7 @@ def main():
 
         book_data, unique_characters = Load_Text_Data()
 
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.011, seq_length=25, std=0.1)
 
         weight_parameters = rnn.init_weights()
 
@@ -564,7 +566,7 @@ def main():
     def compare__with_numericals():
         book_data, unique_characters = Load_Text_Data()
 
-        rnn_object = RNN(m=5, K=len(unique_characters), eta=0.1, seq_length=25, std=0.01)
+        rnn_object = RNN(m=5, K=len(unique_characters), eta=0.01, seq_length=25, std=0.01)
         gradient_object = Gradients(rnn_object)
 
         weight_parameters = rnn_object.init_weights()
@@ -583,18 +585,18 @@ def main():
 
         book_data, unique_characters = Load_Text_Data()
 
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.01, seq_length=25, std=0.1)
 
         # Create one-hot data
         integer_encoding = Char_to_Ind(book_data, unique_characters)
         input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
         output_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
-        weight_parameters = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=5, unique_characters=unique_characters)
+        weight_parameters = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters)
 
     # syntesize_text()
-    # compare__with_numericals()
-    train_with_ada_grad()
+    compare__with_numericals()
+    # train_with_ada_grad()
 
     print('Finished!')
 
