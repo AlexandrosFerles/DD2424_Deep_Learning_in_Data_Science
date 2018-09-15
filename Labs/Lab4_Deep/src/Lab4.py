@@ -1,10 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def main():
-
-    print('Finished!')
-
 def Load_Text_Data(file_path='../goblet_book.txt'):
     """
     Reads the input data.
@@ -14,7 +10,7 @@ def Load_Text_Data(file_path='../goblet_book.txt'):
     :return: book_data: all input characters and unique_characters: unique single characters of the input data.
     """
     book_data = open(file_path, 'r').read()
-    unique_characters = list(set(book_data))
+    unique_characters = list(sorted(set(book_data)))
 
     return book_data, unique_characters
 
@@ -143,14 +139,16 @@ class RNN:
         Initializes the weights and bias matrices
         """
 
-        U = np.random.randn(self.m, self.K) * self.std
-        W = np.random.randn(self.m, self.m) * self.std
-        V = np.random.randn(self.K, self.m) * self.std
+        np.random.seed(400)
+
+        U = np.random.normal(0, self.std, size=(self.m, self.K))
+        W = np.random.normal(0, self.std, size=(self.m, self.m))
+        V = np.random.normal(0, self.std, size=(self.K, self.m))
 
         b = np.zeros((self.m, 1))
         c = np.zeros((self.K, 1))
 
-        return W, U, b, V, c
+        return [W, U, b, V, c]
 
     def synthesize_sequence(self, h0, x0, W, U, b, V, c, seq_length):
         """
@@ -225,10 +223,10 @@ class RNN:
 
         :return: Cross entropy loss (divergence between the predictions and the true output)
         """
-        W, U, b, V, c = weight_parameters
 
-        p = self.ForwardPass(input_sequence, W, U, b, V, c)[2]
-        cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(input_sequence.shape[1])
+        p = self.ForwardPass(input_sequence, weight_parameters)[2]
+
+        cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum()
 
         return cross_entropy_loss
 
@@ -255,26 +253,16 @@ class RNN:
 
         for index in range(0, input_sequence.shape[1]):
 
-            alpha = np.dot(W, h[-1]) + np.dot(U, np.expand_dims(input_sequence[:,index], axis=1)) + b
+            alpha = np.dot(W, h_list[-1]) + np.dot(U, np.expand_dims(input_sequence[:,index], axis=1)) + b
             a_list.append(alpha)
             h = np.tanh(alpha)
             h_list.append(h)
             o = np.dot(V, h) + c
-            p = softmax(o)
+            p[:, index] = softmax(o).reshape(p.shape[0],)
 
-            # Compute the cumulative sum of p and draw a random sample from [0,1)
-            cumulative_sum = np.cumsum(p)
-            draw_number = np.random.sample()
+        return a_list, h_list[1:], p
 
-            # Find the element that corresponds to this random sample
-            pos = np.where(cumulative_sum > draw_number)[0][0]
-
-            # Create one-hot representation of the found position
-            p[pos, index] = 1.0
-
-        return a_list, h, p
-
-    def BackwardPass(self, x, Y, p, W, V, a, h):
+    def BackwardPass(self, x, Y, p, W, V, a, h, clipping=True):
         """
         Computes the gradient updates of the network's weight and bias matrices based on the divergence between the
         prediction and the true output.
@@ -284,8 +272,9 @@ class RNN:
         :param Y: One-hot representation of the correct sequence.
         :param W: Hidden-to-Hidden weight matrix.
         :param V: Hidden-to-Output weight matrix.
-        :param a: TODO
+        :param a: Hidden states before non-linearity.
         :param h: Hidden states of the network at each time step.
+        :param clipping: (Optional) Set to False for not clipping in he gradients
 
         :return:  Gradient updates.
         """
@@ -296,29 +285,29 @@ class RNN:
         # Computing the gradients for the last time step
 
         grad_c = np.expand_dims((p[:, x.shape[1]- 1] - Y[:, x.shape[1]- 1]).T, axis=1)
-        grad_V = np.dot(grad_c, h[x.shape[1]- 1].Τ)
+        grad_V = np.dot(grad_c, h[-1].T)
 
-        grad_h = np.dot(grad_c, V)
+        grad_h = np.dot(V.T, grad_c)
 
-        grad_b = np.dot(grad_h, np.diag(1 - a[x.shape[1] -1 ]**2))
+        grad_b = np.expand_dims(np.dot(grad_h.reshape((grad_h.shape[0],)), np.diag(1 - np.tanh(a[-1].reshape((a[-1].shape[0],))) ** 2)), axis=1)
 
-        grad_W = np.dot(grad_b.T, h[x.shape[1] - 2].T)
-        grad_U = np.dot(grad_b.T, x[:,x.shape[1]-1].T)
+        grad_W = np.dot(grad_b, h[-2].T)
+        grad_U = np.dot(grad_b, np.expand_dims(x[:,-1], axis=0))
 
         grad_a = grad_b
 
         for time_step in reversed(range(x.shape[1]- 1)):
 
             grad_o = np.expand_dims((p[:, time_step] - Y[:, time_step]).T, axis=1)
-            grad_V += np.dot(grad_o, h[x.shape[1] - 1].Τ)
+            grad_V += np.dot(grad_o, np.transpose(h[time_step]))
             grad_c += grad_o
 
-            grad_h = np.dot(grad_c, V) + np.dot(grad_a, W)
+            grad_h = np.dot(V.T, grad_o) + np.dot(grad_a.T, W).T
 
-            grad_a = np.dot(grad_h, np.diag(1 - a[time_step] ** 2))
+            grad_a = np.expand_dims(np.dot(grad_h.reshape((grad_h.shape[0],)), np.diag(1 - np.tanh(a[time_step].reshape((a[time_step].shape[0],))) ** 2)), axis=1)
 
-            grad_W += np.dot(grad_a.T, h[x.shape[1] - 2].T)
-            grad_U += np.dot(grad_a.T, x[:, x.shape[1] - 1].T)
+            grad_W += np.dot(grad_a, h[time_step-1].T)
+            grad_U += np.dot(grad_a, np.expand_dims(x[:,time_step], axis=1).T)
 
             grad_b += grad_a
 
@@ -339,41 +328,41 @@ class Gradients:
         :return: Gradients updates.
         """
 
-        a_list, h_list, p = RNN.ForwardPass(X, weight_parameters)
-        gradients = RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list)
+        a_list, h_list, p = self.RNN.ForwardPass(X, weight_parameters)
+        gradients = self.RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list)
 
         return gradients
 
-    def ComputeGradsNumSlow(self, X, Y, h=1e-4):
+    def ComputeGradsNumSlow(self, X, Y, weight_parameters, h=1e-4):
 
-        W, U, b, V, c = RNN.init_weights()
-        all_weights = [W, U, b, V, c]
-
+        from tqdm import tqdm
         all_grads_num = []
 
-        for index, elem in all_weights:
+        for index, elem in enumerate(weight_parameters):
 
             grad_elem = np.zeros(elem.shape)
             # h_prev = np.zeros((W.shape[1], 1))
 
-            for i in range(elem.shape[0]):
+            for i in tqdm(range(elem.shape[0])):
                 for j in range(elem.shape[1]):
 
                     elem_try = np.copy(elem)
                     elem_try[i, j] -= h
-                    all_weights_try = np.copy(all_weights)
+                    all_weights_try = weight_parameters.copy()
                     all_weights_try[index] = elem_try
-                    c1 = RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
+                    c1 = self.RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
 
                     elem_try = np.copy(elem)
                     elem_try[i, j] += h
-                    all_weights_try = np.copy(all_weights)
+                    all_weights_try = weight_parameters.copy()
                     all_weights_try[index] = elem_try
-                    c2 = RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
+                    c2 = self.RNN.ComputeLoss(X, Y, weight_parameters=all_weights_try)
 
-                    grad_elem[i, j] = (c2-c1) / h
+                    grad_elem[i, j] = (c2-c1) / (2*h)
 
             all_grads_num.append(grad_elem)
+
+        return all_grads_num
 
     def check_similarity(self, X, Y, weight_parameters):
         """
@@ -385,19 +374,45 @@ class Gradients:
 
         :return: None.
         """
-        analytical_gradiens = self.ComputeGradients(X, Y, weight_parameters)
-        numerical_gradiens = self.ComputeGradsNumSlow(X, Y, weight_parameters)
+        analytical_gradients = self.ComputeGradients(X, Y, weight_parameters)
+        numerical_gradients = self.ComputeGradsNumSlow(X, Y, weight_parameters)
 
-        for weight_index in range(len(analytical_gradiens)):
+        for weight_index in range(len(analytical_gradients)):
             print('-----------------')
             print(f'Weight parameter no. {weight_index+1}:')
 
-            weight_abs = np.abs(analytical_gradiens[weight_index] - numerical_gradiens[weight_index])
+            weight_abs = np.abs(analytical_gradients[weight_index] - numerical_gradients[weight_index])
 
             weight_nominator = np.average(weight_abs)
 
-            grad_weight_abs = np.absolute(analytical_gradiens[weight_index])
-            grad_weight_num_abs = np.absolute(numerical_gradiens[weight_index])
+            grad_weight_abs = np.absolute(analytical_gradients[weight_index])
+            grad_weight_num_abs = np.absolute(numerical_gradients[weight_index])
+
+            sum_weight = grad_weight_abs + grad_weight_num_abs
+
+            print(f'Deviation between analytical and numerical gradients: {weight_nominator / np.amax(sum_weight)}')
+
+    def new_check_similarity(self, analytical_gradients, numerical_gradients):
+        """
+        Computes and compares the analytical and numerical gradients.
+
+        :param X: Input sequence.
+        :param Y: True output
+        :param weight_parameters: Weights and bias matrices of the network.
+
+        :return: None.
+        """
+
+        for weight_index in range(len(analytical_gradients)):
+            print('-----------------')
+            print(f'Weight parameter no. {weight_index+1}:')
+
+            weight_abs = np.abs(analytical_gradients[weight_index] - numerical_gradients[weight_index])
+
+            weight_nominator = np.average(weight_abs)
+
+            grad_weight_abs = np.absolute(analytical_gradients[weight_index])
+            grad_weight_num_abs = np.absolute(numerical_gradients[weight_index])
 
             sum_weight = grad_weight_abs + grad_weight_num_abs
 
@@ -407,18 +422,36 @@ def main():
 
     book_data, unique_characters = Load_Text_Data()
 
-    rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
+    # rnn = RNN(m=100, K=len(unique_characters), eta=0.1, seq_length=25, std=0.1)
+    #
+    # W, U, b, V, c = rnn.init_weights()
+    #
+    # input_sequence = book_data[:rnn.seq_length]
+    #
+    # integer_encoding = Char_to_Ind(input_sequence, unique_characters)
+    # input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+    #
+    # test = rnn.ForwardPass(input_sequence_one_hot, W, U, b, V, c)
+    # test2 = Ind_to_Char(test, unique_characters)
+    # print(''.join(test2))
 
-    W, U, b, V, c = rnn.init_weights()
 
-    input_sequence = book_data[:rnn.seq_length]
+    rnn_object = RNN(m=5, K=len(unique_characters), eta=0.1, seq_length=25, std=0.01)
+    weight_parameters = rnn_object.init_weights()
+    W, U, b, V, c = weight_parameters
+    gradient_object = Gradients(rnn_object)
 
+    input_sequence = book_data[:rnn_object.seq_length]
+    output_sequence = book_data[1:1 + rnn_object.seq_length]
     integer_encoding = Char_to_Ind(input_sequence, unique_characters)
     input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+    output_encoding = Char_to_Ind(output_sequence, unique_characters)
+    output_sequence_one_hot = create_one_hot_endoding(output_encoding, len(unique_characters))
 
-    test = rnn.ForwardPass(input_sequence_one_hot, W, U, b, V, c)
-    test2 = Ind_to_Char(test, unique_characters)
-    print(''.join(test2))
+    gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
+
+
+
     print('Finished!')
 
 if __name__=='__main__':
