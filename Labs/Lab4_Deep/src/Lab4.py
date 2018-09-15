@@ -152,7 +152,7 @@ class RNN:
 
         return [W, U, b, V, c]
 
-    def synthesize_sequence(self, h0, x0, weight_parameters):
+    def synthesize_sequence(self, h0, x0, weight_parameters, text_length):
         """
         Synthesizes a sequence of characters under the RNN values.
 
@@ -165,6 +165,7 @@ class RNN:
             :param b: Bias vector of the hidden layer.
             :param V: Hidden-to-Output weight matrix.
             :param c: Bias vector of the output layer.
+        :param text_length: The length of the text you wish to generate
 
         :return: Synthesized text through.
         """
@@ -190,7 +191,7 @@ class RNN:
         h0 = np.copy(h)
         x0 = np.expand_dims(np.copy(Y[:,0]), axis=1)
 
-        for index in range(1, self.seq_length):
+        for index in range(1, text_length):
 
             alpha = np.dot(W, h0) + np.dot(U, x0) + b
             h = np.tanh(alpha)
@@ -233,7 +234,7 @@ class RNN:
 
         return cross_entropy_loss
 
-    def ForwardPass(self, input_sequence, weight_parameters):
+    def ForwardPass(self, input_sequence, weight_parameters, h0 = None):
         """
         Evaluates the predictions that the RNN does in an input character sequence.
 
@@ -244,6 +245,7 @@ class RNN:
             :param b: Bias vector of the hidden layer.
             :param V: Hidden-to-Output weight matrix.
             :param c: Bias vector of the output layer.
+        :param h0: Initial hidden state value.
 
         :return: The predicted character sequence based on the input one.
         """
@@ -251,7 +253,11 @@ class RNN:
         W, U, b, V, c = weight_parameters
 
         p = np.zeros(input_sequence.shape)
-        h_list = [np.zeros((self.m, 1))]
+        if h0 is None:
+            h_list = [np.zeros((self.m, 1))]
+        else:
+            h_list = [h0]
+
         a_list = []
 
         for index in range(0, input_sequence.shape[1]):
@@ -365,22 +371,58 @@ class RNN:
         return weight_parameters, ada_grads
 
 
-    def fit(self, X, Y, GD_params):
+    def fit(self, X, Y, GD_params, unique_characters):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
 
         :param X: Input data (one-hot representation).
         :param Y: Treu labels (one-hot representation).
         :param GD_params: Parameters of the training process.
+        :param unique_characters: The unique characters that can be generated from the training process.
 
         :return: The trained model.
         """
 
-        hprev = np.zeros(shape=(self.m, 1))
         weight_parameters = self.init_weights()
+        gradient_object = Gradients(self)
 
         # Number of distinct training sequences per epoch
-        training_sequences_pre_epoch = X.shape[1] - self.seq_length + 1
+        training_sequences_per_epoch = X.shape[1] - self.seq_length
+
+        ada_grads = self.initialize_ada_grad(weight_parameters)
+
+        smooth_loss_evolution = []
+
+        for epoch in range(GD_params[1]):
+
+            hprev = np.zeros(shape=(self.m, 1))
+
+            for e in range(training_sequences_per_epoch):
+
+                current_update_step = epoch * training_sequences_per_epoch + e
+
+                x = X[:, e:e + self.seq_length]
+                y = Y[:, e + 1:e + self.seq_length + 1]
+
+                gradient_updates, hprev = gradient_object.ComputeGradients(x, y, weight_parameters, hprev)
+
+                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates, eta=GD_params[1])
+
+                smooth_loss_evolution.append(self.ComputeLoss(x, y, weight_parameters))
+
+                if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
+                    print('---------------------------------------------------------')
+                    print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
+
+                    # Also generate synthesized text if 500 updates steps have been conducted
+                    if len(smooth_loss_evolution) % 500 == 0 and len(smooth_loss_evolution) > 0:
+
+                        synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=x, weight_parameters=weight_parameters, text_length=200), unique_characters)
+                        print('---------------------------------------------------------')
+                        print(f'Synthesized text of update step no.{current_update_step}')
+                        print(''.join(synthesized_text))
+
+        return weight_parameters
 
 
 class Gradients:
@@ -388,21 +430,22 @@ class Gradients:
     def __init__(self, RNN):
         self.RNN = RNN
 
-    def ComputeGradients(self, X, Y, weight_parameters, with_clipping=True):
+    def ComputeGradients(self, X, Y, weight_parameters, hprev, with_clipping=True):
         """
         Computes the analytical gradient updates of the network.
         :param X: Input sequence.
         :param Y: True output
         :param weight_parameters: Weights and bias matrices of the network.
+        :param hprev: Initial hidden state to be used in the forward and backwward pass of the RNN.
         :param with_clipping: (Optional) Set ot False if you don't wish to apply clipping in the gradients.
 
         :return: Gradients updates.
         """
 
-        a_list, h_list, p = self.RNN.ForwardPass(X, weight_parameters)
+        a_list, h_list, p = self.RNN.ForwardPass(X, weight_parameters, h0=hprev)
         gradients = self.RNN.BackwardPass(X, Y, p, weight_parameters[0], weight_parameters[3], a_list, h_list, with_clipping)
 
-        return gradients
+        return gradients, h_list[0]
 
     def ComputeGradsNumSlow(self, X, Y, weight_parameters, h=1e-4):
 
@@ -503,8 +546,12 @@ def main():
 
         gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
 
+    def train_with_ada_grad():
+
+
+
     # syntesize_text()
-    compare__with_numericals()
+    # compare__with_numericals()
 
     print('Finished!')
 
