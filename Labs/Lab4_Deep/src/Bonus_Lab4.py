@@ -1,18 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import json
+from random import randint
 
-def Load_Text_Data(file_path='../goblet_book.txt'):
+def Load_Text_Data(file_path='../trump_tweet_data_archive'):
     """
     Reads the input data.
 
     :param file_path: (Optional) Position of the txt file in the local system.
 
-    :return: book_data: all input characters and unique_characters: unique single characters of the input data.
+    :return: tweets: all input tweets and unique_characters: unique single characters of the input data.
     """
-    book_data = open(file_path, 'r').read()
-    unique_characters = list(sorted(set(book_data)))
-
-    return book_data, unique_characters
+    tweets = []
+    for year in range(2009, 2018):
+        with open(f'../trump_tweet_data_archive/condensed_{year}.json', ) as condensed:
+            data = json.load(condensed)
+            for text in range(len(data)):
+                text = data[text]['text']
+                text += '±'
+                tweets.append( text )
+    all_chars = ''
+    for tweet in tweets:
+        all_chars += tweet
+    unique_characters = list(set(all_chars))
+    return tweets, unique_characters
 
 def Char_to_Ind(chars_list, unique_chars):
     """
@@ -399,12 +410,11 @@ class RNN:
 
         return weight_parameters, ada_grads
 
-    def fit(self, X, Y, epoches, unique_characters, verbose=True, with_break=False):
+    def fit(self, tweets, epoches, unique_characters, verbose=True, with_break=False):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
 
-        :param X: Input data (one-hot representation).
-        :param Y: Treu labels (one-hot representation).
+        :param tweets: Tweets of Donald trump.
         :param epoches: Number of training epochs.
         :param unique_characters: The unique characters that can be generated from the training process.
         :param verbose: (Optional) Set to False if you do not wish to print synthesized texts during training.
@@ -417,62 +427,68 @@ class RNN:
         gradient_object = Gradients(self)
 
         # Number of distinct training sequences per epoch
-        training_sequences_per_epoch = X.shape[1] - self.seq_length
 
         ada_grads = self.initialize_ada_grad(weight_parameters)
 
+        start = True
+
+        tweet_factor =0
+
+        current_update_step = 0
+
         for epoch in range(epoches):
 
-            hprev = np.zeros(shape=(self.m, 1))
+            for tweet in tweets:
 
-            if epoch == 0 and verbose:
-                synthesized_text = Ind_to_Char(
-                    self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200),
-                    unique_characters)
-                print('---------------------------------------------------------')
-                print(f'Synthesized before any update step:')
-                print(''.join(synthesized_text))
+                integer_encoding = Char_to_Ind(tweet, unique_characters)
+                X = create_one_hot_endoding(integer_encoding, len(unique_characters))
+                Y = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
-            for e in range(training_sequences_per_epoch):
+                hprev = np.zeros(shape=(self.m, 1))
 
-                current_update_step = epoch * training_sequences_per_epoch + e
+                training_sequences_per_epoch = X.shape[1] - self.seq_length
 
-                x = X[:, e:e + self.seq_length]
-                y = Y[:, e + 1:e + self.seq_length + 1]
+                for e in range(training_sequences_per_epoch):
 
-                gradient_updates, hprev = gradient_object.ComputeGradients(x, y, weight_parameters, hprev)
+                    current_update_step += 1
 
-                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates,
-                                                                    eta=self.eta)
+                    x = X[:, e:e + self.seq_length]
+                    y = Y[:, e + 1:e + self.seq_length + 1]
 
-                if epoch == 0 and e == 0:
-                    smooth_loss_evolution = [self.ComputeLoss(x, y, weight_parameters)]
-                    minimum_loss = smooth_loss_evolution[0]
+                    gradient_updates, hprev = gradient_object.ComputeGradients(x, y, weight_parameters, hprev)
 
-                else:
-                    current_loss = 0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters)
-                    smooth_loss_evolution.append(current_loss)
-                    if current_loss < minimum_loss:
-                        best_weights = weight_parameters
-                    best_h_prev = hprev
+                    weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates, eta=self.eta)
 
-                if verbose:
+                    if epoch == 0 and e == 0 and start:
+                        smooth_loss_evolution = [self.ComputeLoss(x, y, weight_parameters)]
+                        minimum_loss = smooth_loss_evolution[0]
+                        start = False
 
-                    if len(smooth_loss_evolution) % 1000 == 0 and len(smooth_loss_evolution) > 0:
-                        print('---------------------------------------------------------')
-                        print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
+                    else:
+                        current_loss = 0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters)
+                        smooth_loss_evolution.append(current_loss)
+                        if current_loss < minimum_loss:
+                            best_weights = weight_parameters
+                        best_h_prev = hprev
 
-                        # Also generate synthesized text if 500 updates steps have been conducted
-                        if len(smooth_loss_evolution) % 10000 == 0 and len(smooth_loss_evolution) > 0:
-                            synthesized_text = Ind_to_Char(
-                                self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters,
-                                                         text_length=200), unique_characters)
+                    if verbose:
+
+                        if len(smooth_loss_evolution) % 1000 == 0 and len(smooth_loss_evolution) > 0:
                             print('---------------------------------------------------------')
-                            print(f'Synthesized text of update step no.{current_update_step}')
-                            print(''.join(synthesized_text))
+                            print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
 
-                if with_break and current_update_step == 100000:
-                    return best_weights, best_h_prev, smooth_loss_evolution
+                            # Also generate synthesized text if 500 updates steps have been conducted
+                            if len(smooth_loss_evolution) % 10000 == 0 and len(smooth_loss_evolution) > 0:
+                                synthesized_text = Ind_to_Char(
+                                    self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters,
+                                                             text_length=randint(10,140)), unique_characters)
+                                print('---------------------------------------------------------')
+                                print(f'Synthesized text of update step no.{current_update_step}')
+                                print(''.join(synthesized_text))
+
+                    if with_break and current_update_step == 100000:
+                        return best_weights, best_h_prev, smooth_loss_evolution
+
 
         return best_weights, best_h_prev, smooth_loss_evolution
 
@@ -562,74 +578,24 @@ class Gradients:
 def main():
 
 
-    def syntesize_text():
-
-        book_data, unique_characters = Load_Text_Data()
-
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.011, seq_length=25, std=0.1)
-
+    def train_with_donald():
+        tweets, unique_characters = Load_Text_Data()
+        rnn = RNN(K=len(unique_characters), m=100, eta=0.01, std=0.01, seq_length=25)
         weight_parameters = rnn.init_weights()
+        weights, h_prev, smooth_loss_evolution = rnn.fit(tweets=tweets, unique_characters=unique_characters, epoches=1, verbose=True, with_break=False)
 
-        input_sequence = book_data[:rnn.seq_length]
+        print('Smooth loss evolution:')
+        visualize_smoothed_loss(smooth_loss_evolution, display=True, title='Smoothed loss evolution', save_name='sm_loss_dt_1')
 
-        integer_encoding = Char_to_Ind(input_sequence, unique_characters)
-        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
+        print(f'Minimum loss achieved:{min(smooth_loss_evolution)}')
 
-        test = rnn.synthesize_sequence(h0=np.zeros((rnn.m, 1)), x0=input_sequence_one_hot, weight_parameters=weight_parameters)
-        test2 = Ind_to_Char(test, unique_characters)
-        print(''.join(test2))
+        print('Tweet synthesized by best weights:')
 
-    def compare__with_numericals():
-        book_data, unique_characters = Load_Text_Data()
+        integer_encoding = Char_to_Ind(tweets[0], unique_characters)
+        X = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
-        rnn_object = RNN(m=5, K=len(unique_characters), eta=0.01, seq_length=25, std=0.01)
-        gradient_object = Gradients(rnn_object)
-
-        weight_parameters = rnn_object.init_weights()
-
-        input_sequence = book_data[:rnn_object.seq_length]
-        integer_encoding = Char_to_Ind(input_sequence, unique_characters)
-        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
-
-        output_sequence = book_data[1:1 + rnn_object.seq_length]
-        output_encoding = Char_to_Ind(output_sequence, unique_characters)
-        output_sequence_one_hot = create_one_hot_endoding(output_encoding, len(unique_characters))
-
-        gradient_object.check_similarity(input_sequence_one_hot, output_sequence_one_hot, weight_parameters)
-
-    def train_with_ada_grad():
-
-        print('-----------------------------------------')
-        print('Longish training for 3 epochs:')
-
-        book_data, unique_characters = Load_Text_Data()
-
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.01, seq_length=25, std=0.1)
-
-        # Create one-hot data
-        integer_encoding = Char_to_Ind(book_data, unique_characters)
-        input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
-        output_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
-
-        weight_parameters, h_prev, smoothed_loss_evolution = rnn.fit(X=input_sequence_one_hot,  Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters, verbose=False)
-
-        visualize_smoothed_loss(smoothed_loss_evolution, display=True, title='Smooth loss evolution', save_name='sm_loss')
-        print(f'Minimum smoothed loss: {min(smoothed_loss_evolution)}')
-        print(f'Generated text from best learnt weight parameters:{rnn.synthesize_sequence(h_prev,input_sequence_one_hot, weight_parameters, 200)}')
-
-        print('-----------------------------------------')
-        print('100000 update steps:')
-
-        weight_parameters, h_prev, smoothed_loss_evolution = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters, with_break=True)
-
-        visualize_smoothed_loss(smoothed_loss_evolution, display=True, title='Smooth loss evolution', save_name='sm_loss_small')
-
-        print(f'Minimum smoothed loss: {min(smoothed_loss_evolution)}')
-        print(
-            f'Generated text from best learnt weight parameters:{rnn.synthesize_sequence(h_prev,input_sequence_one_hot, weight_parameters, 1000)}')
-    # syntesize_text()
-    # compare__with_numericals()
-    train_with_ada_grad()
+        synthesized_text = Ind_to_Char(rnn.synthesize_sequence(h_prev, X, weight_parameters=weight_parameters, text_length=140), unique_characters)
+        print(''.join(synthesized_text))
 
     print('Finished!')
 
