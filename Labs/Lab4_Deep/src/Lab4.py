@@ -399,7 +399,7 @@ class RNN:
 
         return weight_parameters, ada_grads
 
-    def fit(self, X, Y, epoches, unique_characters, verbose=True):
+    def fit(self, X, Y, epoches, unique_characters, verbose=True, with_break=False):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
 
@@ -407,6 +407,8 @@ class RNN:
         :param Y: Treu labels (one-hot representation).
         :param epoches: Number of training epochs.
         :param unique_characters: The unique characters that can be generated from the training process.
+        :param verbose: (Optional) Set to False if you do not wish to print synthesized texts during training.
+        :param with_break: (Optional) Set to True if you want to break after 100 000 update steps.
 
         :return: The trained model.
         """
@@ -469,7 +471,7 @@ class RNN:
                             print(f'Synthesized text of update step no.{current_update_step}')
                             print(''.join(synthesized_text))
 
-                if current_update_step == 100000:
+                if with_break and current_update_step == 100000:
                     return best_weights, best_h_prev, smooth_loss_evolution
 
         return best_weights, best_h_prev, smooth_loss_evolution
@@ -597,6 +599,9 @@ def main():
 
     def train_with_ada_grad():
 
+        print('-----------------------------------------')
+        print('Longish training for 3 epochs:')
+
         book_data, unique_characters = Load_Text_Data()
 
         rnn = RNN(m=100, K=len(unique_characters), eta=0.01, seq_length=25, std=0.1)
@@ -608,9 +613,20 @@ def main():
 
         weight_parameters, h_prev, smoothed_loss_evolution = rnn.fit(X=input_sequence_one_hot,  Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters, verbose=False)
 
+        visualize_smoothed_loss(smoothed_loss_evolution, display=True, title='Smooth loss evolution', save_name='sm_loss')
         print(f'Minimum smoothed loss: {min(smoothed_loss_evolution)}')
         print(f'Generated text from best learnt weight parameters:{rnn.synthesize_sequence(h_prev,input_sequence_one_hot, weight_parameters, 200)}')
 
+        print('-----------------------------------------')
+        print('100000 update steps:')
+
+        weight_parameters, h_prev, smoothed_loss_evolution = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters, with_break=True)
+
+        visualize_smoothed_loss(smoothed_loss_evolution, display=True, title='Smooth loss evolution', save_name='sm_loss_small')
+
+        print(f'Minimum smoothed loss: {min(smoothed_loss_evolution)}')
+        print(
+            f'Generated text from best learnt weight parameters:{rnn.synthesize_sequence(h_prev,input_sequence_one_hot, weight_parameters, 1000)}')
     # syntesize_text()
     # compare__with_numericals()
     train_with_ada_grad()
