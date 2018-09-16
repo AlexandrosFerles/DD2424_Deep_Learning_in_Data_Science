@@ -399,7 +399,6 @@ class RNN:
 
         return weight_parameters, ada_grads
 
-
     def fit(self, X, Y, epoches, unique_characters, verbose=True):
         """
         Comnducts the training pprocess of the RNN nad estimates the model.
@@ -424,6 +423,14 @@ class RNN:
 
             hprev = np.zeros(shape=(self.m, 1))
 
+            if epoch == 0 and verbose:
+                synthesized_text = Ind_to_Char(
+                    self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200),
+                    unique_characters)
+                print('---------------------------------------------------------')
+                print(f'Synthesized before any update step:')
+                print(''.join(synthesized_text))
+
             for e in range(training_sequences_per_epoch):
 
                 current_update_step = epoch * training_sequences_per_epoch + e
@@ -433,32 +440,39 @@ class RNN:
 
                 gradient_updates, hprev = gradient_object.ComputeGradients(x, y, weight_parameters, hprev)
 
-                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates, eta=self.eta)
+                weight_parameters, ada_grads = self.ada_grad_update(weight_parameters, ada_grads, gradient_updates,
+                                                                    eta=self.eta)
 
-                if epoch ==0 and e ==0 :
+                if epoch == 0 and e == 0:
                     smooth_loss_evolution = [self.ComputeLoss(x, y, weight_parameters)]
                     minimum_loss = smooth_loss_evolution[0]
+
                 else:
                     current_loss = 0.999 * smooth_loss_evolution[-1] + 0.001 * self.ComputeLoss(x, y, weight_parameters)
                     smooth_loss_evolution.append(current_loss)
                     if current_loss < minimum_loss:
                         best_weights = weight_parameters
+                    best_h_prev = hprev
 
                 if verbose:
 
-                    if len(smooth_loss_evolution) % 100 == 0 and len(smooth_loss_evolution) > 0:
+                    if len(smooth_loss_evolution) % 1000 == 0 and len(smooth_loss_evolution) > 0:
                         print('---------------------------------------------------------')
                         print(f'Smooth loss at update step no.{current_update_step}: {smooth_loss_evolution[-1]}')
 
                         # Also generate synthesized text if 500 updates steps have been conducted
-                        if len(smooth_loss_evolution) % 500 == 0 and len(smooth_loss_evolution) > 0:
-
-                            synthesized_text = Ind_to_Char(self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters, text_length=200), unique_characters)
+                        if len(smooth_loss_evolution) % 10000 == 0 and len(smooth_loss_evolution) > 0:
+                            synthesized_text = Ind_to_Char(
+                                self.synthesize_sequence(h0=hprev, x0=X, weight_parameters=weight_parameters,
+                                                         text_length=200), unique_characters)
                             print('---------------------------------------------------------')
                             print(f'Synthesized text of update step no.{current_update_step}')
                             print(''.join(synthesized_text))
 
-        return best_weights, smooth_loss_evolution
+                if current_update_step == 100000:
+                    return best_weights, best_h_prev, smooth_loss_evolution
+
+        return best_weights, best_h_prev, smooth_loss_evolution
 
 class Gradients:
 
@@ -592,11 +606,14 @@ def main():
         input_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
         output_sequence_one_hot = create_one_hot_endoding(integer_encoding, len(unique_characters))
 
-        weight_parameters = rnn.fit(X=input_sequence_one_hot, Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters)
+        weight_parameters, h_prev, smoothed_loss_evolution = rnn.fit(X=input_sequence_one_hot,  Y=output_sequence_one_hot, epoches=3, unique_characters=unique_characters, verbose=False)
+
+        print(f'Minimum smoothed loss: {min(smoothed_loss_evolution)}')
+        print(f'Generated text from best learnt weight parameters:{rnn.synthesize_sequence(h_prev,input_sequence_one_hot, weight_parameters, 200)}')
 
     # syntesize_text()
-    compare__with_numericals()
-    # train_with_ada_grad()
+    # compare__with_numericals()
+    train_with_ada_grad()
 
     print('Finished!')
 
