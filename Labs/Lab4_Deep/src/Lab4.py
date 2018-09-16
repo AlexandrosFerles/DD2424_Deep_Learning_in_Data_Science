@@ -566,7 +566,7 @@ def main():
 
         book_data, unique_characters = Load_Text_Data()
 
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.011, seq_length=25, std=0.1)
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.011, seq_length=25, std=0.01)
 
         weight_parameters = rnn.init_weights()
 
@@ -604,7 +604,7 @@ def main():
 
         book_data, unique_characters = Load_Text_Data()
 
-        rnn = RNN(m=100, K=len(unique_characters), eta=0.01, seq_length=25, std=0.1)
+        rnn = RNN(m=100, K=len(unique_characters), eta=0.01, seq_length=25, std=0.01)
 
         # Create one-hot data
         integer_encoding = Char_to_Ind(book_data, unique_characters)
