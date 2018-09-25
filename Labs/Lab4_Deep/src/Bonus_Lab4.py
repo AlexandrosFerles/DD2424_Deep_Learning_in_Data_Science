@@ -484,7 +484,7 @@ class RNN:
                                                              text_length=randint(10,140)), unique_characters)
                                 print('---------------------------------------------------------')
                                 print(f'Synthesized text of update step no.{current_update_step}')
-                                print(''.join(synthesized_text))
+                                print(''.join(synthesized_text).split('±')[0])
 
                     if with_break and current_update_step == 100000:
                         return best_weights, best_h_prev, smooth_loss_evolution
