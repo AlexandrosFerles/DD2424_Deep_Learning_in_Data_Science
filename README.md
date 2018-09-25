@@ -12,4 +12,4 @@ Assignment 2: 2-layer network for MultiClass classification in the CIFAR-10 data
 
 Assignment 3: k-layer network for MultiClass classification with batch normalization in the CIFAR-10 dataset, through gradient descent Cross-Entropy Loss optimization.
 
-Assignment 4: Vanilla Recurrent Neural Network, re-producing text segments based on the first chapter of 'Harry Potter and the Goblet of Fire' book and Donald Trump's tweets/
+Assignment 4: Vanilla Recurrent Neural Network, re-producing text segments based on the first chapter of 'Harry Potter and the Goblet of Fire' book and Donald Trump's tweets.
