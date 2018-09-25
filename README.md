@@ -4,7 +4,7 @@ This repository contains sourcee code for the assignments of the KTH mSc Machine
 
 Its main context is implementing some Deep Architectures and Deep Learning methods from scratch, mostly in the Python numpy Library.  
 
-Topics include:
+## Topics include:
 
 Assignment 1: 1-layer network for MultiClass classification in the CIFAR-10 dataset, through gradient descent Cross-Entropy and SVM Loss optimization respectively.
 
