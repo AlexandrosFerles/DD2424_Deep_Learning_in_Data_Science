@@ -11,15 +11,13 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Lab3_Deep$Lab3.coverage" NAME="Lab3 Coverage Results" MODIFIED="1536458276365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Lab3_Deep$Bonus_Lab3.coverage" NAME="Bonus_Lab3 Coverage Results" MODIFIED="1536592969713" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Bonus_Lab3.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Bonus_Lab3.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Bonus_Lab3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1580">
-              <caret line="1084" column="16" selection-start-line="1084" selection-start-column="16" selection-end-line="1084" selection-end-column="16" />
+            <state relative-caret-position="-11232">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -27,13 +25,32 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="Lab3.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Lab3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="264">
+              <caret line="1478" selection-start-line="1478" selection-end-line="1496" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>nodes</find>
+      <find>continuing</find>
+      <find>for _ in range(30):</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>for _ in range(10):</replace>
+    </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/lab3.py" />
-        <option value="$PROJECT_DIR$/src/Bonus_Lab3.py" />
+        <option value="$PROJECT_DIR$/src/Lab3.py" />
       </list>
     </option>
   </component>
@@ -43,13 +60,17 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
+  <component name="JsbtTreeLayoutManager">
+    <layout place="tools.popupGrunt">
+      <scroll-view-position x="0" y="0" />
+    </layout>
+  </component>
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="1200" />
-    <option name="width" value="2560" />
-    <option name="height" value="1440" />
+    <option name="width" value="1680" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -58,6 +79,7 @@
     <panes />
   </component>
   <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value="rand&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -75,7 +97,7 @@
     </option>
   </component>
   <component name="RunManager">
-    <configuration name="Bonus_Lab3" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Lab3" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Lab3_Deep" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -88,7 +110,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Bonus_Lab3.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Lab3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -96,7 +118,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Bonus_Lab3" />
+        <item itemvalue="Python.Lab3" />
       </list>
     </recent_temporary>
   </component>
@@ -114,7 +136,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1200" y="0" width="2560" height="1440" extended-state="0" />
+    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -122,17 +144,17 @@
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32925072" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.44164264" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.24940476" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.18136272" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32765532" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.24980783" />
       <window_info anchor="right" id="R Packages" order="3" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="R Graphics" order="3" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="right" id="SciView" order="3" weight="0.3296875" />
-      <window_info active="true" id="Structure" order="1" side_tool="true" visible="true" weight="0.07734375" />
+      <window_info anchor="right" id="SciView" order="3" weight="0.3297619" />
+      <window_info active="true" id="Structure" order="1" side_tool="true" visible="true" weight="0.1845238" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39913544" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3987976" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -153,79 +175,17 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/Bonus_Lab3.py</url>
-          <line>309</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/Bonus_Lab3.py</url>
-          <line>559</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/Bonus_Lab3.py</url>
-          <line>448</line>
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/Bonus_Lab3.py</url>
-          <line>464</line>
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-      </breakpoints>
-      <default-breakpoints>
-        <breakpoint type="python-exception">
-          <properties notifyOnTerminate="true" exception="BaseException">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-        </breakpoint>
-      </default-breakpoints>
-      <option name="time" value="19" />
+      <option name="time" value="29" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Bonus_Lab3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9747">
-          <caret line="513" selection-start-line="513" selection-end-line="588" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Bonus_Lab3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9215">
-          <caret line="485" selection-start-line="485" selection-end-line="560" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Bonus_Lab3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Lab3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28006">
-          <caret line="1478" selection-start-line="1478" selection-end-line="1496" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Lab3.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30362">
           <caret line="1598" selection-start-line="1598" selection-end-line="1599" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -233,6 +193,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="28291">
           <caret line="1489" selection-start-line="1489" selection-end-line="1490" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -240,17 +203,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="16929">
           <caret line="891" column="10" lean-forward="true" selection-start-line="891" selection-start-column="10" selection-end-line="891" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lab3.py" />
-    <entry file="file://$PROJECT_DIR$/test.m" />
-    <entry file="file://$PROJECT_DIR$/test.m" />
-    <entry file="file://$PROJECT_DIR$/lab3.py" />
-    <entry file="file://$PROJECT_DIR$/src/Lab3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="1478" selection-start-line="1478" selection-end-line="1496" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -267,11 +222,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Bonus_Lab3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1580">
-          <caret line="1084" column="16" selection-start-line="1084" selection-start-column="16" selection-end-line="1084" selection-end-column="16" />
+        <state relative-caret-position="-11232">
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Lab3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="1478" selection-start-line="1478" selection-end-line="1496" selection-end-column="15" />
         </state>
       </provider>
     </entry>

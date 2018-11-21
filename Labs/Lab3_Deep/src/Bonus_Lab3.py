@@ -91,39 +91,6 @@ def ReLU(x):
 
     return np.maximum(x, 0)
 
-def leaky_ReLU(x, alpha=0.01):
-    """
-    leaky Rectified Linear Unit activation funtion
-
-    :param x: Input data.
-
-    :return: Output of  leaky_ReLU(x)
-    """
-
-    for x_index in range(x.shape[0]):
-        for y_index in range(x.shape[1]):
-            if x[x_index, y_index] < 0:
-                x[x_index, y_index] = alpha*x[x_index, y_index]
-
-    return x
-
-def exponential_LU(x, alpha=0.01):
-    """
-    Exponential linear unit activation function
-
-    :param x: Input to the function
-
-    :return: Output of eLU(x)
-    """
-
-    for x_index in range(x.shape[0]):
-        for y_index in range(x.shape[1]):
-            if x[x_index, y_index] < 0:
-                x[x_index, y_index] = alpha*(np.exp(x[x_index, y_index]) -1)
-
-    return x
-
-
 def softmax(X, theta=1.0, axis=None):
     """
     Softmax over numpy rows and columns, taking care for overflow cases
@@ -237,7 +204,7 @@ def BatchNormalize(s, mean_s, var_s, epsilon=1e-20):
 
     return diff / (np.sqrt(var_s + epsilon))
 
-def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1, activation_function='ReLU'):
+def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1):
     """
     Evaluates the forward pass result of the classifier network using batch normalization.
 
@@ -246,8 +213,7 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
     :param biases: Bias vectors of the k-layer network.
     :param mode: Pre-set to 1 to perform batch normalisation before the activation function,
                  change to any other value to apply BN after the activation function.
-    :param exponentials: (Optional) The exponential moving means and averages.
-    :param activation_function: (Optional) Selection of the activation function, pre-set to ReLU.
+    :param exponential: The exponential moving means and averages.
 
     :return: Softmax probabilities (predictions) of the true labels of the data.
     """
@@ -268,8 +234,8 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
 
         else:
 
-            mean_s = np.expand_dims(s.mean(axis=1), axis=1)
-            var_s = np.expand_dims(s.var(axis=1), axis=1)
+            mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
+            var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
             means = [mean_s]
             variances = [var_s]
@@ -277,22 +243,10 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
         normalized_score = BatchNormalize(s, mean_s, var_s)
 
         batch_normalization_outputs = [normalized_score]
-        if activation_function == 'ReLU':
-            batch_normalization_activations = [ReLU(normalized_score)]
-        elif activation_function == 'leakyReLU':
-            batch_normalization_activations = [leaky_ReLU(normalized_score)]
-        else:
-            batch_normalization_activations = [exponential_LU(normalized_score)]
-
+        batch_normalization_activations = [ReLU(normalized_score)]
     else:
-        # Applying batch normalisation after the activation function, variable names are not changed for practical reasons.
-        if activation_function == 'ReLU':
-            batch_normalization_outputs = [ReLU(s)]
-        elif activation_function == 'leakyReLU':
-            batch_normalization_outputs = [leaky_ReLU(s)]
-        else:
-            batch_normalization_outputs = [exponential_LU(s)]
-
+        # Aplying batch normalisation after the activation function, variable names are not changed for practical reasons.
+        batch_normalization_outputs = [ReLU(s)]
 
         if exponentials is not None:
 
@@ -304,8 +258,8 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
 
         else:
 
-            mean_s = np.expand_dims(s.mean(axis=1), axis=1)
-            var_s = np.expand_dims(s.var(axis=1), axis=1)
+            mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
+            var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
             means = [mean_s]
             variances = [var_s]
@@ -331,27 +285,16 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
                 mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
                 var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
-                means.append(mean_s)
+                means.append(means)
                 variances.append(var_s)
 
             normalized_score = BatchNormalize(s, mean_s, var_s)
 
-            batch_normalization_outputs.append(normalized_score)
-
-            if activation_function == 'ReLU':
-                batch_normalization_activations.append(ReLU(normalized_score))
-            elif activation_function == 'leakyReLU':
-                batch_normalization_activations.append(leaky_ReLU(normalized_score))
-            else:
-                batch_normalization_activations.append(exponential_LU(normalized_score))
+            batch_normalization_outputs = [normalized_score]
+            batch_normalization_activations = [ReLU(normalized_score)]
         else:
             # Aplying batch normalisation after the activation function, variable names are not changed for practical reasons.
-            if activation_function == 'ReLU':
-                batch_normalization_outputs.append(ReLU(s))
-            elif activation_function == 'leakyReLU':
-                batch_normalization_outputs.append(leaky_ReLU(s))
-            else:
-                batch_normalization_outputs.append(exponential_LU(s))
+            batch_normalization_outputs.append(ReLU(s))
 
             if exponentials is not None:
 
@@ -363,11 +306,11 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
                 mean_s = s.mean(axis=1).reshape(s.shape[0], 1)
                 var_s = s.var(axis=1).reshape(s.shape[0], 1)
 
-                means.append(mean_s)
-                variances.append(var_s)
+                means = [mean_s]
+                variances = [var_s]
 
-            normalized_score = BatchNormalize(batch_normalization_outputs[-1], mean_s, var_s)
-            batch_normalization_activations.append(normalized_score)
+                normalized_score = BatchNormalize(batch_normalization_outputs[-1], mean_s, var_s)
+                batch_normalization_activations.append(normalized_score)
 
     s = np.dot(weights[-1], batch_normalization_activations[-1]) + biases[-1]
 
@@ -378,7 +321,7 @@ def ForwardPassBatchNormalization(X, weights, biases, exponentials= None, mode=1
     else:
         return p, batch_normalization_activations, batch_normalization_outputs, intermediate_outputs, means, variances
 
-def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None, mode =1, activation_function='ReLU'):
+def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None, mode =1):
     """
     Computes the accuracy of the feed-forward k-layer network
 
@@ -390,16 +333,16 @@ def ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials = None
     :return: Accuracy performance of the neural network.
     """
     if exponentials is not None:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode)
     else:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)[0]
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode)[0]
     predictions = predictClasses(p)
 
     accuracy = round(np.sum(np.where(predictions - y == 0, 1, 0)) * 100 / len(y), 2)
 
     return accuracy
 
-def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=None, mode=1, activation_function='ReLU'):
+def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=None, mode=1):
     """
     Computes the cross-entropy loss on a batch of data.
 
@@ -414,9 +357,9 @@ def ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, ex
     """
 
     if exponentials is not None:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode)
     else:
-        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode, activation_function=activation_function)[0]
+        p = ForwardPassBatchNormalization(X, weights, biases, exponentials, mode=mode)[0]
 
     cross_entropy_loss = -np.log(np.diag(np.dot(Y.T, p))).sum() / float(X.shape[1])
 
@@ -446,7 +389,7 @@ def BatchNormBackPass(g, s, mean_s, var_s, epsilon=1e-20):
 
     return part_1 + part_2 + part_3
 
-def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term, activation_function = 'ReLU'):
+def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_activations, intermediate_outputs, means, variances, regularization_term):
 
     # Back-propagate output layer at first
 
@@ -456,12 +399,7 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
     weight_updates = [np.dot(g, bn_activations[-1].T)]
 
     g = np.dot(g.T, weights[-1])
-    if activation_function == 'ReLU':
-        ind = 1 * (bn_outputs[-1] > 0)
-    elif activation_function == 'leakyReLU':
-        ind = 1 * leaky_ReLU(bn_outputs[-1])
-    else:
-        ind = 1 * exponential_LU(bn_outputs[-1])
+    ind = 1 * (bn_outputs[-1] > 0)
     g = g.T * ind
 
     for i in reversed(range(len(weights) -1)):
@@ -478,12 +416,7 @@ def BackwardPassBatchNormalization(X, Y, weights, biases, p, bn_outputs, bn_acti
             bias_updates.append(np.sum(g, axis=1).reshape(biases[i].shape))
 
         g = np.dot(g.T, weights[i])
-        if activation_function == 'ReLU':
-            ind = 1 * (bn_outputs[i-1] > 0)
-        elif activation_function == 'leakyReLU':
-            ind = 1 * leaky_ReLU(bn_outputs[i-1])
-        else:
-            ind = 1 * exponential_LU(bn_outputs[i-1])
+        ind = 1 * (bn_outputs[i-1] > 0)
         g = g.T * ind
 
 
@@ -511,7 +444,7 @@ def ExponentialMovingAverage(means, exponential_means, variances, exponential_va
 
     return [exponential_means, exponential_variances]
 
-def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, with_augmenting=False, momentum_term=0.9, activation_function = 'ReLU'):
+def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weights, biases, mode=1, momentum_term=0.9):
     """
     Performs mini batch-gradient descent computations with batch normalization.
 
@@ -520,11 +453,6 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
     :param GDparams: Gradient descent parameters (number of mini batches to construct, learning rate, epochs, amount of regularization to be applied)
     :param weights: Weight matrices of the k layers
     :param biases: Bias vectors of the k layers
-    :param mode: (Optional) Preset to 1 apply batch normalisation before the activation function, change to any value so
-                 that batch normalisation will be applied after the activation function.
-    :param with_augmenting: (Optional) Change to True to apply a small amount of random noise on the fly to the batch
-                            based on its standard deviation.
-    :param momentum_term: Amount of previous update to be taken into account in SGD.
 
     :return: The weight and bias matrices learnt (trained) from the training process,
              loss in training and validation set, accuracy evolution in training and validation set.
@@ -541,23 +469,16 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
     best_weights, best_biases, best_validation_set_accuracy = weights, biases, 0
     exponentials, best_exponentials = [], []
 
-    for epoch in tqdm(range(epoches)):
-    # for epoch in range(epoches):
+    # for epoch in tqdm(range(epoches)):
+    for epoch in range(epoches):
 
-        for batch in range(1, int((X.shape[1] + number_of_mini_batches) / number_of_mini_batches)):
+        for batch in range(1, int(X.shape[1] / number_of_mini_batches)):
             start = (batch - 1) * number_of_mini_batches
-            end = batch * number_of_mini_batches
+            end = min(batch * number_of_mini_batches + int(X.shape[1] / number_of_mini_batches), X.shape[1] )
 
-            train_batch = X[:, start:end]
+            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode)
 
-            if with_augmenting:
-                # Apply noise to the data
-                random_noise = np.random.normal(0, 0.00005 * np.std(train_batch), size= train_batch.shape)
-                train_batch += random_noise
-
-            p, batch_norm_activations, batch_norm_outputs, intermediate_outputs, means, variances = ForwardPassBatchNormalization(X[:, start:end], weights, biases, mode=mode, activation_function=activation_function)
-
-            grad_weights, grad_biases = BackwardPassBatchNormalization(train_batch, Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term, activation_function=activation_function)
+            grad_weights, grad_biases = BackwardPassBatchNormalization(X[:, start:end], Y[:, start:end], weights, biases, p, batch_norm_outputs, batch_norm_activations, intermediate_outputs, means, variances, regularization_term)
 
             weights, biases, momentum_weights, momentum_biases = add_momentum(weights, grad_weights, momentum_weights, biases, grad_biases, momentum_biases, eta, momentum_term)
 
@@ -568,14 +489,14 @@ def MiniBatchGDBatchNormalization(training_set, validation_set, GDparams, weight
             else:
                 exponentials = ExponentialMovingAverage(means, exponentials[0], variances, exponentials[1])
 
-        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials=exponentials, mode=mode, activation_function=activation_function)
-        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials=exponentials, mode=mode, activation_function=activation_function)
+        epoch_cost = ComputeCostBatchNormalization(X, Y, weights, biases, regularization_term, exponentials, mode)
+        val_epoch_cost = ComputeCostBatchNormalization(X_validation, Y_validation, weights, biases, regularization_term, exponentials, mode)
 
         train_loss_evolution.append(epoch_cost)
         validation_loss_evolution.append(val_epoch_cost)
 
-        train_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials, mode, activation_function=activation_function))
-        validation_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials, mode, activation_function=activation_function))
+        train_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X, y, weights, biases, exponentials, mode))
+        validation_accuracy_evolution.append(ComputeAccuracyBatchNormalization(X_validation, y_validation, weights, biases, exponentials, mode))
 
         if validation_accuracy_evolution[-1] > best_validation_set_accuracy:
 
@@ -658,8 +579,6 @@ def create_sets():
     X_validation -= mean
     X_test -= mean
 
-    return [X_training, Y_training, y_training], [X_validation, Y_validation, y_validation], [X_test, y_test]
-
 def bonus_1():
     """
     Improvements that can be made to accelerate performance.
@@ -672,8 +591,9 @@ def bonus_1():
         Applying batch normalization after the activation function.
         """
 
-        cnt = 0
         # Setting 1
+
+        cnt = 0
 
         eta, regularization_term = 0.034875895633392565, 1e-05
 
@@ -687,614 +607,13 @@ def bonus_1():
         visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
         visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
 
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
+        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1])
+        print(f'Test set accuracy performance: ')
 
-        cnt += 1
         # Setting 2
 
-        eta, regularization_term = 0.007986719995840757, 1e-06
-
-        GD_params = [100, eta, 10, regularization_term]
-
-        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-        best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
-
-        visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
-        visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
-
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-        cnt += 1
         # Setting 3
-
-        eta, regularization_term = 0.012913581489067944, 1e-04
-
-        GD_params = [100, eta, 10, regularization_term]
-
-        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-        best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2)
-
-        visualize_plots(losses[0], losses[1], save_name='im_1_{cnt}_losses.png')
-        visualize_plots(accuracies[0], accuracies[1], save_name='im_1_{cnt}_accuracies.png')
-
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-    def improvement_2():
-        """
-        Apply random noise to the data
-        """
-        cnt = 0
-        # Setting 1
-
-        eta, regularization_term = 0.034875895633392565, 1e-05
-
-        GD_params = [100, eta, 10, regularization_term]
-
-        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-        best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_augmenting=True)
-
-        visualize_plots(losses[0], losses[1], save_name='aug_{cnt}_losses.png')
-        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
-
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-        cnt += 1
-        # Setting 2
-
-        eta, regularization_term = 0.007986719995840757, 1e-06
-
-        GD_params = [100, eta, 10, regularization_term]
-
-        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-        best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, with_augmenting=True)
-
-        visualize_plots(losses[0], losses[1], save_name='aug_1_{cnt}_losses.png')
-        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
-
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-        cnt += 1
-        # Setting 3
-
-        eta, regularization_term = 0.012913581489067944, 1e-04
-
-        GD_params = [100, eta, 10, regularization_term]
-
-        weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-        best_weights, best_biases, losses, accuracies, exponentials = \
-            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, mode=2, with_augmenting=True)
-
-        visualize_plots(losses[0], losses[1], save_name='aug_1_{cnt}_losses.png')
-        visualize_plots(accuracies[0], accuracies[1], save_name='aug_1_{cnt}_accuracies.png')
-
-        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases, exponentials=exponentials, mode=2)
-        print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-    def improvement_3():
-        """
-        Search for a good architecture setting
-        """
-
-        eta, regularization_term = 0.012913581489067944, 1e-04
-        GD_params = [100, eta, 10, regularization_term]
-
-        # Test for 3 layer settings
-
-        for layer_1 in range(55, 100, 5):
-
-            for layer_2 in range(35, 50, 5):
-
-                weights, biases = initialize_weights([[layer_1, 3072], [layer_2, layer_1], [10, layer_2]])
-
-                best_weights, best_biases, losses, accuracies, exponentials = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                visualize_plots(losses[0], losses[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}', save_name=f'layers:_{layer_1}_{layer_2}_osses.png')
-                visualize_plots(accuracies[0], accuracies[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}', save_name=f'layers:_{layer_1}_{layer_2}_accuracies.png')
-
-                test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights,
-                                                                      best_biases, exponentials=exponentials)
-                print(f'Test set accuracy performance for ({layer_1}, {layer_2}): {test_set_Accuracy}')
-
-        # Test for 4 layers architectures
-
-        for layer_1 in range(50, 100, 5):
-
-            for layer_2 in range(30, 50, 5):
-
-                    for layer_3 in range(15, layer_2, 5):
-
-                        weights, biases = initialize_weights([[layer_1, 3072], [layer_2, layer_1], [layer_3, layer_2], [10, layer_3]])
-
-                        best_weights, best_biases, losses, accuracies, exponentials = \
-                            MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                        visualize_plots(losses[0], losses[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}, third layer:{layer_3 }', save_name=f'layers:_{layer_1}_{layer_2}_{layer_3}_losses.png')
-                        visualize_plots(accuracies[0], accuracies[1], display=True, title=f'First layer:{layer_1}, second layer:{layer_2}, third layer:{layer_3 }', save_name=f'layers:_{layer_1}_{layer_2}_{layer_3}_accuracies.png')
-
-                        test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights,
-                                                                              best_biases, exponentials=exponentials)
-
-                        print(f'Test set accuracy performance for ({layer_1}, {layer_2}, {layer_3}): {test_set_Accuracy}')
-
-    def improvement_4():
-
-        def extended_search():
-            """
-            Thorough search for appropriate values of and lambda in the log space
-            """
-            best_accuracies = []
-            etas = []
-            lambdas = []
-
-            for _ in range(40):
-                np.random.seed()
-
-                e_min = np.log(0.005)
-                e_max = np.log(0.009)
-
-                reg_small = np.log(1e-6)
-                reg_big = np.log(1e-5)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                e_min = np.log(0.015)
-                e_max = np.log(0.025)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                e_min = np.log(0.05)
-                e_max = np.log(0.12)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                reg_small = np.log(1e-6)
-                reg_big = np.log(1e-4)
-
-                e_min = np.log(0.01)
-                e_max = np.log(0.04)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                e_min = np.log(0.004)
-                e_max = np.log(0.008)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                reg_small = np.log(1e-5)
-                reg_big = np.log(1e-3)
-
-                e_min = np.log(0.004)
-                e_max = np.log(0.008)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-                reg_small = np.log(1e-4)
-                reg_big = np.log(1e-2)
-
-                e_min = np.log(0.02)
-                e_max = np.log(0.04)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-            sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
-
-            best_accuracies = [x for x, _, _ in sort_them_all]
-            best_etas = [y for _, y, _ in sort_them_all]
-            best_lambdas = [z for _, _, z in sort_them_all]
-
-            print('---------------------------------')
-            print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
-            print('Best eta: ', best_etas[-1])
-            print('Best lambda: ', best_lambdas[-1])
-
-            print('---------------------------------')
-            print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
-            print('Second best eta: ', best_etas[-2])
-            print('Second best lambda: ', best_lambdas[-2])
-
-            print('---------------------------------')
-            print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
-            print('Third best eta: ', best_etas[-3])
-            print('Third best lambda: ', best_lambdas[-3])
-
-        def extended_search_high_eta():
-            """
-            Looking up if there are good high values of eta in combination with a high amount of regularization.
-            """
-
-            best_accuracies = []
-            etas = []
-            lambdas = []
-
-            for _ in range(40):
-                np.random.seed()
-
-                e_min = np.log(0.06)
-                e_max = np.log(0.08)
-
-                reg_small = np.log(1e-4)
-                reg_big = np.log(1e-2)
-
-                eta_term = np.random.rand(1, 1).flatten()[0]
-                e = e_min + (e_max - e_min) * eta_term
-                eta = np.exp(e)
-
-                reg_term = np.random.rand(1, 1).flatten()[0]
-                reg = reg_small + (reg_big - reg_small) * reg_term
-                regularization_term = np.exp(reg)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                etas.append(eta)
-                lambdas.append(regularization_term)
-
-                GD_params = [100, eta, 10, regularization_term]
-
-                weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-                _, _, _, accuracies, _ = \
-                    MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases)
-
-                print('---------------------------------')
-                print(f'Learning rate: {eta}, amount of regularization term: {regularization_term}')
-                best_accuracies.append(max(accuracies[1]))
-                print(f'Accuracy performance on the validation set: {best_accuracies[-1]}')
-
-            sort_them_all = sorted(zip(best_accuracies, etas, lambdas))
-
-            best_accuracies = [x for x, _, _ in sort_them_all]
-            best_etas = [y for _, y, _ in sort_them_all]
-            best_lambdas = [z for _, _, z in sort_them_all]
-
-            print('---------------------------------')
-            print('BEST PERFORMANCE: ', str(best_accuracies[-1]))
-            print('Best eta: ', best_etas[-1])
-            print('Best lambda: ', best_lambdas[-1])
-
-            print('---------------------------------')
-            print('SECOND BEST PERFORMANCE: ', str(best_accuracies[-2]))
-            print('Second best eta: ', best_etas[-2])
-            print('Second best lambda: ', best_lambdas[-2])
-
-            print('---------------------------------')
-            print('THIRD BEST PERFORMANCE: ', str(best_accuracies[-3]))
-            print('Third best eta: ', best_etas[-3])
-            print('Third best lambda: ', best_lambdas[-3])
-
-        extended_search()
-        extended_search_high_eta()
-
-    # improvement_1()
-    # improvement_2()
-    # improvement_3()
-    improvement_4()
-    
-def bonus_2():
-    """
-    Try with a different activation function than ReLU.
-    """
-    training_set , validation_set, test_set = create_sets()
-
-    # Experiments with eLU
-    cnt = 0
-    # Setting 1
-
-    # eta, regularization_term = 0.034875895633392565, 1e-05
-    #
-    # GD_params = [100, eta, 10, regularization_term]
-    #
-    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-    #
-    # best_weights, best_biases, losses, accuracies, exponentials = \
-    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='eLU')
-    #
-    # visualize_plots(losses[0], losses[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_losses.png')
-    # visualize_plots(accuracies[0], accuracies[1], display=True, title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'elu{cnt}_accuracies.png')
-    #
-    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-    #                                                       exponentials=exponentials, activation_function='eLU')
-    # print(f'Test set accuracy performance: {test_set_Accuracy}')
-    #
-    # cnt += 1
-    # # Setting 2
-    #
-    # eta, regularization_term = 0.007986719995840757, 1e-06
-    #
-    # GD_params = [100, eta, 10, regularization_term]
-    #
-    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-    #
-    # best_weights, best_biases, losses, accuracies, exponentials = \
-    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases,activation_function='eLU')
-    #
-    # visualize_plots(losses[0], losses[1], display=True,
-    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-    #                 save_name=f'elu{cnt}_losses.png')
-    # visualize_plots(accuracies[0], accuracies[1], display=True,
-    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-    #                 save_name=f'elu{cnt}_accuracies.png')
-    #
-    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-    #                                                       exponentials=exponentials, activation_function='eLU')
-    # print(f'Test set accuracy performance: {test_set_Accuracy}')
-    #
-    # cnt += 1
-    # # Setting 3
-    #
-    # eta, regularization_term = 0.012913581489067944, 1e-04
-    #
-    # GD_params = [100, eta, 10, regularization_term]
-    #
-    # weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-    #
-    # best_weights, best_biases, losses, accuracies, exponentials = \
-    #     MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='eLU')
-    #
-    # visualize_plots(losses[0], losses[1], display=True,
-    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-    #                 save_name=f'elu{cnt}_losses.png')
-    # visualize_plots(accuracies[0], accuracies[1], display=True,
-    #                 title=f'eLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-    #                 save_name=f'elu{cnt}_accuracies.png')
-    #
-    # test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-    #                                                       exponentials=exponentials, activation_function='eLU')
-    # print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-    # Experiments with leaky ReLU
-
-    cnt = 0
-    # Setting 1
-
-    eta, regularization_term = 0.034875895633392565, 1e-05
-
-    GD_params = [100, eta, 10, regularization_term]
-
-    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-    best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='leakyReLU')
-
-    visualize_plots(losses[0], losses[1], display=True, title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'leakyReLU{cnt}_losses.png')
-    visualize_plots(accuracies[0], accuracies[1], display=True, title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}', save_name=f'leakyReLU{cnt}_accuracies.png')
-
-    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, activation_function='leakyReLU')
-    print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-    cnt += 1
-    # Setting 2
-
-    eta, regularization_term = 0.007986719995840757, 1e-06
-
-    GD_params = [100, eta, 10, regularization_term]
-
-    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-    best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases,activation_function='leakyReLU')
-
-    visualize_plots(losses[0], losses[1], display=True,
-                    title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'leakyReLU{cnt}_losses.png')
-    visualize_plots(accuracies[0], accuracies[1], display=True,
-                    title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'leakyReLU{cnt}_accuracies.png')
-
-    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, activation_function='leakyReLU')
-    print(f'Test set accuracy performance: {test_set_Accuracy}')
-
-    cnt += 1
-    # Setting 3
-
-    eta, regularization_term = 0.012913581489067944, 1e-04
-
-    GD_params = [100, eta, 10, regularization_term]
-
-    weights, biases = initialize_weights([[50, 3072], [30, 50], [10, 30]])
-
-    best_weights, best_biases, losses, accuracies, exponentials = \
-        MiniBatchGDBatchNormalization(training_set, validation_set, GD_params, weights, biases, activation_function='leakyReLU')
-
-    visualize_plots(losses[0], losses[1], display=True,
-                    title=f'leakyReLU losses with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'leakyReLU{cnt}_losses.png')
-    visualize_plots(accuracies[0], accuracies[1], display=True,
-                    title=f'leakyReLU accuracies with $\eta$= {eta}, $\lambda$={regularization_term}',
-                    save_name=f'leakyReLU{cnt}_accuracies.png')
-
-    test_set_Accuracy = ComputeAccuracyBatchNormalization(test_set[0], test_set[1], best_weights, best_biases,
-                                                          exponentials=exponentials, activation_function='leakyReLU')
-    print(f'Test set accuracy performance: {test_set_Accuracy}')
-
 
 if __name__ =='__main__':
-
-    # bonus_1()
-    bonus_2()
 
     print('Finished!')

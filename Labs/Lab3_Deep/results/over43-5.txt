@@ -1,0 +1,23 @@
+Test set accuracy performance for (70, 65, 55): 43.61
+
+Test set accuracy performance for (75, 70, 65): 43.5
+
+Test set accuracy performance for (85, 50, 30): 43.71
+
+Test set accuracy performance for (85, 75, 25): 43.74
+
+Test set accuracy performance for (90, 60, 25): 44.19
+
+Test set accuracy performance for (90, 80, 55): 43.5
+
+Test set accuracy performance for (95, 85, 40): 43.83
+
+Test set accuracy performance for (95, 85, 55): 43.51
+
+Test set accuracy performance for (95, 90, 75): 43.96
+
+Test set accuracy performance for (100, 60, 45): 44.01
+
+Test set accuracy performance for (100, 90, 55): 43.89
+
+Test set accuracy performance for (100, 90, 60): 43.83
