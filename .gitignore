@@ -1,0 +1,4 @@
+.DS_Store
+.idea
+Labs/cifar-10-batches-py
+.ipynb_checkpoints
