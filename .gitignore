@@ -1,7 +1,7 @@
-.DS_Store
-.idea
+*.DS_Store
+*.idea
 Labs/cifar-10-batches-py
-.ipynb_checkpoints
+*.ipynb_checkpoints
 Labs/Lab2_Deep/Literature
 Labs/Lab3_Deep/Literature
 Labs/Lab4_Deep/goblet_book.txt
